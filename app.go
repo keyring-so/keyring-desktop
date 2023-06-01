@@ -87,12 +87,28 @@ func (a *App) Greet(name string) string {
 	// for Solana, this is equivalent to:
 	// fromPrivateKey := base58.Decode("...") // key exported from Phantom
 	// signature := ed25519.Sign(ed25519.PrivateKey(fromPrivateKey), []byte(sighash))
-	signer, _ := xc.NewSigner(asset)
-	signature, err := signer.Sign(fromPrivateKey, sighash)
+	// signer, _ := xc.NewSigner(asset)
+	// signature, err := signer.Sign(fromPrivateKey, sighash)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("signature: %x\n", signature)
+
+	card, err := readCard()
 	if err != nil {
-		panic(err)
+		fmt.Printf("error read card: %x\n", err)
+		return "test"
+	}
+
+	keyringSigner := NewKeyringSigner(card)
+	signature, err := keyringSigner.Sign(sighash)
+	if err != nil {
+		fmt.Printf("error sign: %x\n", err)
+		return "test"
 	}
 	fmt.Printf("signature: %x\n", signature)
+
+	// sign with keyring card
 
 	// complete the tx by adding its signature
 	// (no network, no private key needed)
