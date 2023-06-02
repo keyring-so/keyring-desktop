@@ -199,7 +199,7 @@ func (i *KeyringSigner) Sign(rawData []byte) ([]byte, error) {
 	}
 
 	ethSig := append(sig.R(), sig.S()...)
-	ethSig = append(ethSig, []byte{sig.V() + 27}...)
+	ethSig = append(ethSig, []byte{sig.V()}...)
 
 	ecdsaPubKey, err := crypto.UnmarshalPubkey(sig.PubKey())
 	if err != nil {
