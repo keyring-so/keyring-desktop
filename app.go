@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
+	"log"
 
+	"github.com/ebfe/scard"
 	"github.com/jumpcrypto/crosschain"
 	"github.com/jumpcrypto/crosschain/factory"
 )
@@ -25,112 +27,120 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	// initialize crosschain
+func (a *App) Transfer(
+	asset string,
+	nativeAsset string,
+	from string,
+	to string,
+	amount string,
+) (crosschain.TxHash, error) {
 	xc := factory.NewDefaultFactory()
 	ctx := context.Background()
 
-	// get asset model, including config data
-	// asset is used to create client, builder, signer, etc.
-	asset, err := xc.GetAssetConfig("", "ETH")
+	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
 	if err != nil {
-		panic("unsupported asset")
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Unsupported asset")
 	}
 
-	// panic("Please edit examples/transfer/main.go to set your testnet address and key")
-	// set your own private key and address
-	// you can get them, for example, from your Phantom wallet
-	fromPrivateKey := xc.MustPrivateKey(asset, "...")
-	fromPublicKeyStr := "" // only for Cosmos-based chains
-	from := xc.MustAddress(asset, "...")
-	to := xc.MustAddress(asset, "...")
-	amount := xc.MustAmountBlockchain(asset, "0.005")
+	fromAddress := xc.MustAddress(assetConfig, from)
+	toAddress := xc.MustAddress(assetConfig, to)
+	amountInteger := xc.MustAmountBlockchain(assetConfig, amount)
 
-	// Cosmos example: Injective
-	// fromPrivateKey := xc.MustPrivateKey(asset, "...")
-	// fromPublicKeyStr := "..."
-	// from := xc.MustAddress(asset, "...")
-	// to := xc.MustAddress(asset, "inj12s2rcquss27ylmn26cgukczx76t3ep7yk6kgnz")
-
-	// to create a tx, we typically need some input from the blockchain
-	// e.g., nonce for Ethereum, recent block for Solana, gas data, ...
-	// (network needed)
-	client, _ := xc.NewClient(asset)
-
-	input, err := client.FetchTxInput(ctx, from, to)
+	client, _ := xc.NewClient(assetConfig)
 	if err != nil {
-		panic(err)
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to create a client")
 	}
+
+	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to fetch tx input")
+	}
+
+	// only for Cosmos-based chains
 	if inputWithPublicKey, ok := input.(crosschain.TxInputWithPublicKey); ok {
-		inputWithPublicKey.SetPublicKeyFromStr(fromPublicKeyStr)
+		inputWithPublicKey.SetPublicKeyFromStr("unimplemented")
 	}
-	fmt.Printf("%+v\n", input)
+	log.Printf("input: %+v\n", input)
 
-	// create tx
-	// (no network, no private key needed)
-	builder, _ := xc.NewTxBuilder(asset)
-	tx, err := builder.NewTransfer(from, to, amount, input)
+	// build tx
+	builder, err := xc.NewTxBuilder(assetConfig)
 	if err != nil {
-		panic(err)
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to create transaction builder")
+	}
+	tx, err := builder.NewTransfer(fromAddress, toAddress, amountInteger, input)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to create transaction")
 	}
 	sighashes, err := tx.Sighashes()
 	if err != nil {
-		panic(err)
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to get transaction hash")
 	}
 	sighash := sighashes[0]
-	fmt.Printf("%+v\n", tx)
-	fmt.Printf("signing: %x\n", sighash)
+	log.Printf("transaction: %+v\n", tx)
+	log.Printf("signing: %x\n", sighash)
 
-	// sign the tx sighash
-	// (private key needed)
-	// for Solana, this is equivalent to:
-	// fromPrivateKey := base58.Decode("...") // key exported from Phantom
-	// signature := ed25519.Sign(ed25519.PrivateKey(fromPrivateKey), []byte(sighash))
-	// signer, _ := xc.NewSigner(asset)
-	// signature, err := signer.Sign(fromPrivateKey, sighash)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("signature: %x\n", signature)
-
-	card, err := readCard()
+	// read smart card
+	cardContext, err := scard.EstablishContext()
 	if err != nil {
-		fmt.Printf("error read card: %x\n", err)
-		return "test"
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to establish card context")
 	}
+	defer func() {
+		if err := cardContext.Release(); err != nil {
+			log.Printf("Failed releasing card context: %v\n", err)
+		}
+	}()
 
-	keyringSigner := NewKeyringSigner(card)
-	signature, err := keyringSigner.Sign(sighash)
+	card, err := readCard(cardContext)
 	if err != nil {
-		fmt.Printf("error sign: %x\n", err)
-		return "test"
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to read card")
 	}
-	fmt.Printf("signature: %x\n", signature)
+	defer func() {
+		if err := card.Disconnect(scard.ResetCard); err != nil {
+			log.Printf("Failed disconnecting card: %v\n", err)
+		}
+	}()
 
-	// sign with keyring card
+	// sign with card
+	cardSigner := NewCardSigner(card)
+	signature, err := cardSigner.Sign(sighash)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to sign transaction hash")
+	}
+	log.Printf("signature: %x\n", signature)
 
-	// complete the tx by adding its signature
-	// (no network, no private key needed)
+	// complete the tx by adding signature
 	err = tx.AddSignatures(signature)
 	if err != nil {
-		fmt.Sprintf("Error: %s", err)
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to add signature")
 	}
 
-	// submit the tx, wait a bit, fetch the tx info
-	// (network needed)
-	fmt.Printf("tx id: %s\n", tx.Hash())
+	// submit the tx
+	txId := tx.Hash()
+	log.Printf("Submitting tx id: %s\n", txId)
 	err = client.SubmitTx(ctx, tx)
 	if err != nil {
-		fmt.Sprintf("Error: %s", err)
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to submit transaction")
 	}
-	fmt.Println("Zzz...")
-	time.Sleep(20 * time.Second)
-	info, err := client.FetchTxInfo(ctx, tx.Hash())
-	if err != nil {
-		fmt.Sprintf("Error: %s", err)
-	}
-	fmt.Printf("%+v\n", info)
 
+	return txId, nil
+}
+
+func (a *App) RequestTransfer() string {
+	return "unimplemented"
+}
+
+// Greet returns a greeting for the given name
+func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
