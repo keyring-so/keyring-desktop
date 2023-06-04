@@ -1,10 +1,9 @@
-module changeme
+module keyring-desktop
 
 go 1.18
 
 require (
 	github.com/ebfe/scard v0.0.0-20190212122703-c3d1b1916a95
-	github.com/ethereum/go-ethereum v1.11.5
 	github.com/jumpcrypto/crosschain v0.3.0
 	github.com/status-im/keycard-go v0.2.0
 	github.com/wailsapp/wails/v2 v2.5.1
@@ -28,7 +27,7 @@ require (
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
 	github.com/btcsuite/btcd v0.22.3 // indirect
-	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
+	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce // indirect
@@ -59,6 +58,7 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
+	github.com/ethereum/go-ethereum v1.11.5 // indirect
 	github.com/evmos/ethermint v0.19.3 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
@@ -205,8 +205,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 )
-
-// replace github.com/wailsapp/wails/v2 v2.5.1 => /Users/kaichaosun/go/pkg/mod
 
 replace (
 	filippo.io/edwards25519 => filippo.io/edwards25519 v1.0.0-beta.3
