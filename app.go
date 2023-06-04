@@ -27,7 +27,7 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) transfer(
+func (a *App) Transfer(
 	asset string,
 	nativeAsset string,
 	from string,
@@ -98,6 +98,10 @@ func (a *App) transfer(
 	}()
 
 	card, err := readCard(cardContext)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("Failed to read card")
+	}
 	defer func() {
 		if err := card.Disconnect(scard.ResetCard); err != nil {
 			log.Printf("Failed disconnecting card: %v\n", err)
@@ -132,7 +136,7 @@ func (a *App) transfer(
 	return txId, nil
 }
 
-func (a *App) requestTransfer() string {
+func (a *App) RequestTransfer() string {
 	return "unimplemented"
 }
 

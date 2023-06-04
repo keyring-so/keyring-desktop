@@ -45,7 +45,7 @@ func NewCardSigner(t keycardio.Transmitter) *CardSigner {
 //
 // keycard-unpair {{ session_pairing_index }}
 func (i *CardSigner) Sign(rawData []byte) ([]byte, error) {
-	log.Printf("initialization started\n")
+	log.Printf("signing started\n")
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	log.Printf("select keycard applet\n")
