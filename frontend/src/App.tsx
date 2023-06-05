@@ -27,6 +27,9 @@ function App() {
                 <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
                 <button className="btn" onClick={greet}>Greet</button>
             </div>
+            <h1 className="text-3xl fond-bold underline">
+                Keyring Wallet
+            </h1>
             <div className="input-box">
                 <br />
                 <button className="btn" onClick={transfer}>Transfer</button>
