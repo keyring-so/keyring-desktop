@@ -26,6 +26,8 @@ function App() {
       </button>
 
       <div>{txId}</div>
+
+      
     </div>
   );
 }
