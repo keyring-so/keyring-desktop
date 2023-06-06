@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Transfer } from "../wailsjs/go/main/App";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "./components/ui/input";
 
 function App() {
   const [txId, setTxId] = useState("");
@@ -17,17 +20,38 @@ function App() {
       .catch((err) => updateTxId(err));
   }
 
-  return (
-    <div>
-      <h1 className="text-3xl fond-bold underline">Keyring Wallet</h1>
+  function receive() {
+    console.log("receive");
+  }
 
-      <button className="btn" onClick={transfer}>
+  return (
+    <div className="m-10">
+      <h1 className="text-3xl fond-bold">Keyring Wallet</h1>
+      <label>To</label>
+      <Input />
+      <label>Amount</label>
+      <Input />
+
+      <Button variant="outline" onClick={transfer}>
         Transfer
-      </button>
+      </Button>
+
+      <Button variant="outline" onClick={receive}>
+        Receive
+      </Button>
 
       <div>{txId}</div>
 
-      
+      <Tabs defaultValue="account" className="w-[400px]">
+        <TabsList>
+          <TabsTrigger value="assets">Assets</TabsTrigger>
+          <TabsTrigger value="records">Records</TabsTrigger>
+        </TabsList>
+        <TabsContent value="assets">
+          Show assets here.
+        </TabsContent>
+        <TabsContent value="records">Show records here.</TabsContent>
+      </Tabs>
     </div>
   );
 }
