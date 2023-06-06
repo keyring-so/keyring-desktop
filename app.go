@@ -34,6 +34,7 @@ func (a *App) Transfer(
 	to string,
 	amount string,
 ) (crosschain.TxHash, error) {
+	log.Printf("Transfer %s %s from %s to %s\n", amount, asset, from, to)
 	xc := factory.NewDefaultFactory()
 	ctx := context.Background()
 
