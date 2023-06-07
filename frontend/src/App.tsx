@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Transfer } from "../wailsjs/go/main/App";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "./components/ui/input";
+import { Input } from "@/components/ui/input";
+import Sidebar from "@/components/sidebar";
 
 function App() {
   const [txId, setTxId] = useState("");
@@ -37,7 +38,8 @@ function App() {
   };
 
   return (
-    <div className="m-10 flex flex-col gap-10">
+    <div className="m-10 flex gap-10">
+      <Sidebar />
       <h1 className="text-3xl fond-bold text-center">Keyring Wallet</h1>
 
       <div className="flex flex-row gap-10">
