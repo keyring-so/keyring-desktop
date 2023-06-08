@@ -2,13 +2,14 @@ import bitcoin from "@/assets/blockchains/bitcoin/logo.png";
 import ethereum from "@/assets/blockchains/ethereum/logo.png";
 import polygon from "@/assets/blockchains/polygon/logo.png";
 import { LucideIcon, Settings, UserCircle, Key } from "lucide-react";
+import { Plus } from "lucide-react";
 import React from "react";
 
 const Sidebar = () => {
   return (
     <div
       className="
-            fixed top-2 left-2 h-screen w-16
+            top-2 left-2 h-screen w-16
             flex flex-col bg-white dark:bg-gray-900 shadow-lg
             "
     >
@@ -24,7 +25,7 @@ const Sidebar = () => {
 
       <Divider />
       
-      <SidebarIcon img={bitcoin} text="Add a Blockchain" />
+      <SidebarIcon icon={Plus} text="Add a Blockchain" />
 
       <div className="flex flex-col fixed bottom-2">
         <SidebarIcon icon={UserCircle} text="Accounts" />

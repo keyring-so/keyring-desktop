@@ -7,7 +7,8 @@ import Sidebar from "@/components/sidebar";
 
 function App() {
   const [txId, setTxId] = useState("");
-  const [ledger, setLedger] = useState("");
+  const [asset, setAsset] = useState("");
+  const [ledger, setLedger] = useState("ETH"); // TODO dynamic from choose sidebar
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
 
@@ -23,9 +24,9 @@ function App() {
 
   const transfer = () => {
     Transfer(
-      "",
+      asset,
       ledger,
-      "0xaac042fc227cf5d12f7f532bd27361d5634c06a7",
+      "0xaac042fc227cf5d12f7f532bd27361d5634c06a7", // TODO: get from keyring when init
       toAddr,
       amount
     )
@@ -38,49 +39,51 @@ function App() {
   };
 
   return (
-    <div className="m-10 flex gap-10">
+    <div className="flex flex-row mt-6 ml-2 gap-20">
       <Sidebar />
-      <h1 className="text-3xl fond-bold text-center">Keyring Wallet</h1>
 
-      <div className="flex flex-row gap-10">
-        {/* sidebar of different coins */}
-        <div>
-          <h2 className="text-2xl">Ledgers</h2>
+      <div className="mt-6">
+        <h2 className="text-3xl">Assets</h2>
 
-          <div className="mt-10 grid grid-cols-2 gap-4">
-            <Button onClick={() => setLedger("BTC")}>Bitcoin</Button>
-            <Button onClick={() => setLedger("ETH")}>Ethereum</Button>
-            <Button onClick={() => setLedger("MATIC")}>Polygon</Button>
-          </div>
+        <div className="mt-10 grid grid-cols-1 gap-4">
+          <Button onClick={() => setAsset("ETH")}>Ethereum</Button>
+          <Button onClick={() => setAsset("USDT")}>USDT</Button>
+          <Button onClick={() => setAsset("USDC")}>USDC</Button>
         </div>
+      </div>
 
-        {/* Assets list, send and receive functions */}
-        <div>
-          <h2>{ledger}</h2>
+      <div className="flex flex-col gap-8 mt-7 ml-12">
+        <h2 className="fond-bold text-xl">
+          Send {asset} from ledger {ledger}
+        </h2>
+
+        <div className="">
           <label>To</label>
           <Input onChange={updateToAddr} />
           <label>Amount</label>
           <Input onChange={updateAmount} />
+        </div>
 
+        <div className="flex gap-4">
           <Button variant="outline" onClick={transfer}>
             Send
           </Button>
           <Button variant="outline" onClick={receive}>
             Receive
           </Button>
+        </div>
 
-          <div>{txId}</div>
+        <div>TransactionId: {txId}</div>
 
-          <div>
-            <Tabs defaultValue="account" className="w-[400px]">
-              <TabsList>
-                <TabsTrigger value="assets">Assets</TabsTrigger>
-                <TabsTrigger value="records">Records</TabsTrigger>
-              </TabsList>
-              <TabsContent value="assets">Show assets here.</TabsContent>
-              <TabsContent value="records">Show records here.</TabsContent>
-            </Tabs>
-          </div>
+        <div>
+          <Tabs defaultValue="account" className="w-[400px]">
+            <TabsList>
+              <TabsTrigger value="assets">Assets</TabsTrigger>
+              <TabsTrigger value="records">Records</TabsTrigger>
+            </TabsList>
+            <TabsContent value="assets">Show assets here.</TabsContent>
+            <TabsContent value="records">Show records here.</TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
