@@ -4,6 +4,9 @@ import polygon from "@/assets/blockchains/polygon/logo.png";
 import { LucideIcon, Settings, UserCircle, Key } from "lucide-react";
 import { Plus } from "lucide-react";
 import React from "react";
+import { useSetAtom } from "jotai";
+import { LedgerInfo, ledgerAtom } from "@/store/state";
+import { BITCOIN_INFO, ETHEREUM_INFO, POLYGON_INFO } from "@/constants";
 
 const Sidebar = () => {
   return (
@@ -18,9 +21,9 @@ const Sidebar = () => {
       <Divider />
 
       <div className="flex flex-col">
-        <SidebarIcon img={bitcoin} text="Bitcoin" />
-        <SidebarIcon img={ethereum} text="Ethereum" />
-        <SidebarIcon img={polygon} text="Polygon" />
+        <SidebarIcon img={bitcoin} text={BITCOIN_INFO.name} ledger={BITCOIN_INFO} />
+        <SidebarIcon img={ethereum} text={ETHEREUM_INFO.name} ledger={ETHEREUM_INFO} />
+        <SidebarIcon img={polygon} text={POLYGON_INFO.name} ledger={POLYGON_INFO} />
       </div>
 
       <Divider />
@@ -39,9 +42,12 @@ type Props = {
   img?: string;
   icon?: LucideIcon;
   text: string;
+  ledger?: LedgerInfo;
 };
 
-const SidebarIcon = ({ img, icon, text }: Props) => {
+const SidebarIcon = ({ img, icon, text, ledger }: Props) => {
+  const setLedger = useSetAtom(ledgerAtom);
+
   return (
     <div
       className="
@@ -54,6 +60,7 @@ const SidebarIcon = ({ img, icon, text }: Props) => {
             cursor-pointer shadow-lg
             group
             "
+      onClick={() => setLedger((oldLedger) => ledger ? ledger : oldLedger)}
     >
       { icon ? React.createElement(icon) : <img src={img} />}
       <span

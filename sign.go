@@ -106,6 +106,7 @@ func (i *CardSigner) Sign(rawData []byte) ([]byte, error) {
 	ethSig := append(sig.R(), sig.S()...)
 	ethSig = append(ethSig, []byte{sig.V()}...)
 
+	// TODO do not unpair since we don't want to pair everytime, the pairing info should be stored in wallet app
 	log.Printf("unpair index\n")
 	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
 	if err != nil {

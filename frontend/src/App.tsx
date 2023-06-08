@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import Sidebar from "@/components/sidebar";
+import { useAtomValue } from "jotai";
+import { ledgerAtom } from "./store/state";
 
 function App() {
   const [txId, setTxId] = useState("");
   const [asset, setAsset] = useState("");
-  const [ledger, setLedger] = useState("ETH"); // TODO dynamic from choose sidebar
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
+
+  const ledger = useAtomValue(ledgerAtom);
 
   const updateTxId = (txId: string) => setTxId(txId);
 
@@ -25,7 +28,7 @@ function App() {
   const transfer = () => {
     Transfer(
       asset,
-      ledger,
+      ledger.symbol,
       "0xaac042fc227cf5d12f7f532bd27361d5634c06a7", // TODO: get from keyring when init
       toAddr,
       amount
@@ -54,7 +57,10 @@ function App() {
 
       <div className="flex flex-col gap-8 mt-7 ml-12">
         <h2 className="fond-bold text-xl">
-          Send {asset} from ledger {ledger}
+          Send
+          <span className="text-3xl text-primary"> {asset} </span>
+          from <span className="text-3xl text-primary">{ledger.name} </span>
+          blockchain
         </h2>
 
         <div className="">
