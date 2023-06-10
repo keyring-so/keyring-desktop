@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"keyring-desktop/utils"
 	"log"
+	"os"
 
 	"github.com/ebfe/scard"
 	"github.com/jumpcrypto/crosschain"
@@ -13,7 +17,8 @@ import (
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx          context.Context
+	chainConfigs []utils.ChainConfig
 }
 
 // NewApp creates a new App application struct
@@ -25,6 +30,28 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	file, err := os.Open("registry.json")
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return
+	}
+	defer file.Close()
+
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return
+	}
+
+	var chainConfigs []utils.ChainConfig
+	err = json.Unmarshal(bytes, &chainConfigs)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return
+	}
+
+	a.chainConfigs = chainConfigs
 }
 
 func (a *App) Transfer(
@@ -35,6 +62,18 @@ func (a *App) Transfer(
 	amount string,
 ) (crosschain.TxHash, error) {
 	log.Printf("Transfer %s %s from %s to %s\n", amount, asset, from, to)
+	var chainConfig *utils.ChainConfig
+	for _, c := range a.chainConfigs {
+		if c.Symbol == nativeAsset {
+			chainConfig = &c
+			break
+		}
+	}
+	if chainConfig == nil {
+		return "", errors.New("Chain configuration not found")
+	}
+	log.Printf("chain: %s\n", chainConfig)
+
 	xc := factory.NewDefaultFactory()
 	ctx := context.Background()
 
@@ -111,7 +150,7 @@ func (a *App) Transfer(
 
 	// sign with card
 	cardSigner := NewCardSigner(card)
-	signature, err := cardSigner.Sign(sighash)
+	signature, err := cardSigner.Sign(sighash, chainConfig)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
 		return "", errors.New("Failed to sign transaction hash")

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"keyring-desktop/utils"
 	"log"
 
 	keycard "github.com/status-im/keycard-go"
@@ -44,7 +45,7 @@ func NewCardSigner(t keycardio.Transmitter) *CardSigner {
 // keycard-sign 0000000000000000000000000000000000000000000000000000000000000000
 //
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) Sign(rawData []byte) ([]byte, error) {
+func (i *CardSigner) Sign(rawData []byte, config *utils.ChainConfig) ([]byte, error) {
 	log.Printf("signing started\n")
 	cmdSet := keycard.NewCommandSet(i.c)
 
@@ -90,8 +91,7 @@ func (i *CardSigner) Sign(rawData []byte) ([]byte, error) {
 	}
 
 	log.Printf("derive key\n")
-	// TODO change me
-	if err := cmdSet.DeriveKey("m/44'/60'/0'/0/0"); err != nil {
+	if err := cmdSet.DeriveKey(config.Path); err != nil {
 		log.Printf("derive key failed, error: %s\n", err)
 		return nil, err
 	}
