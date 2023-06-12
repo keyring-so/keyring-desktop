@@ -12,7 +12,6 @@ import (
 
 var (
 	errAppletNotInstalled     = errors.New("applet not installed")
-	errCardNotInitialized     = errors.New("card not initialized")
 	errCardAlreadyInitialized = errors.New("card already initialized")
 
 	ErrNotInitialized   = errors.New("card not initialized")

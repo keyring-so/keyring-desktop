@@ -5,3 +5,5 @@ export type LedgerInfo = {
     name: string;
 }
 export const ledgerAtom = atom({symbol: "", name: ""});
+
+export const accountAtom = atom("");

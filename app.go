@@ -9,16 +9,20 @@ import (
 	"keyring-desktop/utils"
 	"log"
 	"os"
+	"time"
 
 	"github.com/ebfe/scard"
 	"github.com/jumpcrypto/crosschain"
 	"github.com/jumpcrypto/crosschain/factory"
+
+	bolt "go.etcd.io/bbolt"
 )
 
 // App struct
 type App struct {
 	ctx          context.Context
 	chainConfigs []utils.ChainConfig
+	db           *bolt.DB
 }
 
 // NewApp creates a new App application struct
@@ -33,25 +37,113 @@ func (a *App) startup(ctx context.Context) {
 
 	file, err := os.Open("registry.json")
 	if err != nil {
-		log.Printf("Error: %s\n", err)
+		log.Fatal(err)
 		return
 	}
 	defer file.Close()
 
 	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		log.Printf("Error: %s\n", err)
+		log.Fatal(err)
 		return
 	}
 
 	var chainConfigs []utils.ChainConfig
 	err = json.Unmarshal(bytes, &chainConfigs)
 	if err != nil {
-		log.Printf("Error: %s\n", err)
+		log.Fatal(err)
 		return
 	}
 
 	a.chainConfigs = chainConfigs
+
+	// read database
+	db, err := bolt.Open("keyring.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	err = db.Update(func(tx *bolt.Tx) error {
+		_, err = tx.CreateBucket([]byte("Keyring"))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	a.db = db
+}
+
+func (a *App) shutdown(ctx context.Context) {
+	a.db.Close()
+}
+
+func (a *App) Connect() (string, error) {
+	log.Printf("Check if there is smart card wired\n")
+
+	var account string
+	err := a.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Keyring"))
+		account = string(b.Get([]byte("current_account")))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return "", err
+	}
+
+	fmt.Printf("The current account is: %s\n", account)
+	return account, nil
+}
+
+func (a *App) Pair(pin string, puk string, code string, accountName string) (string, error) {
+	log.Printf("Pairing with smart card\n")
+
+	// read smart card
+	cardContext, err := scard.EstablishContext()
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("failed to establish card context")
+	}
+	defer func() {
+		if err := cardContext.Release(); err != nil {
+			log.Printf("Failed releasing card context: %v\n", err)
+		}
+	}()
+
+	card, err := readCard(cardContext)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("failed to read card")
+	}
+	defer func() {
+		if err := card.Disconnect(scard.ResetCard); err != nil {
+			log.Printf("Failed disconnecting card: %v\n", err)
+		}
+	}()
+
+	// sign with card
+	cardSigner := NewCardSigner(card)
+	err = cardSigner.pair(pin, puk, code)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return "", errors.New("failed to pair with card")
+	}
+
+	err = a.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Keyring"))
+		b.Put([]byte("current_account"), []byte(accountName))
+		b.Put([]byte(accountName+"_pin"), []byte(pin))
+		b.Put([]byte(accountName+"_puk"), []byte(puk))
+		b.Put([]byte(accountName+"_code"), []byte(code))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return "", errors.New("failed to update database")
+	}
+
+	return accountName, nil
 }
 
 func (a *App) Transfer(
@@ -70,7 +162,7 @@ func (a *App) Transfer(
 		}
 	}
 	if chainConfig == nil {
-		return "", errors.New("Chain configuration not found")
+		return "", errors.New("chain configuration not found")
 	}
 	log.Printf("chain: %s\n", chainConfig)
 
@@ -80,7 +172,7 @@ func (a *App) Transfer(
 	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Unsupported asset")
+		return "", errors.New("unsupported asset")
 	}
 
 	fromAddress := xc.MustAddress(assetConfig, from)
@@ -90,13 +182,13 @@ func (a *App) Transfer(
 	client, _ := xc.NewClient(assetConfig)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to create a client")
+		return "", errors.New("failed to create a client")
 	}
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to fetch tx input")
+		return "", errors.New("failed to fetch tx input")
 	}
 
 	// only for Cosmos-based chains
@@ -109,17 +201,17 @@ func (a *App) Transfer(
 	builder, err := xc.NewTxBuilder(assetConfig)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to create transaction builder")
+		return "", errors.New("failed to create transaction builder")
 	}
 	tx, err := builder.NewTransfer(fromAddress, toAddress, amountInteger, input)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to create transaction")
+		return "", errors.New("failed to create transaction")
 	}
 	sighashes, err := tx.Sighashes()
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to get transaction hash")
+		return "", errors.New("failed to get transaction hash")
 	}
 	sighash := sighashes[0]
 	log.Printf("transaction: %+v\n", tx)
@@ -129,7 +221,7 @@ func (a *App) Transfer(
 	cardContext, err := scard.EstablishContext()
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to establish card context")
+		return "", errors.New("failed to establish card context")
 	}
 	defer func() {
 		if err := cardContext.Release(); err != nil {
@@ -140,7 +232,7 @@ func (a *App) Transfer(
 	card, err := readCard(cardContext)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to read card")
+		return "", errors.New("failed to read card")
 	}
 	defer func() {
 		if err := card.Disconnect(scard.ResetCard); err != nil {
@@ -153,7 +245,7 @@ func (a *App) Transfer(
 	signature, err := cardSigner.Sign(sighash, chainConfig)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to sign transaction hash")
+		return "", errors.New("failed to sign transaction hash")
 	}
 	log.Printf("signature: %x\n", signature)
 
@@ -161,7 +253,7 @@ func (a *App) Transfer(
 	err = tx.AddSignatures(signature)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to add signature")
+		return "", errors.New("failed to add signature")
 	}
 
 	// submit the tx
@@ -170,7 +262,7 @@ func (a *App) Transfer(
 	err = client.SubmitTx(ctx, tx)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return "", errors.New("Failed to submit transaction")
+		return "", errors.New("failed to submit transaction")
 	}
 
 	return txId, nil

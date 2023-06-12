@@ -7,6 +7,7 @@ require (
 	github.com/jumpcrypto/crosschain v0.3.0
 	github.com/status-im/keycard-go v0.2.0
 	github.com/wailsapp/wails/v2 v2.5.1
+	go.etcd.io/bbolt v1.3.6
 )
 
 require (
@@ -181,7 +182,6 @@ require (
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	github.com/zondax/hid v0.9.1 // indirect
-	go.etcd.io/bbolt v1.3.6 // indirect
 	go.mongodb.org/mongo-driver v1.11.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
