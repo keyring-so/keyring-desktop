@@ -21,17 +21,26 @@ function ConnectComponent() {
   }
 
   return (
-    <div className="">
-      <label>Pairing Code:</label>
+    <div className="flex flex-col gap-4 m-28">
+        <div>
+        <label>Pairing Code:</label>
       <Input onChange={(e) => setPairingCode(e.target.value)} />
+        </div>
+      <div>
       <label>PIN:</label>
       <Input onChange={(e) => setPin(e.target.value)} />
-      <label>PUK:</label>
+      </div>
+      
+     <div>
+     <label>PUK:</label>
       <Input onChange={(e) => setPuk(e.target.value)} />
+     </div>
+      <div>
       <label>Account Name:</label>
       <Input onChange={(e) => setAccountName(e.target.value)} />
+      </div>
 
-      <Button variant="outline" onClick={pair}>
+      <Button variant="outline" onClick={pair} className="w-28">
         Pair
       </Button>
     </div>

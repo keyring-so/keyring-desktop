@@ -44,7 +44,13 @@ func NewCardSigner(t keycardio.Transmitter) *CardSigner {
 // keycard-sign 0000000000000000000000000000000000000000000000000000000000000000
 //
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) Sign(rawData []byte, config *utils.ChainConfig) ([]byte, error) {
+func (i *CardSigner) Sign(
+	rawData []byte,
+	config *utils.ChainConfig,
+	pin string,
+	puk string,
+	pairingCode string,
+) ([]byte, error) {
 	log.Printf("signing started\n")
 	cmdSet := keycard.NewCommandSet(i.c)
 
@@ -65,8 +71,7 @@ func (i *CardSigner) Sign(rawData []byte, config *utils.ChainConfig) ([]byte, er
 		return nil, errCardAlreadyInitialized
 	}
 
-	// TODO change me
-	secrets := keycard.NewSecrets("123456", "123456123456", "123456")
+	secrets := keycard.NewSecrets(pin, puk, pairingCode)
 
 	log.Printf("pairing\n")
 	err = cmdSet.Pair(secrets.PairingPass())
@@ -83,8 +88,7 @@ func (i *CardSigner) Sign(rawData []byte, config *utils.ChainConfig) ([]byte, er
 	}
 
 	log.Printf("verify PIN\n")
-	// TODO change me
-	if err := cmdSet.VerifyPIN("123456"); err != nil {
+	if err := cmdSet.VerifyPIN(pin); err != nil {
 		log.Printf("verify PIN failed, error: %s\n", err)
 		return nil, err
 	}
@@ -105,7 +109,6 @@ func (i *CardSigner) Sign(rawData []byte, config *utils.ChainConfig) ([]byte, er
 	ethSig := append(sig.R(), sig.S()...)
 	ethSig = append(ethSig, []byte{sig.V()}...)
 
-	// TODO do not unpair since we don't want to pair everytime, the pairing info should be stored in wallet app
 	log.Printf("unpair index\n")
 	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
 	if err != nil {

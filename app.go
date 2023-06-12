@@ -242,7 +242,22 @@ func (a *App) Transfer(
 
 	// sign with card
 	cardSigner := NewCardSigner(card)
-	signature, err := cardSigner.Sign(sighash, chainConfig)
+	var pin string
+	var puk string
+	var pairing string
+	err = a.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Keyring"))
+		account := string(b.Get([]byte("current_account")))
+		pin = string(b.Get([]byte(account + "_pin")))
+		puk = string(b.Get([]byte(account + "_puk")))
+		pairing = string(b.Get([]byte(account + "_code")))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return "", errors.New("failed to read database")
+	}
+	signature, err := cardSigner.Sign(sighash, chainConfig, pin, puk, pairing)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
 		return "", errors.New("failed to sign transaction hash")
