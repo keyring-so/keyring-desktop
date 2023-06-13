@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/ebfe/scard v0.0.0-20190212122703-c3d1b1916a95
+	github.com/ethereum/go-ethereum v1.11.5
 	github.com/jumpcrypto/crosschain v0.3.0
 	github.com/status-im/keycard-go v0.2.0
 	github.com/wailsapp/wails/v2 v2.5.1
@@ -59,7 +60,6 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/ethereum/go-ethereum v1.11.5 // indirect
 	github.com/evmos/ethermint v0.19.3 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect

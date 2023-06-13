@@ -5,8 +5,8 @@ import { LucideIcon, Settings, UserCircle, Key } from "lucide-react";
 import { Plus } from "lucide-react";
 import React from "react";
 import { useSetAtom } from "jotai";
-import { LedgerInfo, ledgerAtom } from "@/store/state";
-import { BITCOIN_INFO, ETHEREUM_INFO, POLYGON_INFO } from "@/constants";
+import { ledgerAtom } from "@/store/state";
+import { BITCOIN_INFO, BITCOIN_SYMBOL, ETHEREUM_INFO, ETHEREUM_SYMBOL, POLYGON_INFO, POLYGON_SYMBOL } from "@/constants";
 
 const Sidebar = () => {
   return (
@@ -21,9 +21,9 @@ const Sidebar = () => {
       <Divider />
 
       <div className="flex flex-col">
-        <SidebarIcon img={bitcoin} text={BITCOIN_INFO.name} ledger={BITCOIN_INFO} />
-        <SidebarIcon img={ethereum} text={ETHEREUM_INFO.name} ledger={ETHEREUM_INFO} />
-        <SidebarIcon img={polygon} text={POLYGON_INFO.name} ledger={POLYGON_INFO} />
+        <SidebarIcon img={bitcoin} text={BITCOIN_INFO.name} ledger={BITCOIN_SYMBOL} />
+        <SidebarIcon img={ethereum} text={ETHEREUM_INFO.name} ledger={ETHEREUM_SYMBOL} />
+        <SidebarIcon img={polygon} text={POLYGON_INFO.name} ledger={POLYGON_SYMBOL} />
       </div>
 
       <Divider />
@@ -42,7 +42,7 @@ type Props = {
   img?: string;
   icon?: LucideIcon;
   text: string;
-  ledger?: LedgerInfo;
+  ledger?: string;
 };
 
 const SidebarIcon = ({ img, icon, text, ledger }: Props) => {

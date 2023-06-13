@@ -1,123 +1,96 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"keyring-desktop/utils"
 	"log"
 
+	"github.com/ethereum/go-ethereum/crypto"
 	keycard "github.com/status-im/keycard-go"
-	keycardio "github.com/status-im/keycard-go/io"
-	"github.com/status-im/keycard-go/types"
 )
 
-var (
-	errAppletNotInstalled     = errors.New("applet not installed")
-	errCardAlreadyInitialized = errors.New("card already initialized")
-
-	ErrNotInitialized   = errors.New("card not initialized")
-	ErrNotInstalled     = errors.New("applet not initialized")
-	ErrCashNotInstalled = errors.New("cash applet not initialized")
-)
-
-// CardSigner defines a struct with methods to sign some data with card.
-type CardSigner struct {
-	c types.Channel
-}
-
-// NewCardSigner returns a new CardSigner that communicates to Transmitter t.
-func NewCardSigner(t keycardio.Transmitter) *CardSigner {
-	return &CardSigner{
-		c: keycardio.NewNormalChannel(t),
-	}
-}
-
-// Signing workflow:
-//
 // keycard-select
 // keycard-set-secrets 123456 123456789012 KeycardDefaultPairing
 // keycard-pair
-//
 // keycard-open-secure-channel
 // keycard-verify-pin {{ session_pin }}
-//
-// keycard-derive-key m/1/2/3
-// keycard-sign 0000000000000000000000000000000000000000000000000000000000000000
-//
+// keycard-derive-key
+// keycard-sign "hello"
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) Sign(
-	rawData []byte,
-	config *utils.ChainConfig,
-	pin string,
-	puk string,
-	pairingCode string,
-) ([]byte, error) {
-	log.Printf("signing started\n")
+func (i *CardSigner) Address(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	log.Printf("select keycard applet\n")
 	err := cmdSet.Select()
 	if err != nil {
 		log.Printf("Error: %s\n", err)
-		return nil, err
+		return "", err
 	}
 
 	if !cmdSet.ApplicationInfo.Installed {
 		log.Printf("installation is not done, error: %s\n", errAppletNotInstalled)
-		return nil, errAppletNotInstalled
+		return "", errAppletNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
 		log.Printf("initialization is not done, error: %s\n", errCardAlreadyInitialized)
-		return nil, errCardAlreadyInitialized
+		return "", errCardAlreadyInitialized
 	}
 
-	secrets := keycard.NewSecrets(pin, puk, pairingCode)
+	secrets := keycard.NewSecrets(pin, puk, code)
 
 	log.Printf("pairing\n")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		return "", err
 	}
+
 	if cmdSet.PairingInfo == nil {
 		log.Printf("cannot open secure channel without setting pairing info")
-		return nil, errors.New("failed to pair")
+		return "", err
 	}
 
 	log.Printf("open keycard secure channel\n")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
 		log.Printf("open keycard secure channel failed, error: %s\n", err)
-		return nil, err
+		return "", err
 	}
 
 	log.Printf("verify PIN\n")
 	if err := cmdSet.VerifyPIN(pin); err != nil {
 		log.Printf("verify PIN failed, error: %s\n", err)
-		return nil, err
+		return "", err
 	}
 
 	log.Printf("derive key\n")
 	if err := cmdSet.DeriveKey(config.Path); err != nil {
 		log.Printf("derive key failed, error: %s\n", err)
-		return nil, err
+		return "", err
 	}
 
-	log.Printf("sign: %x\n", rawData)
-	sig, err := cmdSet.Sign(rawData)
+	log.Printf("sign hello")
+	data := crypto.Keccak256([]byte("hello"))
+	sig, err := cmdSet.Sign(data)
+
 	if err != nil {
 		log.Printf("sign failed, error: %s\n", err)
-		return nil, err
+		return "", err
+	}
+	ecdsaPubKey, err := crypto.UnmarshalPubkey(sig.PubKey())
+	if err != nil {
+		fmt.Printf("pub key error: %s\n", err)
 	}
 
-	ethSig := append(sig.R(), sig.S()...)
-	ethSig = append(ethSig, []byte{sig.V()}...)
+	address := crypto.PubkeyToAddress(*ecdsaPubKey).Hex()
 
+	// TODO pair and unpair should only be called when add a new card
 	log.Printf("unpair index\n")
 	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
 	if err != nil {
 		log.Printf("unpair failed, error: %s\n", err)
-		return nil, err
+		return "", err
 	}
 
-	return ethSig, nil
+	return address, nil
 }

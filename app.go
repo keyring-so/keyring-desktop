@@ -151,6 +151,113 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 	return accountName, nil
 }
 
+type SelectResponse struct {
+	Chain   string `json:"chain"`
+	Address string `json:"address"`
+}
+
+func (a *App) Select(account string) (*SelectResponse, error) {
+	log.Printf("Selecting account address, %s\n", account)
+
+	var address string
+	var chain string
+	err := a.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		chain = string(b.Get([]byte(account + "last_selected_chain")))
+		log.Printf("last_selected_chain: %s\n", chain)
+		address = string(b.Get([]byte(account + "_" + chain + "_address")))
+		log.Printf("chain _address: %s\n", address)
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.New("failed to read database")
+	}
+
+	if chain != "" {
+		resp := &SelectResponse{
+			Chain:   chain,
+			Address: address,
+		}
+		return resp, nil
+	}
+
+	chain = "ETH"
+	var chainConfig *utils.ChainConfig
+	for _, c := range a.chainConfigs {
+		if c.Symbol == chain {
+			chainConfig = &c
+			break
+		}
+	}
+	if chainConfig == nil {
+		return nil, errors.New("chain configuration not found")
+	}
+
+	// read smart card TODO lock the card reader if alrady reading
+	cardContext, err := scard.EstablishContext()
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return nil, errors.New("failed to establish card context")
+	}
+	defer func() {
+		if err := cardContext.Release(); err != nil {
+			log.Printf("Failed releasing card context: %v\n", err)
+		}
+	}()
+
+	card, err := readCard(cardContext)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return nil, errors.New("failed to read card")
+	}
+	defer func() {
+		if err := card.Disconnect(scard.ResetCard); err != nil {
+			log.Printf("Failed disconnecting card: %v\n", err)
+		}
+	}()
+
+	// sign with card
+	cardSigner := NewCardSigner(card)
+	var pin string
+	var puk string
+	var pairing string
+	err = a.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		pin = string(b.Get([]byte(account + "_pin")))
+		puk = string(b.Get([]byte(account + "_puk")))
+		pairing = string(b.Get([]byte(account + "_code")))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.New("failed to read database")
+	}
+	address, err = cardSigner.Address(pin, puk, pairing, chainConfig)
+	if err != nil {
+		log.Printf("Error: %s\n", err)
+		return nil, errors.New("failed to sign transaction hash")
+	}
+	log.Printf("chain: %s, address: %s\n", chain, address)
+
+	err = a.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
+		b.Put([]byte(account+"_"+chain+"_address"), []byte(address))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.New("failed to update database")
+	}
+
+	resp := &SelectResponse{
+		Chain:   chain,
+		Address: address,
+	}
+	return resp, nil
+}
+
 func (a *App) Transfer(
 	asset string,
 	nativeAsset string,

@@ -1,19 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import Sidebar from "@/components/sidebar";
-import { useAtomValue } from "jotai";
-import { ledgerAtom } from "@/store/state";
-import { Transfer } from "../../wailsjs/go/main/App";
+import { useAtom, useAtomValue } from "jotai";
+import { ledgerAtom, accountAtom } from "@/store/state";
+import { Transfer, Select } from "../../wailsjs/go/main/App";
+import { LEDGERS } from "@/constants";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
   const [asset, setAsset] = useState("");
+  const [fromAddr, setFromAddr] = useState("");
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
 
-  const ledger = useAtomValue(ledgerAtom);
+  const [ledger, setLedger] = useAtom(ledgerAtom);
+  const account = useAtomValue(accountAtom);
+
+  // TODO sidebar select other network should update database about the address of new selected network
+  useEffect(() => {
+    console.log("the selected network....");
+    Select(account)
+        .then((res) => {
+            console.log("select response: ", res);
+            setLedger(res.chain);
+            setFromAddr(res.address);
+        })
+        .catch((err) => console.log("error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+  }, [])
 
   const updateTxId = (txId: string) => setTxId(txId);
 
@@ -28,8 +43,8 @@ function Wallet() {
   const transfer = () => {
     Transfer(
       asset,
-      ledger.symbol,
-      "0xaac042fc227cf5d12f7f532bd27361d5634c06a7", // TODO: get from keyring when init
+      ledger,
+      fromAddr,
       toAddr,
       amount
     )
@@ -40,6 +55,12 @@ function Wallet() {
   const receive = () => {
     console.log("receive");
   };
+
+  const ledgerName = () => {
+    let ledgerInfo = LEDGERS.get(ledger);
+    let name = ledgerInfo ? ledgerInfo.name : "";
+    return name;
+  }
 
   return (
     <div className="flex flex-row mt-6 ml-2 gap-20">
@@ -59,7 +80,7 @@ function Wallet() {
         <h2 className="fond-bold text-xl">
           Send
           <span className="text-3xl text-primary"> {asset} </span>
-          from <span className="text-3xl text-primary">{ledger.name} </span>
+          from <span className="text-3xl text-primary">{ledgerName()} </span>
           blockchain
         </h2>
 

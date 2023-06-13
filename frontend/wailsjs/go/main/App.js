@@ -18,6 +18,10 @@ export function RequestTransfer() {
   return window['go']['main']['App']['RequestTransfer']();
 }
 
+export function Select(arg1) {
+  return window['go']['main']['App']['Select'](arg1);
+}
+
 export function Transfer(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['Transfer'](arg1, arg2, arg3, arg4, arg5);
 }
