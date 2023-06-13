@@ -57,14 +57,18 @@ func (a *App) startup(ctx context.Context) {
 
 	a.chainConfigs = chainConfigs
 
-	// read database
-	db, err := bolt.Open("keyring.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	dbPath, err := utils.DatabasePath()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, err = tx.CreateBucket([]byte("Keyring"))
+		_, err = tx.CreateBucket([]byte(utils.BucketName))
 		return nil
 	})
 	if err != nil {
@@ -83,7 +87,7 @@ func (a *App) Connect() (string, error) {
 
 	var account string
 	err := a.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Keyring"))
+		b := tx.Bucket([]byte(utils.BucketName))
 		account = string(b.Get([]byte("current_account")))
 		return nil
 	})
@@ -124,14 +128,15 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 
 	// sign with card
 	cardSigner := NewCardSigner(card)
-	err = cardSigner.pair(pin, puk, code)
+	err = cardSigner.Pair(pin, puk, code)
 	if err != nil {
 		log.Printf("Error: %s\n", err)
 		return "", errors.New("failed to pair with card")
 	}
 
+	// TODO encrypt the puk and code, do not save pin, probably read others from QR code
 	err = a.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Keyring"))
+		b := tx.Bucket([]byte(utils.BucketName))
 		b.Put([]byte("current_account"), []byte(accountName))
 		b.Put([]byte(accountName+"_pin"), []byte(pin))
 		b.Put([]byte(accountName+"_puk"), []byte(puk))
@@ -246,7 +251,7 @@ func (a *App) Transfer(
 	var puk string
 	var pairing string
 	err = a.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Keyring"))
+		b := tx.Bucket([]byte(utils.BucketName))
 		account := string(b.Get([]byte("current_account")))
 		pin = string(b.Get([]byte(account + "_pin")))
 		puk = string(b.Get([]byte(account + "_puk")))

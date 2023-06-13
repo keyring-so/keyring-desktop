@@ -12,8 +12,7 @@ import (
 // keycard-open-secure-channel
 // keycard-verify-pin {{ session_pin }}
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) pair(pin string, puk string, code string) error {
-	log.Printf("pairing started\n", pin, puk, code)
+func (i *CardSigner) Pair(pin string, puk string, code string) error {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	log.Printf("select keycard applet\n")

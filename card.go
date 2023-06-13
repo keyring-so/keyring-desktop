@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 
 	"github.com/ebfe/scard"
@@ -16,7 +17,7 @@ func readCard(ctx *scard.Context) (*scard.Card, error) {
 
 	log.Print("waiting for a card\n")
 	if len(readers) == 0 {
-		return nil, err
+		return nil, errors.New("no card read found")
 	}
 
 	index, err := waitForCard(ctx, readers)
