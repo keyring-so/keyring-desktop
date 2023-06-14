@@ -147,24 +147,19 @@ func (a *App) Transfer(
 	amount string,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s", amount, asset, from, to)
-	var chainConfig *utils.ChainConfig
-	for _, c := range a.chainConfigs {
-		if c.Symbol == nativeAsset {
-			chainConfig = &c
-			break
-		}
-	}
+
+	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
 	if chainConfig == nil {
 		return "", errors.New("chain configuration not found")
 	}
-	utils.Sugar.Infof("chain: %s", chainConfig)
 
+	// prepare asset config
 	xc := factory.NewDefaultFactory()
 	ctx := context.Background()
 
 	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")
 	}
 
@@ -174,13 +169,13 @@ func (a *App) Transfer(
 
 	client, _ := xc.NewClient(assetConfig)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to create a client")
 	}
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to fetch tx input")
 	}
 
@@ -193,12 +188,12 @@ func (a *App) Transfer(
 	// build tx
 	builder, err := xc.NewTxBuilder(assetConfig)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to create transaction builder")
 	}
 	tx, err := builder.NewTransfer(fromAddress, toAddress, amountInteger, input)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to create transaction")
 	}
 	sighashes, err := tx.Sighashes()
@@ -218,24 +213,15 @@ func (a *App) Transfer(
 	}
 	defer keyringCard.Release()
 
-	var pin string
-	var puk string
-	var pairing string
-	err = a.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		account := string(b.Get([]byte(utils.DbCurrentAccountKey)))
-		pin = string(b.Get([]byte(account + "_pin")))
-		puk = string(b.Get([]byte(account + "_puk")))
-		pairing = string(b.Get([]byte(account + "_code")))
-		return nil
-	})
+	// sign transaction with credential
+	credential, err := database.QueryCurrentAccountCredential(a.db)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to read database")
 	}
-	signature, err := keyringCard.Sign(sighash, chainConfig, pin, puk, pairing)
+	signature, err := keyringCard.Sign(sighash, chainConfig, credential.Pin, credential.Puk, credential.Code)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to sign transaction hash")
 	}
 	utils.Sugar.Infof("signature: %x", signature)
@@ -243,7 +229,7 @@ func (a *App) Transfer(
 	// complete the tx by adding signature
 	err = tx.AddSignatures(signature)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to add signature")
 	}
 
@@ -252,7 +238,7 @@ func (a *App) Transfer(
 	utils.Sugar.Infof("Submitting tx id: %s", txId)
 	err = client.SubmitTx(ctx, tx)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to submit transaction")
 	}
 

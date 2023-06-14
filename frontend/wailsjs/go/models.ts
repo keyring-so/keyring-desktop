@@ -1,11 +1,11 @@
-export namespace main {
+export namespace database {
 	
-	export class GetAddressResponse {
+	export class AccountChainInfo {
 	    chain: string;
 	    address: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new GetAddressResponse(source);
+	        return new AccountChainInfo(source);
 	    }
 	
 	    constructor(source: any = {}) {

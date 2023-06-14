@@ -45,3 +45,18 @@ func QueryCredential(db *bolt.DB, account string) (*AccountCredential, error) {
 
 	return credential, nil
 }
+
+func QueryCurrentAccountCredential(db *bolt.DB) (*AccountCredential, error) {
+
+	var account string
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		account = string(b.Get([]byte(utils.DbCurrentAccountKey)))
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return QueryCredential(db, account)
+}
