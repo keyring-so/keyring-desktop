@@ -11,7 +11,7 @@ var Sugar *zap.SugaredLogger
 
 func SetupLog() {
 	var err error
-	Logger, err = zap.NewProduction()
+	Logger, err = zap.NewDevelopment()
 	if err != nil {
 		os.Exit(1)
 	}

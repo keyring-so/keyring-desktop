@@ -2,20 +2,20 @@ package main
 
 import (
 	"errors"
-	"log"
+	"keyring-desktop/utils"
 
 	"github.com/ebfe/scard"
 )
 
 func readCard(ctx *scard.Context) (*scard.Card, error) {
-	log.Print("start read card\n")
+	utils.Sugar.Info("start read card")
 
 	readers, err := ctx.ListReaders()
 	if err != nil {
 		return nil, err
 	}
 
-	log.Print("waiting for a card\n")
+	utils.Sugar.Info("waiting for a card")
 	if len(readers) == 0 {
 		return nil, errors.New("no card read found")
 	}
@@ -25,10 +25,10 @@ func readCard(ctx *scard.Context) (*scard.Card, error) {
 		return nil, err
 	}
 
-	log.Printf("card found: %v\n", index)
+	utils.Sugar.Infof("card found: %v", index)
 	reader := readers[index]
 
-	log.Printf("connectiong to card reader: %v\n", reader)
+	utils.Sugar.Infof("connectiong to card reader: %v", reader)
 	card, err := ctx.Connect(reader, scard.ShareShared, scard.ProtocolAny)
 	if err != nil {
 		return nil, err
@@ -41,11 +41,11 @@ func readCard(ctx *scard.Context) (*scard.Card, error) {
 
 	switch status.ActiveProtocol {
 	case scard.ProtocolT0:
-		log.Print("card protocol", "T", "0")
+		utils.Sugar.Info("card protocol", "T", "0")
 	case scard.ProtocolT1:
-		log.Print("card protocol", "T", "1")
+		utils.Sugar.Info("card protocol", "T", "1")
 	default:
-		log.Print("card protocol", "T", "unknown")
+		utils.Sugar.Info("card protocol", "T", "unknown")
 	}
 
 	return card, nil

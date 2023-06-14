@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
+	"keyring-desktop/services"
 	"keyring-desktop/utils"
 
 	"github.com/ebfe/scard"
@@ -54,7 +54,7 @@ func (a *App) Connect() (string, error) {
 		return "", err
 	}
 
-	utils.Sugar.Infof("The current account is: %s\n", account)
+	utils.Sugar.Infof("The current account is: %s", account)
 	return account, nil
 }
 
@@ -80,12 +80,12 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 	}
 	defer func() {
 		if err := card.Disconnect(scard.ResetCard); err != nil {
-			utils.Sugar.Errorf("Failed disconnecting card: %v\n", err)
+			utils.Sugar.Errorf("Failed disconnecting card: %v", err)
 		}
 	}()
 
 	// sign with card
-	cardSigner := NewCardSigner(card)
+	cardSigner := services.NewCardSigner(card)
 	err = cardSigner.Pair(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
@@ -115,16 +115,16 @@ type SelectResponse struct {
 }
 
 func (a *App) Select(account string) (*SelectResponse, error) {
-	utils.Sugar.Infof("Selecting account address, %s\n", account)
+	utils.Sugar.Infof("Selecting account address, %s", account)
 
 	var address string
 	var chain string
 	err := a.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
 		chain = string(b.Get([]byte(account + "last_selected_chain")))
-		utils.Sugar.Infof("last_selected_chain: %s\n", chain)
+		utils.Sugar.Infof("last_selected_chain: %s", chain)
 		address = string(b.Get([]byte(account + "_" + chain + "_address")))
-		utils.Sugar.Infof("chain _address: %s\n", address)
+		utils.Sugar.Infof("chain _address: %s", address)
 		return nil
 	})
 	if err != nil {
@@ -160,7 +160,7 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 	}
 	defer func() {
 		if err := cardContext.Release(); err != nil {
-			utils.Sugar.Errorf("Failed releasing card context: %v\n", err)
+			utils.Sugar.Errorf("Failed releasing card context: %v", err)
 		}
 	}()
 
@@ -171,12 +171,12 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 	}
 	defer func() {
 		if err := card.Disconnect(scard.ResetCard); err != nil {
-			utils.Sugar.Errorf("Failed disconnecting card: %v\n", err)
+			utils.Sugar.Errorf("Failed disconnecting card: %v", err)
 		}
 	}()
 
 	// sign with card
-	cardSigner := NewCardSigner(card)
+	cardSigner := services.NewCardSigner(card)
 	var pin string
 	var puk string
 	var pairing string
@@ -193,10 +193,10 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 	}
 	address, err = cardSigner.Address(pin, puk, pairing, chainConfig)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return nil, errors.New("failed to sign transaction hash")
 	}
-	utils.Sugar.Infof("chain: %s, address: %s\n", chain, address)
+	utils.Sugar.Infof("chain: %s, address: %s", chain, address)
 
 	err = a.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
@@ -223,7 +223,7 @@ func (a *App) Transfer(
 	to string,
 	amount string,
 ) (crosschain.TxHash, error) {
-	utils.Sugar.Infof("Transfer %s %s from %s to %s\n", amount, asset, from, to)
+	utils.Sugar.Infof("Transfer %s %s from %s to %s", amount, asset, from, to)
 	var chainConfig *utils.ChainConfig
 	for _, c := range a.chainConfigs {
 		if c.Symbol == nativeAsset {
@@ -234,14 +234,14 @@ func (a *App) Transfer(
 	if chainConfig == nil {
 		return "", errors.New("chain configuration not found")
 	}
-	utils.Sugar.Infof("chain: %s\n", chainConfig)
+	utils.Sugar.Infof("chain: %s", chainConfig)
 
 	xc := factory.NewDefaultFactory()
 	ctx := context.Background()
 
 	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("unsupported asset")
 	}
 
@@ -251,13 +251,13 @@ func (a *App) Transfer(
 
 	client, _ := xc.NewClient(assetConfig)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to create a client")
 	}
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to fetch tx input")
 	}
 
@@ -265,53 +265,53 @@ func (a *App) Transfer(
 	if inputWithPublicKey, ok := input.(crosschain.TxInputWithPublicKey); ok {
 		inputWithPublicKey.SetPublicKeyFromStr("unimplemented")
 	}
-	utils.Sugar.Infof("input: %+v\n", input)
+	utils.Sugar.Infof("input: %+v", input)
 
 	// build tx
 	builder, err := xc.NewTxBuilder(assetConfig)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to create transaction builder")
 	}
 	tx, err := builder.NewTransfer(fromAddress, toAddress, amountInteger, input)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to create transaction")
 	}
 	sighashes, err := tx.Sighashes()
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to get transaction hash")
 	}
 	sighash := sighashes[0]
-	utils.Sugar.Infof("transaction: %+v\n", tx)
-	utils.Sugar.Infof("signing: %x\n", sighash)
+	utils.Sugar.Infof("transaction: %+v", tx)
+	utils.Sugar.Infof("signing: %x", sighash)
 
 	// read smart card
 	cardContext, err := scard.EstablishContext()
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to establish card context")
 	}
 	defer func() {
 		if err := cardContext.Release(); err != nil {
-			utils.Sugar.Infof("Failed releasing card context: %v\n", err)
+			utils.Sugar.Infof("Failed releasing card context: %v", err)
 		}
 	}()
 
 	card, err := readCard(cardContext)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to read card")
 	}
 	defer func() {
 		if err := card.Disconnect(scard.ResetCard); err != nil {
-			utils.Sugar.Infof("Failed disconnecting card: %v\n", err)
+			utils.Sugar.Infof("Failed disconnecting card: %v", err)
 		}
 	}()
 
 	// sign with card
-	cardSigner := NewCardSigner(card)
+	cardSigner := services.NewCardSigner(card)
 	var pin string
 	var puk string
 	var pairing string
@@ -329,35 +329,26 @@ func (a *App) Transfer(
 	}
 	signature, err := cardSigner.Sign(sighash, chainConfig, pin, puk, pairing)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to sign transaction hash")
 	}
-	utils.Sugar.Infof("signature: %x\n", signature)
+	utils.Sugar.Infof("signature: %x", signature)
 
 	// complete the tx by adding signature
 	err = tx.AddSignatures(signature)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to add signature")
 	}
 
 	// submit the tx
 	txId := tx.Hash()
-	utils.Sugar.Infof("Submitting tx id: %s\n", txId)
+	utils.Sugar.Infof("Submitting tx id: %s", txId)
 	err = client.SubmitTx(ctx, tx)
 	if err != nil {
-		utils.Sugar.Infof("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to submit transaction")
 	}
 
 	return txId, nil
-}
-
-func (a *App) RequestTransfer() string {
-	return "unimplemented"
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
 }

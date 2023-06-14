@@ -1,7 +1,7 @@
-package main
+package services
 
 import (
-	"log"
+	"keyring-desktop/utils"
 
 	keycard "github.com/status-im/keycard-go"
 )
@@ -15,53 +15,53 @@ import (
 func (i *CardSigner) Pair(pin string, puk string, code string) error {
 	cmdSet := keycard.NewCommandSet(i.c)
 
-	log.Printf("select keycard applet\n")
+	utils.Sugar.Infof("select keycard applet")
 	err := cmdSet.Select()
 	if err != nil {
-		log.Printf("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return err
 	}
 
 	if !cmdSet.ApplicationInfo.Installed {
-		log.Printf("installation is not done, error: %s\n", errAppletNotInstalled)
+		utils.Sugar.Infof("installation is not done, error: %s", errAppletNotInstalled)
 		return errAppletNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
-		log.Printf("initialization is not done, error: %s\n", errCardAlreadyInitialized)
+		utils.Sugar.Infof("initialization is not done, error: %s", errCardAlreadyInitialized)
 		return errCardAlreadyInitialized
 	}
 
 	secrets := keycard.NewSecrets(pin, puk, code)
 
-	log.Printf("pairing\n")
+	utils.Sugar.Infof("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
-		log.Fatal(err)
+		utils.Sugar.Fatal(err)
 		return err
 	}
 
 	if cmdSet.PairingInfo == nil {
-		log.Printf("cannot open secure channel without setting pairing info")
+		utils.Sugar.Infof("cannot open secure channel without setting pairing info")
 		return err
 	}
 
-	log.Printf("open keycard secure channel\n")
+	utils.Sugar.Infof("open keycard secure channel")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
-		log.Printf("open keycard secure channel failed, error: %s\n", err)
+		utils.Sugar.Infof("open keycard secure channel failed, error: %s", err)
 		return err
 	}
 
-	log.Printf("verify PIN\n")
+	utils.Sugar.Infof("verify PIN")
 	if err := cmdSet.VerifyPIN(pin); err != nil {
-		log.Printf("verify PIN failed, error: %s\n", err)
+		utils.Sugar.Infof("verify PIN failed, error: %s", err)
 		return err
 	}
 
-	log.Printf("unpair index\n")
+	utils.Sugar.Infof("unpair index")
 	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
 	if err != nil {
-		log.Printf("unpair failed, error: %s\n", err)
+		utils.Sugar.Infof("unpair failed, error: %s", err)
 		return err
 	}
 

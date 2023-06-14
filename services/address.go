@@ -1,9 +1,7 @@
-package main
+package services
 
 import (
-	"fmt"
 	"keyring-desktop/utils"
-	"log"
 
 	"github.com/ethereum/go-ethereum/crypto"
 	keycard "github.com/status-im/keycard-go"
@@ -20,75 +18,76 @@ import (
 func (i *CardSigner) Address(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
-	log.Printf("select keycard applet\n")
+	utils.Sugar.Infof("select keycard applet")
 	err := cmdSet.Select()
 	if err != nil {
-		log.Printf("Error: %s\n", err)
+		utils.Sugar.Infof("Error: %s", err)
 		return "", err
 	}
 
 	if !cmdSet.ApplicationInfo.Installed {
-		log.Printf("installation is not done, error: %s\n", errAppletNotInstalled)
+		utils.Sugar.Infof("installation is not done, error: %s", errAppletNotInstalled)
 		return "", errAppletNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
-		log.Printf("initialization is not done, error: %s\n", errCardAlreadyInitialized)
+		utils.Sugar.Infof("initialization is not done, error: %s", errCardAlreadyInitialized)
 		return "", errCardAlreadyInitialized
 	}
 
 	secrets := keycard.NewSecrets(pin, puk, code)
 
-	log.Printf("pairing\n")
+	utils.Sugar.Infof("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
-		log.Fatal(err)
+		utils.Sugar.Fatal(err)
 		return "", err
 	}
 
 	if cmdSet.PairingInfo == nil {
-		log.Printf("cannot open secure channel without setting pairing info")
+		utils.Sugar.Infof("cannot open secure channel without setting pairing info")
 		return "", err
 	}
 
-	log.Printf("open keycard secure channel\n")
+	utils.Sugar.Infof("open keycard secure channel")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
-		log.Printf("open keycard secure channel failed, error: %s\n", err)
+		utils.Sugar.Infof("open keycard secure channel failed, error: %s", err)
 		return "", err
 	}
 
-	log.Printf("verify PIN\n")
+	utils.Sugar.Infof("verify PIN")
 	if err := cmdSet.VerifyPIN(pin); err != nil {
-		log.Printf("verify PIN failed, error: %s\n", err)
+		utils.Sugar.Infof("verify PIN failed, error: %s", err)
 		return "", err
 	}
 
-	log.Printf("derive key\n")
+	utils.Sugar.Infof("derive key")
 	if err := cmdSet.DeriveKey(config.Path); err != nil {
-		log.Printf("derive key failed, error: %s\n", err)
+		utils.Sugar.Infof("derive key failed, error: %s", err)
 		return "", err
 	}
 
-	log.Printf("sign hello")
+	utils.Sugar.Infof("sign hello")
 	data := crypto.Keccak256([]byte("hello"))
 	sig, err := cmdSet.Sign(data)
 
 	if err != nil {
-		log.Printf("sign failed, error: %s\n", err)
+		utils.Sugar.Infof("sign failed, error: %s", err)
 		return "", err
 	}
 	ecdsaPubKey, err := crypto.UnmarshalPubkey(sig.PubKey())
 	if err != nil {
-		fmt.Printf("pub key error: %s\n", err)
+		utils.Sugar.Infof("pub key error: %s", err)
+		return "", err
 	}
 
 	address := crypto.PubkeyToAddress(*ecdsaPubKey).Hex()
 
 	// TODO pair and unpair should only be called when add a new card
-	log.Printf("unpair index\n")
+	utils.Sugar.Infof("unpair index")
 	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
 	if err != nil {
-		log.Printf("unpair failed, error: %s\n", err)
+		utils.Sugar.Infof("unpair failed, error: %s", err)
 		return "", err
 	}
 

@@ -6,16 +6,8 @@ export function Connect() {
   return window['go']['main']['App']['Connect']();
 }
 
-export function Greet(arg1) {
-  return window['go']['main']['App']['Greet'](arg1);
-}
-
 export function Pair(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
-}
-
-export function RequestTransfer() {
-  return window['go']['main']['App']['RequestTransfer']();
 }
 
 export function Select(arg1) {

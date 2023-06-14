@@ -5,11 +5,7 @@ import {crosschain} from '../models';
 
 export function Connect():Promise<string>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<string>;
-
-export function RequestTransfer():Promise<string>;
 
 export function Select(arg1:string):Promise<main.SelectResponse>;
 
