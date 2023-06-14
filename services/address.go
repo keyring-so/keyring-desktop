@@ -15,7 +15,7 @@ import (
 // keycard-derive-key
 // keycard-sign "hello"
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) Address(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
+func (i *KeyringCard) Address(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Infof("select keycard applet")
@@ -40,7 +40,7 @@ func (i *CardSigner) Address(pin string, puk string, code string, config *utils.
 	utils.Sugar.Infof("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return "", err
 	}
 

@@ -5,8 +5,8 @@ import {crosschain} from '../models';
 
 export function Connect():Promise<string>;
 
-export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<string>;
+export function GetAddress(arg1:string):Promise<main.GetAddressResponse>;
 
-export function Select(arg1:string):Promise<main.SelectResponse>;
+export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<string>;
 
 export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<crosschain.TxHash>;

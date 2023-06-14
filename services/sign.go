@@ -5,8 +5,6 @@ import (
 	"keyring-desktop/utils"
 
 	keycard "github.com/status-im/keycard-go"
-	keycardio "github.com/status-im/keycard-go/io"
-	"github.com/status-im/keycard-go/types"
 )
 
 var (
@@ -17,18 +15,6 @@ var (
 	ErrNotInstalled     = errors.New("applet not initialized")
 	ErrCashNotInstalled = errors.New("cash applet not initialized")
 )
-
-// CardSigner defines a struct with methods to sign some data with card.
-type CardSigner struct {
-	c types.Channel
-}
-
-// NewCardSigner returns a new CardSigner that communicates to Transmitter t.
-func NewCardSigner(t keycardio.Transmitter) *CardSigner {
-	return &CardSigner{
-		c: keycardio.NewNormalChannel(t),
-	}
-}
 
 // Signing workflow:
 //
@@ -43,7 +29,7 @@ func NewCardSigner(t keycardio.Transmitter) *CardSigner {
 // keycard-sign 0000000000000000000000000000000000000000000000000000000000000000
 //
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) Sign(
+func (i *KeyringCard) Sign(
 	rawData []byte,
 	config *utils.ChainConfig,
 	pin string,
@@ -75,7 +61,7 @@ func (i *CardSigner) Sign(
 	utils.Sugar.Infof("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return nil, err
 	}
 	if cmdSet.PairingInfo == nil {

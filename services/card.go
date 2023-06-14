@@ -1,11 +1,57 @@
-package main
+package services
 
 import (
 	"errors"
 	"keyring-desktop/utils"
 
 	"github.com/ebfe/scard"
+	keycardio "github.com/status-im/keycard-go/io"
+	"github.com/status-im/keycard-go/types"
 )
+
+// KeyringCard defines a struct with methods to operate with card.
+type KeyringCard struct {
+	c    types.Channel
+	ctx  *scard.Context
+	card *scard.Card
+}
+
+// NewKeyringCard returns a new Keyring card that communicates to Transmitter t.
+func NewKeyringCard() (*KeyringCard, error) {
+	// read smart card
+	cardContext, err := scard.EstablishContext()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to establish card context")
+	}
+
+	card, err := readCard(cardContext)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read card")
+	}
+
+	keyringCard := &KeyringCard{
+		c:    keycardio.NewNormalChannel(card),
+		ctx:  cardContext,
+		card: card,
+	}
+	return keyringCard, nil
+}
+
+func (k *KeyringCard) Release() error {
+	err := k.ctx.Release()
+	if err != nil {
+		return err
+	}
+
+	err = k.card.Disconnect(scard.ResetCard)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func readCard(ctx *scard.Context) (*scard.Card, error) {
 	utils.Sugar.Info("start read card")

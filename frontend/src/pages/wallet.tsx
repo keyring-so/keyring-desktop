@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import Sidebar from "@/components/sidebar";
 import { useAtom, useAtomValue } from "jotai";
 import { ledgerAtom, accountAtom } from "@/store/state";
-import { Transfer, Select } from "../../wailsjs/go/main/App";
+import { Transfer, GetAddress } from "../../wailsjs/go/main/App";
 import { LEDGERS } from "@/constants";
 
 function Wallet() {
@@ -21,7 +21,7 @@ function Wallet() {
   // TODO sidebar select other network should update database about the address of new selected network
   useEffect(() => {
     console.log("the selected network....");
-    Select(account)
+    GetAddress(account)
         .then((res) => {
             console.log("select response: ", res);
             setLedger(res.chain);

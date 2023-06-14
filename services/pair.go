@@ -12,7 +12,7 @@ import (
 // keycard-open-secure-channel
 // keycard-verify-pin {{ session_pin }}
 // keycard-unpair {{ session_pairing_index }}
-func (i *CardSigner) Pair(pin string, puk string, code string) error {
+func (i *KeyringCard) Pair(pin string, puk string, code string) error {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Infof("select keycard applet")
@@ -37,7 +37,7 @@ func (i *CardSigner) Pair(pin string, puk string, code string) error {
 	utils.Sugar.Infof("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return err
 	}
 

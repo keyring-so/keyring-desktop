@@ -6,7 +6,6 @@ import (
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
 
-	"github.com/ebfe/scard"
 	"github.com/jumpcrypto/crosschain"
 	"github.com/jumpcrypto/crosschain/factory"
 
@@ -35,13 +34,15 @@ func (a *App) startup(ctx context.Context) {
 	a.db = utils.InitDb()
 }
 
+// shutdown is called when app quits
 func (a *App) shutdown(ctx context.Context) {
 	a.db.Close()
 	utils.Logger.Sync()
 }
 
+// check if there is card paired already
 func (a *App) Connect() (string, error) {
-	utils.Sugar.Info("Check if there is smart card wired")
+	utils.Sugar.Info("Check if there is smart card paired")
 
 	var account string
 	err := a.db.View(func(tx *bolt.Tx) error {
@@ -58,35 +59,20 @@ func (a *App) Connect() (string, error) {
 	return account, nil
 }
 
+// start to pair a new card
 func (a *App) Pair(pin string, puk string, code string, accountName string) (string, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
-	// read smart card
-	cardContext, err := scard.EstablishContext()
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to establish card context")
+		return "", errors.New("failed to connect to card")
 	}
-	defer func() {
-		if err := cardContext.Release(); err != nil {
-			utils.Sugar.Errorf("Failed releasing card context: %v", err)
-		}
-	}()
+	defer keyringCard.Release()
 
-	card, err := readCard(cardContext)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to read card")
-	}
-	defer func() {
-		if err := card.Disconnect(scard.ResetCard); err != nil {
-			utils.Sugar.Errorf("Failed disconnecting card: %v", err)
-		}
-	}()
-
-	// sign with card
-	cardSigner := services.NewCardSigner(card)
-	err = cardSigner.Pair(pin, puk, code)
+	// pair with card
+	err = keyringCard.Pair(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to pair with card")
@@ -109,13 +95,13 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 	return accountName, nil
 }
 
-type SelectResponse struct {
+type GetAddressResponse struct {
 	Chain   string `json:"chain"`
 	Address string `json:"address"`
 }
 
-func (a *App) Select(account string) (*SelectResponse, error) {
-	utils.Sugar.Infof("Selecting account address, %s", account)
+func (a *App) GetAddress(account string) (*GetAddressResponse, error) {
+	utils.Sugar.Infof("Get account address, %s", account)
 
 	var address string
 	var chain string
@@ -128,12 +114,12 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 		return nil
 	})
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
 	}
 
 	if chain != "" {
-		resp := &SelectResponse{
+		resp := &GetAddressResponse{
 			Chain:   chain,
 			Address: address,
 		}
@@ -152,31 +138,15 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 		return nil, errors.New("chain configuration not found")
 	}
 
-	// read smart card TODO lock the card reader if alrady reading
-	cardContext, err := scard.EstablishContext()
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to establish card context")
+		return nil, errors.New("failed to connect to card")
 	}
-	defer func() {
-		if err := cardContext.Release(); err != nil {
-			utils.Sugar.Errorf("Failed releasing card context: %v", err)
-		}
-	}()
-
-	card, err := readCard(cardContext)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read card")
-	}
-	defer func() {
-		if err := card.Disconnect(scard.ResetCard); err != nil {
-			utils.Sugar.Errorf("Failed disconnecting card: %v", err)
-		}
-	}()
+	defer keyringCard.Release()
 
 	// sign with card
-	cardSigner := services.NewCardSigner(card)
 	var pin string
 	var puk string
 	var pairing string
@@ -188,10 +158,10 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 		return nil
 	})
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
 	}
-	address, err = cardSigner.Address(pin, puk, pairing, chainConfig)
+	address, err = keyringCard.Address(pin, puk, pairing, chainConfig)
 	if err != nil {
 		utils.Sugar.Infof("Error: %s", err)
 		return nil, errors.New("failed to sign transaction hash")
@@ -205,11 +175,11 @@ func (a *App) Select(account string) (*SelectResponse, error) {
 		return nil
 	})
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return nil, errors.New("failed to update database")
 	}
 
-	resp := &SelectResponse{
+	resp := &GetAddressResponse{
 		Chain:   chain,
 		Address: address,
 	}
@@ -287,31 +257,14 @@ func (a *App) Transfer(
 	utils.Sugar.Infof("transaction: %+v", tx)
 	utils.Sugar.Infof("signing: %x", sighash)
 
-	// read smart card
-	cardContext, err := scard.EstablishContext()
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
-		return "", errors.New("failed to establish card context")
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to connect to card")
 	}
-	defer func() {
-		if err := cardContext.Release(); err != nil {
-			utils.Sugar.Infof("Failed releasing card context: %v", err)
-		}
-	}()
+	defer keyringCard.Release()
 
-	card, err := readCard(cardContext)
-	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
-		return "", errors.New("failed to read card")
-	}
-	defer func() {
-		if err := card.Disconnect(scard.ResetCard); err != nil {
-			utils.Sugar.Infof("Failed disconnecting card: %v", err)
-		}
-	}()
-
-	// sign with card
-	cardSigner := services.NewCardSigner(card)
 	var pin string
 	var puk string
 	var pairing string
@@ -324,10 +277,10 @@ func (a *App) Transfer(
 		return nil
 	})
 	if err != nil {
-		utils.Sugar.Fatal(err)
+		utils.Sugar.Error(err)
 		return "", errors.New("failed to read database")
 	}
-	signature, err := cardSigner.Sign(sighash, chainConfig, pin, puk, pairing)
+	signature, err := keyringCard.Sign(sighash, chainConfig, pin, puk, pairing)
 	if err != nil {
 		utils.Sugar.Infof("Error: %s", err)
 		return "", errors.New("failed to sign transaction hash")

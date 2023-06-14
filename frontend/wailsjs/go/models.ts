@@ -1,11 +1,11 @@
 export namespace main {
 	
-	export class SelectResponse {
+	export class GetAddressResponse {
 	    chain: string;
 	    address: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new SelectResponse(source);
+	        return new GetAddressResponse(source);
 	    }
 	
 	    constructor(source: any = {}) {

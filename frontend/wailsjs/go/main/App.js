@@ -6,12 +6,12 @@ export function Connect() {
   return window['go']['main']['App']['Connect']();
 }
 
-export function Pair(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
+export function GetAddress(arg1) {
+  return window['go']['main']['App']['GetAddress'](arg1);
 }
 
-export function Select(arg1) {
-  return window['go']['main']['App']['Select'](arg1);
+export function Pair(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
 }
 
 export function Transfer(arg1, arg2, arg3, arg4, arg5) {
