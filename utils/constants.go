@@ -3,6 +3,9 @@ package utils
 import "os"
 
 const BucketName = "Keyring"
+const ChainRegistry = "registry.json"
+
+const DbCurrentAccountKey = "current_account"
 
 func DatabasePath() (string, error) {
 	dataPath, err := DataPath()

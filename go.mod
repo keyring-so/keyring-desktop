@@ -9,6 +9,7 @@ require (
 	github.com/status-im/keycard-go v0.2.0
 	github.com/wailsapp/wails/v2 v2.5.1
 	go.etcd.io/bbolt v1.3.6
+	go.uber.org/zap v1.24.0
 )
 
 require (
@@ -184,10 +185,9 @@ require (
 	github.com/zondax/hid v0.9.1 // indirect
 	go.mongodb.org/mongo-driver v1.11.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/ratelimit v0.2.0 // indirect
-	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/exp v0.0.0-20230206171751-46f607a40771 // indirect
 	golang.org/x/net v0.7.0 // indirect
