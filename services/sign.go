@@ -7,15 +7,6 @@ import (
 	keycard "github.com/status-im/keycard-go"
 )
 
-var (
-	errAppletNotInstalled     = errors.New("applet not installed")
-	errCardAlreadyInitialized = errors.New("card already initialized")
-
-	ErrNotInitialized   = errors.New("card not initialized")
-	ErrNotInstalled     = errors.New("applet not initialized")
-	ErrCashNotInstalled = errors.New("cash applet not initialized")
-)
-
 // Signing workflow:
 //
 // keycard-select
@@ -36,71 +27,71 @@ func (i *KeyringCard) Sign(
 	puk string,
 	pairingCode string,
 ) ([]byte, error) {
-	utils.Sugar.Infof("signing started")
+	utils.Sugar.Info("signing started")
 	cmdSet := keycard.NewCommandSet(i.c)
 
-	utils.Sugar.Infof("select keycard applet")
+	utils.Sugar.Info("select keycard applet")
 	err := cmdSet.Select()
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error(err)
 		return nil, err
 	}
 
 	if !cmdSet.ApplicationInfo.Installed {
-		utils.Sugar.Infof("installation is not done, error: %s", errAppletNotInstalled)
-		return nil, errAppletNotInstalled
+		utils.Sugar.Error(errCardNotInstalled)
+		return nil, errCardNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
-		utils.Sugar.Infof("initialization is not done, error: %s", errCardAlreadyInitialized)
-		return nil, errCardAlreadyInitialized
+		utils.Sugar.Error(errCardNotInitialized)
+		return nil, errCardNotInitialized
 	}
 
 	secrets := keycard.NewSecrets(pin, puk, pairingCode)
 
-	utils.Sugar.Infof("pairing")
+	utils.Sugar.Info("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, err
 	}
 	if cmdSet.PairingInfo == nil {
-		utils.Sugar.Infof("cannot open secure channel without setting pairing info")
+		utils.Sugar.Info("cannot open secure channel without setting pairing info")
 		return nil, errors.New("failed to pair")
 	}
 
-	utils.Sugar.Infof("open keycard secure channel")
+	utils.Sugar.Info("open keycard secure channel")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
-		utils.Sugar.Infof("open keycard secure channel failed, error: %s", err)
+		utils.Sugar.Error(err)
 		return nil, err
 	}
 
-	utils.Sugar.Infof("verify PIN")
+	utils.Sugar.Info("verify PIN")
 	if err := cmdSet.VerifyPIN(pin); err != nil {
-		utils.Sugar.Infof("verify PIN failed, error: %s", err)
+		utils.Sugar.Info("verify PIN failed, error: %s", err)
 		return nil, err
 	}
 
-	utils.Sugar.Infof("derive key")
+	utils.Sugar.Info("derive key")
 	if err := cmdSet.DeriveKey(config.Path); err != nil {
-		utils.Sugar.Infof("derive key failed, error: %s", err)
+		utils.Sugar.Info("derive key failed, error: %s", err)
 		return nil, err
 	}
 
-	utils.Sugar.Infof("sign: %x", rawData)
+	utils.Sugar.Info("sign: %x", rawData)
 	sig, err := cmdSet.Sign(rawData)
 	if err != nil {
-		utils.Sugar.Infof("sign failed, error: %s", err)
+		utils.Sugar.Info("sign failed, error: %s", err)
 		return nil, err
 	}
 
 	ethSig := append(sig.R(), sig.S()...)
 	ethSig = append(ethSig, []byte{sig.V()}...)
 
-	utils.Sugar.Infof("unpair index")
+	utils.Sugar.Info("unpair index")
 	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
 	if err != nil {
-		utils.Sugar.Infof("unpair failed, error: %s", err)
+		utils.Sugar.Info("unpair failed, error: %s", err)
 		return nil, err
 	}
 

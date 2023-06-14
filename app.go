@@ -244,3 +244,39 @@ func (a *App) Transfer(
 
 	return txId, nil
 }
+
+// start to init a new card
+// 1. init card with storage allocated not not filled on the card
+// 2. pair with credentials
+// 3. generate mnemonic
+// 4. load key with mnemonic and fill the private key on the card
+func (a *App) Initialize(pin string, accountName string, checkSumSize int) (string, error) {
+	utils.Sugar.Info("Pairing with smart card")
+
+	// TODO generate randomly
+	puk := "123456123456"
+	code := "123456"
+
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to connect to card")
+	}
+	defer keyringCard.Release()
+
+	// initialize card
+	mnemonic, err := keyringCard.Initialize(pin, puk, code, checkSumSize)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to pair with card")
+	}
+
+	err = database.SaveCredential(a.db, pin, puk, code, accountName)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to update database")
+	}
+
+	return mnemonic, nil
+}

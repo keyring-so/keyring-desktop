@@ -9,6 +9,13 @@ import (
 	"github.com/status-im/keycard-go/types"
 )
 
+var (
+	errCardNotInstalled       = errors.New("card applet is not installed")
+	errCardNotInitialized     = errors.New("card is not initialized")
+	errCardAlreadyInitialized = errors.New("card is already initialized")
+	errNoPairingInfo          = errors.New("pairing info is not set")
+)
+
 // KeyringCard defines a struct with methods to operate with card.
 type KeyringCard struct {
 	c    types.Channel

@@ -10,6 +10,10 @@ export function GetAddress(arg1) {
   return window['go']['main']['App']['GetAddress'](arg1);
 }
 
+export function Initialize(arg1, arg2, arg3) {
+  return window['go']['main']['App']['Initialize'](arg1, arg2, arg3);
+}
+
 export function Pair(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
 }

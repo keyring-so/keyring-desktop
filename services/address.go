@@ -26,13 +26,13 @@ func (i *KeyringCard) ChainAddress(pin string, puk string, code string, config *
 	}
 
 	if !cmdSet.ApplicationInfo.Installed {
-		utils.Sugar.Infof("installation is not done, error: %s", errAppletNotInstalled)
-		return "", errAppletNotInstalled
+		utils.Sugar.Infof("installation is not done, error: %s", errCardNotInstalled)
+		return "", errCardNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
-		utils.Sugar.Infof("initialization is not done, error: %s", errCardAlreadyInitialized)
-		return "", errCardAlreadyInitialized
+		utils.Sugar.Error(errCardNotInitialized)
+		return "", errCardNotInitialized
 	}
 
 	secrets := keycard.NewSecrets(pin, puk, code)
