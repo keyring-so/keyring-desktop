@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"keyring-desktop/database"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
 
@@ -30,7 +31,7 @@ func (a *App) startup(ctx context.Context) {
 	utils.SetupLog()
 
 	a.ctx = ctx
-	a.chainConfigs = utils.GetChainConfig()
+	a.chainConfigs = utils.GetChainConfigs()
 	a.db = utils.InitDb()
 }
 
@@ -44,15 +45,10 @@ func (a *App) shutdown(ctx context.Context) {
 func (a *App) Connect() (string, error) {
 	utils.Sugar.Info("Check if there is smart card paired")
 
-	var account string
-	err := a.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		account = string(b.Get([]byte(utils.DbCurrentAccountKey)))
-		return nil
-	})
+	account, err := database.QueryCurrentAccount(a.db)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", err
+		return "", errors.New("failed to query current account")
 	}
 
 	utils.Sugar.Infof("The current account is: %s", account)
@@ -78,15 +74,7 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 		return "", errors.New("failed to pair with card")
 	}
 
-	// TODO encrypt the puk and code, do not save pin, probably read others from QR code
-	err = a.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(utils.DbCurrentAccountKey), []byte(accountName))
-		b.Put([]byte(accountName+"_pin"), []byte(pin))
-		b.Put([]byte(accountName+"_puk"), []byte(puk))
-		b.Put([]byte(accountName+"_code"), []byte(code))
-		return nil
-	})
+	err = database.SaveCredential(a.db, pin, puk, code, accountName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to update database")
@@ -95,47 +83,31 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 	return accountName, nil
 }
 
-type GetAddressResponse struct {
-	Chain   string `json:"chain"`
-	Address string `json:"address"`
-}
-
-func (a *App) GetAddress(account string) (*GetAddressResponse, error) {
+func (a *App) GetAddress(account string) (*database.AccountChainInfo, error) {
 	utils.Sugar.Infof("Get account address, %s", account)
 
-	var address string
-	var chain string
-	err := a.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		chain = string(b.Get([]byte(account + "last_selected_chain")))
-		utils.Sugar.Infof("last_selected_chain: %s", chain)
-		address = string(b.Get([]byte(account + "_" + chain + "_address")))
-		utils.Sugar.Infof("chain _address: %s", address)
-		return nil
-	})
+	accountChainInfo, err := database.QuerySelectedChain(a.db, account)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
 	}
 
-	if chain != "" {
-		resp := &GetAddressResponse{
-			Chain:   chain,
-			Address: address,
-		}
-		return resp, nil
+	if accountChainInfo.Chain != "" {
+		return accountChainInfo, nil
 	}
 
-	chain = "ETH"
-	var chainConfig *utils.ChainConfig
-	for _, c := range a.chainConfigs {
-		if c.Symbol == chain {
-			chainConfig = &c
-			break
-		}
-	}
+	// default chain is Ethereum
+	chain := "ETH"
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
 	if chainConfig == nil {
 		return nil, errors.New("chain configuration not found")
+	}
+
+	// get credential
+	credential, err := database.QueryCredential(a.db, account)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read database")
 	}
 
 	// connect to card
@@ -145,45 +117,26 @@ func (a *App) GetAddress(account string) (*GetAddressResponse, error) {
 		return nil, errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
-
-	// sign with card
-	var pin string
-	var puk string
-	var pairing string
-	err = a.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		pin = string(b.Get([]byte(account + "_pin")))
-		puk = string(b.Get([]byte(account + "_puk")))
-		pairing = string(b.Get([]byte(account + "_code")))
-		return nil
-	})
+	address, err := keyringCard.ChainAddress(credential.Pin, credential.Puk, credential.Code, chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read database")
+		return nil, errors.New("failed to get chain address")
 	}
-	address, err = keyringCard.Address(pin, puk, pairing, chainConfig)
-	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
-		return nil, errors.New("failed to sign transaction hash")
-	}
+
 	utils.Sugar.Infof("chain: %s, address: %s", chain, address)
 
-	err = a.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
-		b.Put([]byte(account+"_"+chain+"_address"), []byte(address))
-		return nil
-	})
+	// save slected chain info
+	chainInfo := &database.AccountChainInfo{
+		Chain:   chain,
+		Address: address,
+	}
+	err = database.SaveSelectedChain(a.db, account, chainInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to update database")
 	}
 
-	resp := &GetAddressResponse{
-		Chain:   chain,
-		Address: address,
-	}
-	return resp, nil
+	return chainInfo, nil
 }
 
 func (a *App) Transfer(

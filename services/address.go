@@ -15,7 +15,7 @@ import (
 // keycard-derive-key
 // keycard-sign "hello"
 // keycard-unpair {{ session_pairing_index }}
-func (i *KeyringCard) Address(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
+func (i *KeyringCard) ChainAddress(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Infof("select keycard applet")

@@ -11,7 +11,7 @@ type ChainConfig struct {
 	Path   string `json:"path"`
 }
 
-func GetChainConfig() []ChainConfig {
+func GetChainConfigs() []ChainConfig {
 	// read chain configuration
 	file, err := os.Open(ChainRegistry)
 	if err != nil {
@@ -31,4 +31,16 @@ func GetChainConfig() []ChainConfig {
 	}
 
 	return chainConfigs
+}
+
+func GetChainConfig(config []ChainConfig, chain string) *ChainConfig {
+	var chainConfig *ChainConfig
+	for _, c := range config {
+		if c.Symbol == chain {
+			chainConfig = &c
+			break
+		}
+	}
+
+	return chainConfig
 }
