@@ -15,8 +15,7 @@ import (
 // keycard-open-secure-channel
 // keycard-verify-pin {{ session_pin }}
 //
-// TODO TBD: merge these two steps in keyring-card
-// keycard-generate-mnemonic {{ words_count }}
+// keycard-generate-mnemonic {{ words_count }} # happen in app
 // keycard-load-seed {{ seed }}
 //
 // keycard-unpair {{ session_pairing_index }}
@@ -71,7 +70,7 @@ func (i *KeyringCard) Initialize(pin string, puk string, code string, checksumSi
 	// }
 
 	utils.Sugar.Info("load key from seed")
-	entropy, _ := bip39.NewEntropy(128)
+	entropy, _ := bip39.NewEntropy(32 * checksumSize)
 	mnemonic, _ := bip39.NewMnemonic(entropy)
 	seed := bip39.NewSeed(mnemonic, "") // TODO should user input passphrase?
 

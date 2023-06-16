@@ -2,6 +2,7 @@ package database
 
 import (
 	"keyring-desktop/utils"
+	"strings"
 
 	bolt "go.etcd.io/bbolt"
 )
@@ -21,32 +22,54 @@ func QueryCurrentAccount(db *bolt.DB) (string, error) {
 	return account, nil
 }
 
-func QuerySelectedChain(db *bolt.DB, account string) (*AccountChainInfo, error) {
-	var address string
-	var chain string
+func QueryChains(db *bolt.DB, account string) (*AccountChainInfo, error) {
+	var chains string
+	var lastSelectedChain string
+
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
-		chain = string(b.Get([]byte(account + "last_selected_chain")))
-		address = string(b.Get([]byte(account + "_" + chain + "_address")))
+		lastSelectedChain = string(b.Get([]byte(account + "last_selected_chain")))
+		chains = string(b.Get([]byte(account + "_chains")))
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	result := &AccountChainInfo{
-		Chain:   chain,
-		Address: address,
+	res := &AccountChainInfo{
+		Chains:            strings.Split(chains, ","),
+		LastSelectedChain: lastSelectedChain,
 	}
-
-	return result, nil
+	return res, nil
 }
 
-func SaveSelectedChain(db *bolt.DB, account string, info *AccountChainInfo) error {
+func QueryChainAddress(db *bolt.DB, account, chain string) (string, error) {
+	var address string
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		address = string(b.Get([]byte(account + "_" + chain + "_address")))
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return address, nil
+}
+
+func SaveLastSelectedChain(db *bolt.DB, account, chain string) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(account+"last_selected_chain"), []byte(info.Chain))
-		b.Put([]byte(account+"_"+info.Chain+"_address"), []byte(info.Address))
+		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
+		return nil
+	})
+}
+
+func SaveChainAddress(db *bolt.DB, account, chain, address string) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
+		b.Put([]byte(account+"_"+chain+"_address"), []byte(address))
 		return nil
 	})
 }

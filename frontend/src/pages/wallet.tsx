@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import Sidebar from "@/components/sidebar";
 import { useAtom, useAtomValue } from "jotai";
 import { ledgerAtom, accountAtom } from "@/store/state";
-import { Transfer, GetAddress } from "../../wailsjs/go/main/App";
+import { Transfer, GetAddress, GetChains } from "../../wailsjs/go/main/App";
 import { LEDGERS } from "@/constants";
 
 function Wallet() {
@@ -14,21 +14,32 @@ function Wallet() {
   const [fromAddr, setFromAddr] = useState("");
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
+  const [chains, setChains] = useState<string[]>([]);
 
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const account = useAtomValue(accountAtom);
 
+  useEffect(() => {
+    GetChains(account)
+        .then(chains => {
+            console.log("GetChains response: ", JSON.stringify(chains));
+            setLedger(chains.lastSelectedChain);
+            setChains(chains.chains);
+        })
+        .catch((err) => console.log("GetChains error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+  }, []);
+
   // TODO sidebar select other network should update database about the address of new selected network
   useEffect(() => {
-    console.log("the selected network....");
-    GetAddress(account)
-        .then((res) => {
-            console.log("select response: ", res);
-            setLedger(res.chain);
-            setFromAddr(res.address);
-        })
-        .catch((err) => console.log("error happens: ", err)); // TODO Alert box and remind user to connect card and retry
-  }, [])
+    if (account && ledger) {
+      GetAddress(account, ledger)
+      .then(address => {
+          console.log("GetAddress response: ", address, ledger);
+          setFromAddr(address);
+      })
+      .catch((err) => console.log("GetAddress error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+    }
+  }, [account, ledger]);
 
   const updateTxId = (txId: string) => setTxId(txId);
 

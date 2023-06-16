@@ -1,8 +1,8 @@
 package database
 
 type AccountChainInfo struct {
-	Chain   string `json:"chain"`
-	Address string `json:"address"`
+	Chains            []string `json:"chains"`
+	LastSelectedChain string   `json:"lastSelectedChain"`
 }
 
 type AccountCredential struct {

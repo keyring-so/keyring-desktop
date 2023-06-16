@@ -1,8 +1,8 @@
 export namespace database {
 	
 	export class AccountChainInfo {
-	    chain: string;
-	    address: string;
+	    chains: string[];
+	    lastSelectedChain: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new AccountChainInfo(source);
@@ -10,8 +10,8 @@ export namespace database {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.chain = source["chain"];
-	        this.address = source["address"];
+	        this.chains = source["chains"];
+	        this.lastSelectedChain = source["lastSelectedChain"];
 	    }
 	}
 

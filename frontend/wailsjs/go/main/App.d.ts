@@ -5,7 +5,11 @@ import {crosschain} from '../models';
 
 export function Connect():Promise<string>;
 
-export function GetAddress(arg1:string):Promise<database.AccountChainInfo>;
+export function GenerateAddress(arg1:string,arg2:string):Promise<string>;
+
+export function GetAddress(arg1:string,arg2:string):Promise<string>;
+
+export function GetChains(arg1:string):Promise<database.AccountChainInfo>;
 
 export function Initialize(arg1:string,arg2:string,arg3:number):Promise<string>;
 

@@ -6,8 +6,16 @@ export function Connect() {
   return window['go']['main']['App']['Connect']();
 }
 
-export function GetAddress(arg1) {
-  return window['go']['main']['App']['GetAddress'](arg1);
+export function GenerateAddress(arg1, arg2) {
+  return window['go']['main']['App']['GenerateAddress'](arg1, arg2);
+}
+
+export function GetAddress(arg1, arg2) {
+  return window['go']['main']['App']['GetAddress'](arg1, arg2);
+}
+
+export function GetChains(arg1) {
+  return window['go']['main']['App']['GetChains'](arg1);
 }
 
 export function Initialize(arg1, arg2, arg3) {

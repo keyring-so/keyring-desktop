@@ -83,60 +83,87 @@ func (a *App) Pair(pin string, puk string, code string, accountName string) (str
 	return accountName, nil
 }
 
-func (a *App) GetAddress(account string) (*database.AccountChainInfo, error) {
-	utils.Sugar.Infof("Get account address, %s", account)
+// add a new chain if not exist
+func (a *App) GetChains(account string) (*database.AccountChainInfo, error) {
+	utils.Sugar.Info("Check if there is chain added already")
 
-	accountChainInfo, err := database.QuerySelectedChain(a.db, account)
+	chains, err := database.QueryChains(a.db, account)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read database")
+		return nil, errors.New("failed to query current account")
 	}
 
-	if accountChainInfo.Chain != "" {
-		return accountChainInfo, nil
+	utils.Sugar.Infof("The chains are: %s", chains)
+	return chains, nil
+}
+
+// return the address of the selected account and chain
+func (a *App) GetAddress(account string, chain string) (string, error) {
+	utils.Sugar.Infof("Get account address, %s", account)
+
+	if account == "" || chain == "" {
+		return "", errors.New("invalid account or chain")
 	}
 
-	// default chain is Ethereum
-	chain := "ETH"
+	address, err := database.QueryChainAddress(a.db, account, chain)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to read database")
+	}
+
+	err = database.SaveLastSelectedChain(a.db, account, chain)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to update database")
+	}
+
+	return address, nil
+}
+
+// generate a new address for the selected account and chain
+func (a *App) GenerateAddress(account string, chain string) (string, error) {
+	utils.Sugar.Infow("Generate account address",
+		"account", account,
+		"chain", chain,
+	)
+	if account == "" || chain == "" {
+		return "", errors.New("invalid account or chain")
+	}
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
 	if chainConfig == nil {
-		return nil, errors.New("chain configuration not found")
+		return "", errors.New("chain configuration not found")
 	}
 
 	// get credential
 	credential, err := database.QueryCredential(a.db, account)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read database")
+		return "", errors.New("failed to read database")
 	}
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to connect to card")
+		return "", errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
 	address, err := keyringCard.ChainAddress(credential.Pin, credential.Puk, credential.Code, chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to get chain address")
+		return "", errors.New("failed to get chain address")
 	}
 
 	utils.Sugar.Infof("chain: %s, address: %s", chain, address)
 
-	// save slected chain info
-	chainInfo := &database.AccountChainInfo{
-		Chain:   chain,
-		Address: address,
-	}
-	err = database.SaveSelectedChain(a.db, account, chainInfo)
+	// save slected chain and address
+	err = database.SaveChainAddress(a.db, account, chain, address)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to update database")
+		return "", errors.New("failed to update database")
 	}
 
-	return chainInfo, nil
+	return address, nil
 }
 
 func (a *App) Transfer(
