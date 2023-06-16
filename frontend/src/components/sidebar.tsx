@@ -8,6 +8,8 @@ import { useSetAtom } from "jotai";
 import { ledgerAtom } from "@/store/state";
 import { BITCOIN_INFO, BITCOIN_SYMBOL, ETHEREUM_INFO, ETHEREUM_SYMBOL, POLYGON_INFO, POLYGON_SYMBOL } from "@/constants";
 
+// TODO side bar should comes dynamic from database
+// TODO add page to add new chain
 const Sidebar = () => {
   return (
     <div

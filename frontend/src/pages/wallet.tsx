@@ -17,6 +17,7 @@ import { ledgerAtom, accountAtom } from "@/store/state";
 import { Transfer, GetAddress, GetChains, GenerateAddress } from "../../wailsjs/go/main/App";
 import { LEDGERS } from "@/constants";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -30,6 +31,9 @@ function Wallet() {
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const account = useAtomValue(accountAtom);
 
+  const { toast } = useToast();
+
+  // get chains of the account
   useEffect(() => {
     GetChains(account)
       .then((chains) => {
@@ -37,10 +41,16 @@ function Wallet() {
         setLedger(chains.lastSelectedChain);
         setChains(chains.chains);
       })
-      .catch((err) => console.log("GetChains error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+      .catch((err) => {
+        console.log("GetChains error happens: ", err)
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        })
+      });
   }, []);
 
-  // TODO sidebar select other network should update database about the address of new selected network
+  // get the address for a specific chain
   useEffect(() => {
     if (account && ledger) {
       GetAddress(account, ledger)
@@ -52,7 +62,13 @@ function Wallet() {
             setShowAddressDialog(true);
           }
         })
-        .catch((err) => console.log("GetAddress error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+        .catch((err) => {
+          console.log("GetAddress error happens: ", err);
+          toast({
+            title: "Uh oh! Something went wrong.",
+            description: `Error happens: ${err}`,
+          })
+        });
     }
   }, [account, ledger]);
 
