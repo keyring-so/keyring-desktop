@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import Sidebar from "@/components/sidebar";
 import { useAtom, useAtomValue } from "jotai";
 import { ledgerAtom, accountAtom } from "@/store/state";
-import { Transfer, GetAddress, GetChains } from "../../wailsjs/go/main/App";
+import { Transfer, GetAddress, GetChains, GenerateAddress } from "../../wailsjs/go/main/App";
 import { LEDGERS } from "@/constants";
+import { Label } from "@/components/ui/label";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -15,29 +25,34 @@ function Wallet() {
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
   const [chains, setChains] = useState<string[]>([]);
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
 
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const account = useAtomValue(accountAtom);
 
   useEffect(() => {
     GetChains(account)
-        .then(chains => {
-            console.log("GetChains response: ", JSON.stringify(chains));
-            setLedger(chains.lastSelectedChain);
-            setChains(chains.chains);
-        })
-        .catch((err) => console.log("GetChains error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+      .then((chains) => {
+        console.log("GetChains response: ", JSON.stringify(chains));
+        setLedger(chains.lastSelectedChain);
+        setChains(chains.chains);
+      })
+      .catch((err) => console.log("GetChains error happens: ", err)); // TODO Alert box and remind user to connect card and retry
   }, []);
 
   // TODO sidebar select other network should update database about the address of new selected network
   useEffect(() => {
     if (account && ledger) {
       GetAddress(account, ledger)
-      .then(address => {
+        .then((address) => {
           console.log("GetAddress response: ", address, ledger);
           setFromAddr(address);
-      })
-      .catch((err) => console.log("GetAddress error happens: ", err)); // TODO Alert box and remind user to connect card and retry
+          if (!address) {
+            // show dialog to generate a new address
+            setShowAddressDialog(true);
+          }
+        })
+        .catch((err) => console.log("GetAddress error happens: ", err)); // TODO Alert box and remind user to connect card and retry
     }
   }, [account, ledger]);
 
@@ -52,16 +67,20 @@ function Wallet() {
   };
 
   const transfer = () => {
-    Transfer(
-      asset,
-      ledger,
-      fromAddr,
-      toAddr,
-      amount
-    )
+    Transfer(asset, ledger, fromAddr, toAddr, amount)
       .then(updateTxId)
       .catch((err) => updateTxId(err));
   };
+
+  const generateAddress = () => {
+    console.log("generateAddress");
+    GenerateAddress(account, ledger)
+      .then(address => {
+        console.log("GenerateAddress response: ", address);
+        setFromAddr(address);
+      })
+      .catch(err => console.log("GenerateAddress error happens: ", err));
+  }
 
   const receive = () => {
     console.log("receive");
@@ -71,10 +90,36 @@ function Wallet() {
     let ledgerInfo = LEDGERS.get(ledger);
     let name = ledgerInfo ? ledgerInfo.name : "";
     return name;
-  }
+  };
+
+  const addressDialog = () => {
+    return (
+      <Dialog open={true} onOpenChange={setShowAddressDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Generate Address for {ledger}</DialogTitle>
+            <DialogDescription>
+              You need to connect the card to generate the address. Click
+              generate when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              PIN Code
+            </Label>
+            <Input id="name" value="123456" className="col-span-3" />
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={generateAddress}>Generate</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <div className="flex flex-row mt-6 ml-2 gap-20">
+      {showAddressDialog && addressDialog()}
       <Sidebar />
 
       <div className="mt-6">
