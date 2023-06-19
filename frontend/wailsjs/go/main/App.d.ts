@@ -3,6 +3,8 @@
 import {database} from '../models';
 import {crosschain} from '../models';
 
+export function CheckCardConnection():Promise<boolean>;
+
 export function Connect():Promise<string>;
 
 export function GenerateAddress(arg1:string,arg2:string):Promise<string>;

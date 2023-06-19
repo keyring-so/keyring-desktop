@@ -272,6 +272,17 @@ func (a *App) Transfer(
 	return txId, nil
 }
 
+func (a *App) CheckCardConnection() bool {
+	keyringCard, err := services.NewKeyringCard()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return false
+	}
+	defer keyringCard.Release()
+
+	return true
+}
+
 // start to init a new card
 // 1. init card with storage allocated not not filled on the card
 // 2. pair with credentials

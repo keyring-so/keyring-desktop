@@ -4,7 +4,8 @@ import Wallet from "./pages/wallet";
 import ConnectComponent from "./pages/connect";
 import { useAtom } from "jotai";
 import { accountAtom } from "./store/state";
-import { Toast } from "@/components/ui/toast"
+import { Toaster } from "@/components/ui/toaster";
+import WelcomePage from "./pages/welcome";
 
 function App() {
   const [account, setAccount] = useAtom(accountAtom);
@@ -18,8 +19,8 @@ function App() {
   return (
     <div>
       {account && <Wallet />}
-      {!account && <ConnectComponent />}
-      <Toast />
+      {!account && <WelcomePage />}
+      <Toaster />
     </div>
   );
 }
