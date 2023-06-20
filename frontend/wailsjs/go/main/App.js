@@ -6,6 +6,10 @@ export function CheckCardConnection() {
   return window['go']['main']['App']['CheckCardConnection']();
 }
 
+export function CheckCardInitialized() {
+  return window['go']['main']['App']['CheckCardInitialized']();
+}
+
 export function Connect() {
   return window['go']['main']['App']['Connect']();
 }
@@ -26,8 +30,8 @@ export function Initialize(arg1, arg2, arg3) {
   return window['go']['main']['App']['Initialize'](arg1, arg2, arg3);
 }
 
-export function Pair(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
+export function Pair(arg1, arg2) {
+  return window['go']['main']['App']['Pair'](arg1, arg2);
 }
 
 export function Transfer(arg1, arg2, arg3, arg4, arg5) {

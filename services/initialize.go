@@ -7,6 +7,22 @@ import (
 	keycard "github.com/status-im/keycard-go"
 )
 
+func (i *KeyringCard) IsInitialized() (bool, error) {
+	cmdSet := keycard.NewCommandSet(i.c)
+
+	utils.Sugar.Info("select keycard applet")
+	err := cmdSet.Select()
+	if err != nil {
+		return false, err
+	}
+
+	if !cmdSet.ApplicationInfo.Installed {
+		return false, errCardNotInstalled
+	}
+
+	return cmdSet.ApplicationInfo.Initialized, nil
+}
+
 // keycard-select
 // keycard-set-secrets 123456 123456789012 KeycardDefaultPairing
 // keycard-init

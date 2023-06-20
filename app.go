@@ -56,8 +56,12 @@ func (a *App) Connect() (string, error) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin string, puk string, code string, accountName string) (string, error) {
+func (a *App) Pair(pin string, accountName string) (string, error) {
 	utils.Sugar.Info("Pairing with smart card")
+
+	// TODO improve it like generate randomly
+	puk := pin
+	code := pin
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
@@ -283,6 +287,24 @@ func (a *App) CheckCardConnection() bool {
 	return true
 }
 
+func (a *App) CheckCardInitialized() (bool, error) {
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return false, errors.New("failed to connect to card")
+	}
+	defer keyringCard.Release()
+
+	// check if card is initialized
+	initialized, err := keyringCard.IsInitialized()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return false, errors.New("failed to check card status")
+	}
+	return initialized, nil
+}
+
 // start to init a new card
 // 1. init card with storage allocated not not filled on the card
 // 2. pair with credentials
@@ -291,9 +313,9 @@ func (a *App) CheckCardConnection() bool {
 func (a *App) Initialize(pin string, accountName string, checkSumSize int) (string, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
-	// TODO generate randomly
-	puk := "123456123456"
-	code := "123456"
+	// TODO improve it like generate randomly
+	puk := pin
+	code := pin
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()

@@ -17,7 +17,7 @@ function ConnectComponent() {
 
   const pair = () => {
     console.log("pairing");
-    Pair(pin, puk, pairingCode, accountName)
+    Pair(pin, accountName)
       .then((res) => setAccount(res))
       .catch((err) => console.log(err));
   };
