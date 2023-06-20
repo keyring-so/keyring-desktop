@@ -30,6 +30,10 @@ export function Initialize(arg1, arg2, arg3) {
   return window['go']['main']['App']['Initialize'](arg1, arg2, arg3);
 }
 
+export function Install() {
+  return window['go']['main']['App']['Install']();
+}
+
 export function Pair(arg1, arg2) {
   return window['go']['main']['App']['Pair'](arg1, arg2);
 }

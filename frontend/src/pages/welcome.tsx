@@ -4,6 +4,7 @@ import {
   CheckCardConnection,
   CheckCardInitialized,
   Initialize,
+  Install,
   Pair,
 } from "@/../wailsjs/go/main/App";
 import { useToast } from "@/components/ui/use-toast";
@@ -19,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useSetAtom } from "jotai";
 import { accountAtom } from "@/store/state";
+import { Settings } from "lucide-react";
 
 function WelcomePage() {
   const [cardInitialized, setCardInitialized] = useState<boolean>(false);
@@ -27,6 +29,7 @@ function WelcomePage() {
   const [cardName, setCardName] = useState("");
   const [checkSumSize, setCheckSumSize] = useState(4); // TODO advanced setting -> select box
   const [mnemonic, setMnemonic] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
 
   const setAccount = useSetAtom(accountAtom);
 
@@ -177,6 +180,41 @@ function WelcomePage() {
     );
   };
 
+  const resetCard = async () => {
+    console.log("resetting card");
+    try {
+      const _ = await Install();
+      toast({
+        title: "Success!",
+        description: "Card is reset.",
+      });
+      setShowSettings(false);
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
+  const settingsDialog = () => {
+    return (
+      <Dialog open={true} onOpenChange={setShowSettings}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>
+              Please only change the settings when needed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="">
+            <Button className="" onClick={resetCard}>Card Factory Rest</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <div className="flex flex-row justify-evenly h-screen">
       {connectDialog && cardInitialized === false && initializeDialog()}
@@ -191,6 +229,11 @@ function WelcomePage() {
           Connect your Keyring Card
         </Button>
       </div>
+
+      <div className="fixed right-6 bottom-6">
+        <Settings onClick={() => setShowSettings(true)} />
+      </div>
+      {showSettings && settingsDialog()}
     </div>
   );
 }

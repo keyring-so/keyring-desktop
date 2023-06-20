@@ -6,9 +6,11 @@ import (
 	"keyring-desktop/database"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
+	"os"
 
 	"github.com/jumpcrypto/crosschain"
 	"github.com/jumpcrypto/crosschain/factory"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	bolt "go.etcd.io/bbolt"
 )
@@ -339,4 +341,37 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	}
 
 	return mnemonic, nil
+}
+
+// Now to remove the key from the card, we need to reinstall the applet
+func (a *App) Install() error {
+	utils.Sugar.Info("Start to install applets on card")
+
+	// open the cap file
+	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{})
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to open file dialog")
+	}
+	capFile, err := os.Open(file)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to open file")
+	}
+
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to connect to card")
+	}
+	defer keyringCard.Release()
+
+	// install card
+	err = keyringCard.Install(capFile)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to install applet on card")
+	}
+	return nil
 }
