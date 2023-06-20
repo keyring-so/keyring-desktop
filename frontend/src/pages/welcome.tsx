@@ -58,18 +58,40 @@ function WelcomePage() {
     }
   };
 
-  const pair = () => {
+  const pair = async () => {
     console.log("pairing an used card");
-    Pair(pin, cardName)
-      .then((res) => setAccount(res))
-      .catch((err) => console.log(err));
+    try {
+      const res = await Pair(pin, cardName);
+      console.log("account: ", res);
+      setAccount(res);
+      toast({
+        title: "Success!",
+        description: "Card is paired.",
+      });
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
   };
 
-  const init = () => {
+  const init = async () => {
     console.log("init a new card");
-    Initialize(pin, cardName, checkSumSize)
-      .then((res) => setMnemonic(res))
-      .catch((err) => console.log(err));
+    try {
+        const words = await Initialize(pin, cardName, checkSumSize);
+        console.log("TODO remove sec log: ", words)
+        setMnemonic(words);
+        toast({
+          title: "Success!",
+          description: "Card is initialized.",
+        });
+      } catch (err) {
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        });
+      }
   };
 
   const mnemonicDialog = () => {
@@ -119,7 +141,6 @@ function WelcomePage() {
             </Label>
             <Input
               id="name"
-              value="Satoshi"
               className="col-span-3"
               onChange={(e) => setCardName(e.target.value)}
             />
@@ -165,7 +186,6 @@ function WelcomePage() {
             </Label>
             <Input
               id="name"
-              value="Satoshi"
               className="col-span-3"
               onChange={(e) => setCardName(e.target.value)}
             />
@@ -208,7 +228,9 @@ function WelcomePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="">
-            <Button className="" onClick={resetCard}>Card Factory Rest</Button>
+            <Button className="" onClick={resetCard}>
+              Card Factory Rest
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

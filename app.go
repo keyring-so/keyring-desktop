@@ -313,10 +313,10 @@ func (a *App) CheckCardInitialized() (bool, error) {
 // 3. generate mnemonic
 // 4. load key with mnemonic and fill the private key on the card
 func (a *App) Initialize(pin string, accountName string, checkSumSize int) (string, error) {
-	utils.Sugar.Info("Pairing with smart card")
+	utils.Sugar.Info("Initialize card")
 
 	// TODO improve it like generate randomly
-	puk := pin
+	puk := pin + pin
 	code := pin
 
 	// connect to card
@@ -328,10 +328,16 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	defer keyringCard.Release()
 
 	// initialize card
-	mnemonic, err := keyringCard.Initialize(pin, puk, code, checkSumSize)
+	err = keyringCard.Init(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to pair with card")
+		return "", errors.New("failed to init card")
+	}
+
+	mnemonic, err := keyringCard.GenerateKey(pin, puk, code, checkSumSize)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to generate key")
 	}
 
 	err = database.SaveCredential(a.db, pin, puk, code, accountName)
