@@ -1,10 +1,17 @@
 [
   {
     "symbol": "BTC",
+    "name": "Bitcoin",
     "path": "m/44'/0'/0'/0/0"
   },
   {
     "symbol": "ETH",
+    "name": "Ethereum",
+    "path": "m/44'/60'/0'/0/0"
+  },
+  {
+    "symbol": "MATIC",
+    "name": "Polygon",
     "path": "m/44'/60'/0'/0/0"
   }
 ]

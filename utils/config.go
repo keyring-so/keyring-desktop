@@ -8,6 +8,7 @@ import (
 
 type ChainConfig struct {
 	Symbol string `json:"symbol"`
+	Name   string `json:"name"`
 	Path   string `json:"path"`
 }
 

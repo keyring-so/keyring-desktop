@@ -74,6 +74,15 @@ func SaveChainAddress(db *bolt.DB, account, chain, address string) error {
 		b := tx.Bucket([]byte(utils.BucketName))
 		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
 		b.Put([]byte(account+"_"+chain+"_address"), []byte(address))
+		chains := string(b.Get([]byte(account + "_chains")))
+		if chains == "" {
+			chains = chain
+		} else {
+			if !strings.Contains(chains, chain) {
+				chains = chains + "," + chain
+			}
+		}
+		b.Put([]byte(account+"_chains"), []byte(chains))
 		return nil
 	})
 }

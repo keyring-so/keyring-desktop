@@ -4,12 +4,15 @@ import { LucideIcon } from "lucide-react";
 import React from "react";
 
 type Props = {
-  icon: LucideIcon;
+  img?: string;
+  icon?: LucideIcon;
   text: string;
-  onClick: () => void;
+  ledger?: string;
 };
 
-const SidebarIcon = ({ icon, text, onClick }: Props) => {
+const SidebarLedger = ({ img, icon, text, ledger }: Props) => {
+  const setLedger = useSetAtom(ledgerAtom);
+
   return (
     <div
       className="
@@ -22,9 +25,9 @@ const SidebarIcon = ({ icon, text, onClick }: Props) => {
             cursor-pointer shadow-lg
             group
             "
-      onClick={onClick}
+      onClick={() => setLedger((oldLedger) => ledger ? ledger : oldLedger)}
     >
-      {React.createElement(icon)}
+      { icon ? React.createElement(icon) : <img src={img} />}
       <span
         className="
             absolute w-auto p-2 m-2 min-w-max left-16 rounded-md shadow-md
@@ -39,4 +42,4 @@ const SidebarIcon = ({ icon, text, onClick }: Props) => {
   );
 };
 
-export default SidebarIcon;
+export default SidebarLedger;

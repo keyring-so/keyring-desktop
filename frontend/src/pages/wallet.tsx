@@ -135,7 +135,6 @@ function Wallet() {
   return (
     <div className="flex flex-row mt-6 ml-2 gap-20">
       {showAddressDialog && addressDialog()}
-      <Sidebar chains={chains} lastSelectedChain={ledger} />
 
       <div className="mt-6">
         <h2 className="text-3xl">Assets</h2>
@@ -171,6 +170,7 @@ function Wallet() {
           </Button>
         </div>
 
+        <div>Address: {fromAddr}</div>
         <div>TransactionId: {txId}</div>
 
         <div>

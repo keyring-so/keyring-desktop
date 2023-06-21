@@ -6,23 +6,37 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { accountAtom, ledgerAtom } from "@/store/state";
+import {
+  accountAtom,
+  chainConfigsAtom,
+  ledgerAtom,
+  showNewLedgerAtom,
+} from "@/store/state";
 import { useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { GenerateAddress, GetAddress, GetChains } from "../../wailsjs/go/main/App";
+import { GenerateAddress, GetChains } from "../../wailsjs/go/main/App";
+import Wallet from "./wallet";
 
 function WelcomePage() {
   const [chains, setChains] = useState<string[]>([]);
-  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [ledgerCandidate, setLedgerCandidate] = useState("");
 
+  const [showNewLedger, setShowNewLedger] = useAtom(showNewLedgerAtom);
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const account = useAtomValue(accountAtom);
+  const chainConfigs = useAtomValue(chainConfigsAtom);
 
   const { toast } = useToast();
 
@@ -35,33 +49,62 @@ function WelcomePage() {
         setChains(chains.chains);
       })
       .catch((err) => {
-        console.log("GetChains error happens: ", err)
+        console.log("GetChains error happens: ", err);
         toast({
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,
-        })
+        });
       });
   }, []);
 
-  const addressDialog = () => {
+  const addLedger = async () => {
+    try {
+      let _ = await GenerateAddress(account, ledgerCandidate);
+      let chains = await GetChains(account);
+      setChains(chains.chains);
+      setLedger(chains.lastSelectedChain);
+    } catch (err) {
+      console.log("GenerateAddress error happens: ", err);
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+    setShowNewLedger(false);
+  };
+
+  const newLedgerDialog = () => {
     return (
-      <Dialog open={true} onOpenChange={setShowAddressDialog}>
+      <Dialog open={true} onOpenChange={setShowNewLedger}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Generate Address for {ledger}</DialogTitle>
+            <DialogTitle>Add a new Blockchain</DialogTitle>
             <DialogDescription>
-              You need to connect the card to generate the address. Click
-              generate when you're done.
+              Choose one from the below list.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              PIN Code
-            </Label>
-            <Input id="name" value="123456" className="col-span-3" />
+          <div className="ml-20">
+            <Select onValueChange={setLedgerCandidate}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a blockchain" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {chainConfigs.map((chainConfig) => {
+                    return (
+                      <SelectItem value={chainConfig.symbol}>
+                        {chainConfig.name}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
-            <Button type="submit" >Generate</Button>
+            <Button type="submit" onClick={addLedger}>
+              Confirm
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -69,15 +112,24 @@ function WelcomePage() {
   };
 
   return (
-    <div className="flex flex-row">
-      {showAddressDialog && addressDialog()}
+    <div className="flex flex-row gap-20">
+      {showNewLedger && newLedgerDialog()}
       <Sidebar chains={chains} lastSelectedChain={ledger} />
-      <div className="flex flex-col justify-center grow gap-8">
-        <h1 className="text-5xl text-center">Welcome</h1>
-        <h1 className="text-2xl text-center">Click the <Plus className="inline bg-gray-300 rounded-full m-2" /> button on left to start!</h1>
-      </div>
+      {chains.length === 0 ? <Guide /> : <Wallet />}
     </div>
   );
 }
+
+const Guide = () => {
+  return (
+    <div className="flex flex-col justify-center grow gap-8">
+      <h1 className="text-5xl text-center">Welcome</h1>
+      <h1 className="text-2xl text-center">
+        Click the <Plus className="inline bg-gray-300 rounded-full m-2" />{" "}
+        button on left to start!
+      </h1>
+    </div>
+  );
+};
 
 export default WelcomePage;

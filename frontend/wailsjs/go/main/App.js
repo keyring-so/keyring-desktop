@@ -22,6 +22,10 @@ export function GetAddress(arg1, arg2) {
   return window['go']['main']['App']['GetAddress'](arg1, arg2);
 }
 
+export function GetChainConfigs() {
+  return window['go']['main']['App']['GetChainConfigs']();
+}
+
 export function GetChains(arg1) {
   return window['go']['main']['App']['GetChains'](arg1);
 }

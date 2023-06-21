@@ -1,8 +1,12 @@
 import {
   LEDGERS
 } from "@/constants";
+import { chainConfigsAtom, showNewLedgerAtom } from "@/store/state";
+import { useSetAtom } from "jotai";
 import { Key, Plus, Settings, UserCircle } from "lucide-react";
+import SidebarLedger from "./sidebar-ledger";
 import SidebarIcon from "./sidebar-icon";
+import { GetChainConfigs } from "../../wailsjs/go/main/App";
 
 // TODO side bar should comes dynamic from database
 // TODO add page to add new chain
@@ -13,6 +17,15 @@ type Props = {
 };
 
 const Sidebar = ({ chains, lastSelectedChain }: Props) => {
+  const setShowNewLedger = useSetAtom(showNewLedgerAtom);
+  const setChainConfigs = useSetAtom(chainConfigsAtom);
+
+  const clickAddButton = async () => {
+    let chainConfigs = await GetChainConfigs();
+    setChainConfigs(chainConfigs);
+    setShowNewLedger(true);
+  };
+
   return (
     <div
       className="
@@ -21,7 +34,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
             items-center
             "
     >
-      <SidebarIcon icon={Key} text="Keyring" />
+      <SidebarIcon icon={Key} text="Keyring" onClick={() => console.log("click")} />
 
       <Divider />
 
@@ -29,7 +42,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
         {chains.map((chain) => {
           const ledger = LEDGERS.get(chain);
           return (
-            <SidebarIcon
+            <SidebarLedger
             img={ledger!.img}
             text={ledger!.name}
             ledger={chain}
@@ -40,11 +53,11 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <Divider />
 
-      <SidebarIcon icon={Plus} text="Add a Blockchain" />
+      <SidebarIcon icon={Plus} text="Add a Blockchain" onClick={clickAddButton} />
 
       <div className="flex flex-col fixed bottom-2">
-        <SidebarIcon icon={UserCircle} text="Accounts" />
-        <SidebarIcon icon={Settings} text="Settings" />
+        <SidebarIcon icon={UserCircle} text="Accounts" onClick={() => console.log("click")} />
+        <SidebarIcon icon={Settings} text="Settings" onClick={() => console.log("click")} />
       </div>
     </div>
   );
