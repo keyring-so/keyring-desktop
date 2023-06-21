@@ -1,4 +1,3 @@
-import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -6,7 +5,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,9 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { LEDGERS } from "@/constants";
 import { accountAtom, ledgerAtom } from "@/store/state";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { GenerateAddress, GetAddress, GetChains, Transfer } from "../../wailsjs/go/main/App";
+import {
+  GenerateAddress,
+  GetAddress,
+  Transfer
+} from "../../wailsjs/go/main/App";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -24,37 +27,18 @@ function Wallet() {
   const [fromAddr, setFromAddr] = useState("");
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
-  const [chains, setChains] = useState<string[]>([]);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
 
-  const [ledger, setLedger] = useAtom(ledgerAtom);
+  const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
 
   const { toast } = useToast();
-
-  // get chains of the account
-  useEffect(() => {
-    GetChains(account)
-      .then((chains) => {
-        console.log("GetChains response: ", JSON.stringify(chains));
-        setLedger(chains.lastSelectedChain);
-        setChains(chains.chains);
-      })
-      .catch((err) => {
-        console.log("GetChains error happens: ", err)
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        })
-      });
-  }, []);
 
   // get the address for a specific chain
   useEffect(() => {
     if (account && ledger) {
       GetAddress(account, ledger)
         .then((address) => {
-          console.log("GetAddress response: ", address, ledger);
           setFromAddr(address);
           if (!address) {
             // show dialog to generate a new address
@@ -62,11 +46,10 @@ function Wallet() {
           }
         })
         .catch((err) => {
-          console.log("GetAddress error happens: ", err);
           toast({
             title: "Uh oh! Something went wrong.",
             description: `Error happens: ${err}`,
-          })
+          });
         });
     }
   }, [account, ledger]);
@@ -88,14 +71,17 @@ function Wallet() {
   };
 
   const generateAddress = () => {
-    console.log("generateAddress");
     GenerateAddress(account, ledger)
-      .then(address => {
-        console.log("GenerateAddress response: ", address);
+      .then((address) => {
         setFromAddr(address);
       })
-      .catch(err => console.log("GenerateAddress error happens: ", err));
-  }
+      .catch((err) =>
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        })
+      );
+  };
 
   const receive = () => {
     console.log("receive");
@@ -125,7 +111,9 @@ function Wallet() {
             <Input id="name" value="123456" className="col-span-3" />
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={generateAddress}>Generate</Button>
+            <Button type="submit" onClick={generateAddress}>
+              Generate
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -133,7 +121,7 @@ function Wallet() {
   };
 
   return (
-    <div className="flex flex-row mt-6 ml-2 gap-20">
+    <div className="flex flex-row mt-6 gap-20">
       {showAddressDialog && addressDialog()}
 
       <div className="mt-6">
