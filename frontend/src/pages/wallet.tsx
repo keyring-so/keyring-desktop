@@ -1,23 +1,22 @@
-import { useEffect, useState } from "react";
+import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
   DialogFooter,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
-import Sidebar from "@/components/sidebar";
-import { useAtom, useAtomValue } from "jotai";
-import { ledgerAtom, accountAtom } from "@/store/state";
-import { Transfer, GetAddress, GetChains, GenerateAddress } from "../../wailsjs/go/main/App";
-import { LEDGERS } from "@/constants";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { LEDGERS } from "@/constants";
+import { accountAtom, ledgerAtom } from "@/store/state";
+import { useAtom, useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { GenerateAddress, GetAddress, GetChains, Transfer } from "../../wailsjs/go/main/App";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -136,7 +135,7 @@ function Wallet() {
   return (
     <div className="flex flex-row mt-6 ml-2 gap-20">
       {showAddressDialog && addressDialog()}
-      <Sidebar />
+      <Sidebar chains={chains} lastSelectedChain={ledger} />
 
       <div className="mt-6">
         <h2 className="text-3xl">Assets</h2>

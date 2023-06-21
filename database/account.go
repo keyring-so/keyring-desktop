@@ -36,8 +36,12 @@ func QueryChains(db *bolt.DB, account string) (*AccountChainInfo, error) {
 		return nil, err
 	}
 
+	chainArray := []string{}
+	if chains != "" {
+		chainArray = strings.Split(chains, ",")
+	}
 	res := &AccountChainInfo{
-		Chains:            strings.Split(chains, ","),
+		Chains:            chainArray,
 		LastSelectedChain: lastSelectedChain,
 	}
 	return res, nil

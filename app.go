@@ -61,8 +61,12 @@ func (a *App) Connect() (string, error) {
 func (a *App) Pair(pin string, accountName string) (string, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
+	if pin == "" || accountName == "" {
+		return "", errors.New("pin or card name can not be empty")
+	}
+
 	// TODO improve it like generate randomly
-	puk := pin
+	puk := pin + pin
 	code := pin
 
 	// connect to card
@@ -314,6 +318,10 @@ func (a *App) CheckCardInitialized() (bool, error) {
 // 4. load key with mnemonic and fill the private key on the card
 func (a *App) Initialize(pin string, accountName string, checkSumSize int) (string, error) {
 	utils.Sugar.Info("Initialize card")
+
+	if pin == "" || accountName == "" {
+		return "", errors.New("pin or card name can not be empty")
+	}
 
 	// TODO improve it like generate randomly
 	puk := pin + pin
