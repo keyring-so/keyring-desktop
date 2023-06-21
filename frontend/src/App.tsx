@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { Connect } from "../wailsjs/go/main/App";
-import Wallet from "./pages/wallet";
-import { useAtom } from "jotai";
-import { accountAtom } from "./store/state";
 import { Toaster } from "@/components/ui/toaster";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
+import { Connect } from "../wailsjs/go/main/App";
 import ConnectPage from "./pages/connect";
+import WelcomePage from "./pages/welcome";
+import { accountAtom } from "./store/state";
 
 function App() {
   const [account, setAccount] = useAtom(accountAtom);
@@ -17,8 +17,8 @@ function App() {
 
   return (
     <div>
-      {account && <Wallet />}
       {!account && <ConnectPage />}
+      {account && <WelcomePage />}
       <Toaster />
     </div>
   );

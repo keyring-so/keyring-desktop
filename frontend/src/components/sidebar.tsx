@@ -18,6 +18,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
       className="
             top-2 left-2 h-screen w-16
             flex flex-col bg-white dark:bg-gray-900 shadow-lg
+            items-center
             "
     >
       <SidebarIcon icon={Key} text="Keyring" />
@@ -54,7 +55,7 @@ const Divider = () => (
     className="
         bg-gray-200 dark:bg-gray-800
         border border-gray-200 dark:border-gray-800 rounded-full
-        mx-2
+        mx-2 w-4/5
         "
   />
 );
