@@ -217,5 +217,6 @@ replace (
 	github.com/cosmos/ledger-cosmos-go => github.com/terra-money/ledger-terra-go v0.11.2
 	github.com/gagliardetto/solana-go => github.com/conorpp/solana-go v1.0.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/jumpcrypto/crosschain => github.com/kaichaosun/crosschain v0.0.1
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )

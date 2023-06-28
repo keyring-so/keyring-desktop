@@ -183,7 +183,7 @@ func (a *App) Transfer(
 	to string,
 	amount string,
 ) (crosschain.TxHash, error) {
-	utils.Sugar.Infof("Transfer %s %s from %s to %s", amount, asset, from, to)
+	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
 
 	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
 	if chainConfig == nil {

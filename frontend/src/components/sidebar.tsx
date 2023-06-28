@@ -8,9 +8,6 @@ import SidebarLedger from "./sidebar-ledger";
 import SidebarIcon from "./sidebar-icon";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";
 
-// TODO side bar should comes dynamic from database
-// TODO add page to add new chain
-
 type Props = {
   chains: string[];
   lastSelectedChain: string;

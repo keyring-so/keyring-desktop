@@ -80,7 +80,6 @@ function ConnectPage() {
     console.log("init a new card");
     try {
         const words = await Initialize(pin, cardName, checkSumSize);
-        console.log("TODO remove sec log: ", words)
         setMnemonic(words);
         toast({
           title: "Success!",
@@ -94,6 +93,7 @@ function ConnectPage() {
       }
   };
 
+  // TODO improve secrets words display
   const mnemonicDialog = () => {
     return (
       <Dialog open={true} onOpenChange={() => setMnemonic("")}>
