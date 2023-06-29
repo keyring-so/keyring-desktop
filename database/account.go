@@ -47,18 +47,29 @@ func QueryChains(db *bolt.DB, account string) (*AccountChainInfo, error) {
 	return res, nil
 }
 
-func QueryChainAddress(db *bolt.DB, account, chain string) (string, error) {
+func QueryChainAssets(db *bolt.DB, account, chain string) (*AccountChainAssets, error) {
 	var address string
+	var assets string
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
 		address = string(b.Get([]byte(account + "_" + chain + "_address")))
+		assets = string(b.Get([]byte(account + "_" + chain + "_assets")))
 		return nil
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return address, nil
+	assetsArray := []string{}
+	if assets != "" {
+		assetsArray = strings.Split(assets, ",")
+	}
+	res := &AccountChainAssets{
+		Address: address,
+		Assets:  assetsArray,
+	}
+
+	return res, nil
 }
 
 func SaveLastSelectedChain(db *bolt.DB, account, chain string) error {
@@ -74,6 +85,7 @@ func SaveChainAddress(db *bolt.DB, account, chain, address string) error {
 		b := tx.Bucket([]byte(utils.BucketName))
 		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
 		b.Put([]byte(account+"_"+chain+"_address"), []byte(address))
+		b.Put([]byte(account+"_"+chain+"_assets"), []byte(chain))
 		chains := string(b.Get([]byte(account + "_chains")))
 		if chains == "" {
 			chains = chain

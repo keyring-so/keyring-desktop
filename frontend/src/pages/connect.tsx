@@ -38,10 +38,8 @@ function ConnectPage() {
   const connect = async () => {
     try {
       const res = await CheckCardConnection();
-      console.log("is card connected", res);
       if (res) {
         const res = await CheckCardInitialized();
-        console.log("is card initialized", res);
         setCardInitialized(res);
         setConnectDialog(true);
       } else {
@@ -59,10 +57,8 @@ function ConnectPage() {
   };
 
   const pair = async () => {
-    console.log("pairing an used card");
     try {
       const res = await Pair(pin, cardName);
-      console.log("account: ", res);
       setAccount(res);
       toast({
         title: "Success!",
@@ -77,7 +73,6 @@ function ConnectPage() {
   };
 
   const init = async () => {
-    console.log("init a new card");
     try {
         const words = await Initialize(pin, cardName, checkSumSize);
         setMnemonic(words);
@@ -201,7 +196,6 @@ function ConnectPage() {
   };
 
   const resetCard = async () => {
-    console.log("resetting card");
     try {
       const _ = await Install();
       toast({

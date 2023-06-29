@@ -7,7 +7,21 @@
   {
     "symbol": "ETH",
     "name": "Ethereum",
-    "path": "m/44'/60'/0'/0/0"
+    "path": "m/44'/60'/0'/0/0",
+    "tokens": [
+      {
+        "symbol": "USDC"
+      },
+      {
+        "symbol": "USDT"
+      },
+      {
+        "symbol": "DAI"
+      },
+      {
+        "symbol": "HOT"
+      }
+    ]
   },
   {
     "symbol": "MATIC",

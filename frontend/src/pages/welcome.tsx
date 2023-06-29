@@ -26,7 +26,7 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { GenerateAddress, GetChains } from "../../wailsjs/go/main/App";
+import { AddLedger, GetChains } from "../../wailsjs/go/main/App";
 import Wallet from "./wallet";
 
 function WelcomePage() {
@@ -49,7 +49,6 @@ function WelcomePage() {
         setChains(chains.chains);
       })
       .catch((err) => {
-        console.log("GetChains error happens: ", err);
         toast({
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,
@@ -59,12 +58,11 @@ function WelcomePage() {
 
   const addLedger = async () => {
     try {
-      let _ = await GenerateAddress(account, ledgerCandidate);
+      let _ = await AddLedger(account, ledgerCandidate);
       let chains = await GetChains(account);
       setChains(chains.chains);
       setLedger(chains.lastSelectedChain);
     } catch (err) {
-      console.log("GenerateAddress error happens: ", err);
       toast({
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,

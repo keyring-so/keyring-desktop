@@ -15,11 +15,7 @@ import { LEDGERS } from "@/constants";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import {
-  GenerateAddress,
-  GetAddress,
-  Transfer
-} from "../../wailsjs/go/main/App";
+import { GetAddressAndAssets, Transfer } from "../../wailsjs/go/main/App";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -27,7 +23,7 @@ function Wallet() {
   const [fromAddr, setFromAddr] = useState("");
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
-  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [userAssets, setUserAssets] = useState<string[]>([]);
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -37,12 +33,15 @@ function Wallet() {
   // get the address for a specific chain
   useEffect(() => {
     if (account && ledger) {
-      GetAddress(account, ledger)
-        .then((address) => {
-          setFromAddr(address);
-          if (!address) {
-            // show dialog to generate a new address
-            setShowAddressDialog(true);
+      GetAddressAndAssets(account, ledger)
+        .then((res) => {
+          setFromAddr(res.address);
+          setUserAssets(res.assets);
+          if (!res.address) {
+            toast({
+              title: "Uh oh! Something went wrong.",
+              description: `Error happens: address is empty`,
+            });
           }
         })
         .catch((err) => {
@@ -70,20 +69,9 @@ function Wallet() {
       .catch((err) => updateTxId(err));
   };
 
-  const generateAddress = () => {
-    GenerateAddress(account, ledger)
-      .then((address) => {
-        setFromAddr(address);
-      })
-      .catch((err) =>
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        })
-      );
-  };
-
   const receive = () => {
+    // TODO verify the address by connecting the card
+    // TODO encrypt the address so no one can change the integrity
     console.log("receive");
   };
 
@@ -93,44 +81,17 @@ function Wallet() {
     return name;
   };
 
-  const addressDialog = () => {
-    return (
-      <Dialog open={true} onOpenChange={setShowAddressDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Generate Address for {ledger}</DialogTitle>
-            <DialogDescription>
-              You need to connect the card to generate the address. Click
-              generate when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              PIN Code
-            </Label>
-            <Input id="name" value="123456" className="col-span-3" />
-          </div>
-          <DialogFooter>
-            <Button type="submit" onClick={generateAddress}>
-              Generate
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  };
-
   return (
     <div className="flex flex-row mt-6 gap-20">
-      {showAddressDialog && addressDialog()}
-
       <div className="mt-6">
         <h2 className="text-3xl">Assets</h2>
 
         <div className="mt-10 grid grid-cols-1 gap-4">
-          <Button onClick={() => setAsset("ETH")}>Ethereum</Button>
-          <Button onClick={() => setAsset("USDT")}>USDT</Button>
-          <Button onClick={() => setAsset("USDC")}>USDC</Button>
+          {userAssets.map((userAsset) => {
+            return (
+              <Button onClick={() => setAsset(userAsset)}>{userAsset}</Button>
+            );
+          })}
         </div>
       </div>
 

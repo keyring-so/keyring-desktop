@@ -10,3 +10,8 @@ type AccountCredential struct {
 	Puk  string `json:"puk"`
 	Code string `json:"code"`
 }
+
+type AccountChainAssets struct {
+	Address string   `json:"address"`
+	Assets  []string `json:"assets"`
+}
