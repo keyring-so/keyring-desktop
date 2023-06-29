@@ -153,6 +153,7 @@ func (a *App) AddLedger(account string, chain string) (string, error) {
 	return address, nil
 }
 
+// TODO show gas fee and adjust by user
 func (a *App) Transfer(
 	asset string,
 	nativeAsset string,
