@@ -107,29 +107,6 @@ func (a *App) GetChains(account string) (*database.AccountChainInfo, error) {
 	return chains, nil
 }
 
-// return the address of the selected account and chain
-func (a *App) GetAddressAndAssets(account string, chain string) (*database.AccountChainAssets, error) {
-	utils.Sugar.Infof("Get account address, %s", account)
-
-	if account == "" || chain == "" {
-		return nil, errors.New("invalid account or chain")
-	}
-
-	assets, err := database.QueryChainAssets(a.db, account, chain)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read database")
-	}
-
-	err = database.SaveLastSelectedChain(a.db, account, chain)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to update database")
-	}
-
-	return assets, nil
-}
-
 // generate a new address for the selected account and chain
 func (a *App) AddLedger(account string, chain string) (string, error) {
 	utils.Sugar.Infow("Generate account address",

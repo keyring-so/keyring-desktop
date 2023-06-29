@@ -7,12 +7,14 @@ import (
 )
 
 type ChainConfig struct {
+	Symbol string        `json:"symbol"`
+	Name   string        `json:"name"`
+	Path   string        `json:"path"`
+	Tokens []TokenConfig `json:"tokens"`
+}
+
+type TokenConfig struct {
 	Symbol string `json:"symbol"`
-	Name   string `json:"name"`
-	Path   string `json:"path"`
-	Tokens []struct {
-		Symbol string `json:"symbol"`
-	}
 }
 
 func GetChainConfigs() []ChainConfig {

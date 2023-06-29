@@ -98,3 +98,19 @@ func SaveChainAddress(db *bolt.DB, account, chain, address string) error {
 		return nil
 	})
 }
+
+func SaveChainAsset(db *bolt.DB, account, chain, asset string) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		assets := string(b.Get([]byte(account + "_" + chain + "_assets")))
+		if assets == "" {
+			assets = asset
+		} else {
+			if !strings.Contains(assets, asset) {
+				assets = assets + "," + asset
+			}
+		}
+		b.Put([]byte(account+"_"+chain+"_assets"), []byte(assets))
+		return nil
+	})
+}

@@ -4,6 +4,8 @@ import {database} from '../models';
 import {utils} from '../models';
 import {crosschain} from '../models';
 
+export function AddAsset(arg1:string,arg2:string,arg3:string):Promise<database.AccountChainAssets>;
+
 export function AddLedger(arg1:string,arg2:string):Promise<string>;
 
 export function CheckCardConnection():Promise<boolean>;
@@ -13,6 +15,8 @@ export function CheckCardInitialized():Promise<boolean>;
 export function Connect():Promise<string>;
 
 export function GetAddressAndAssets(arg1:string,arg2:string):Promise<database.AccountChainAssets>;
+
+export function GetChainConfig(arg1:string):Promise<utils.ChainConfig>;
 
 export function GetChainConfigs():Promise<Array<utils.ChainConfig>>;
 
