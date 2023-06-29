@@ -12,13 +12,12 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@v3
+      - name: Replace Secrets
+        uses: MathieuSoysal/replace-string-in-file@v1.0.0
         with:
-          find: "env:INFURA_API_TOKEN"
-          replace: ${{ secrets.INFURA_API_TOKEN }}
-          regex: false
-          include: "crosschain.yaml"
+          old-string: "env:INFURA_API_TOKEN"
+          new-string: ${{ secrets.INFURA_API_TOKEN }}
+          file: "crosschain.yaml"
       - name: Install Go
         uses: actions/setup-go@v2
         with:
