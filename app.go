@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"keyring-desktop/database"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/jumpcrypto/crosschain"
 	"github.com/jumpcrypto/crosschain/factory"
+	"github.com/spf13/viper"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	bolt "go.etcd.io/bbolt"
@@ -169,7 +171,19 @@ func (a *App) Transfer(
 	}
 
 	// prepare asset config
-	xc := factory.NewDefaultFactory()
+	configData, err := crosschainFile.ReadFile("crosschain.yaml")
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to read crosschain configurate")
+	}
+	v := viper.New()
+	v.SetConfigType("yaml")
+	err = v.ReadConfig(bytes.NewReader(configData))
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to read crosschain configurate")
+	}
+	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 
 	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)

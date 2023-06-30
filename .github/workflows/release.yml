@@ -1,55 +1,94 @@
 name: Release
 on:
-  workflow_dispatch:
-    # This Action only starts when you go to Actions and manually run the workflow.
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
 
 jobs:
-  package:
+  build-wails:
+    name: Build wails
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest, ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+        include:
+          - os: windows-latest
+            platform: windows/amd64
+            output: keyring-wallet-windows.exe
+          - os: macos-latest
+            platform: darwin/universal
+            # wails bug, mac outputfile name not work
+            output: keyring-desktop
+          - os: ubuntu-latest
+            platform: linux/amd64
+            output: keyring-wallet-linux
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Replace Secrets
         uses: MathieuSoysal/replace-string-in-file@v1.0.0
         with:
           old-string: "env:INFURA_API_TOKEN"
           new-string: ${{ secrets.INFURA_API_TOKEN }}
           file: "crosschain.yaml"
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
-      - name: setup node
+      - name: Install libpcsclite
+        if: matrix.platform == 'linux/amd64'
+        run: sudo apt install libpcsclite-dev
+      - name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
-          node-version: 14
-      # You may need to manually build you frontend manually here, unless you have configured frontend build and install commands in wails.json.
-      - name: Get Wails
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - name: Install libpcsclite
-        if: matrix.platform == 'ubuntu-latest'
-        run: sudo apt install libpcsclite-dev
-      - name: Build Wails app
+          node-version: 18
+      - run: npm install && npm run build
+        working-directory: frontend
+      - uses: dAppServer/wails-build-action@v2
+        with:
+          build-name: ${{ matrix.output }}
+          build-platform: ${{ matrix.platform }}
+          go-version: 1.20.x
+          package: false
+      - if: runner.os == 'macOS'
+        shell: bash
         run: |
-          wails build
-      - name: upload artifacts macOS
-        if: matrix.platform == 'macos-latest'
-        uses: actions/upload-artifact@v2
+          rm -rf ./build/bin/${{ matrix.output }}.app.zip
+          ditto -c -k --keepParent ./build/bin/${{matrix.output}}.app ./build/bin/${{matrix.output}}.app.zip
+          rm -rf ./build/bin/${{ matrix.output }}.app
+
+      - uses: actions/upload-artifact@v2
         with:
-          name: keyring-wallet-macos
+          name: target
           path: build/bin/*
-      - name: upload artifacts windows
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v2
+
+  collect-release:
+    name: Collect and release
+    needs: [ build-wails ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
-          name: keyring-wallet-windows
-          path: build/bin/*
-      - name: upload artifacts Linux
-        if: matrix.platform == 'ubuntu-latest'
-        uses: actions/upload-artifact@v2
+          name: target
+          path: target
+      - run: ls -al target && ls -R target/
+      - working-directory: target
+        run: |
+          rm -rf keyring-desktop-amd64-installer.exe
+          rm -rf keyring-desktop.pkg
+          mv keyring-desktop.app.zip keyring-wallet-darwin.app.zip
+      - run: ls -al target && ls -R target/ && file target/
+      - uses: actions/upload-artifact@v3
         with:
-          name: keyring-wallet-linux
-          path: build/bin/*
+          name: target-release
+          path: target/*
+
+      # release assets
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: target/*
+      
