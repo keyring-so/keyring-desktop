@@ -5,39 +5,21 @@ on:
       - "v*.*.*"
 
 jobs:
-  package:
+  build:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest, ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+        build: [
+          {name: keyring-desktop, platform: linux/amd64, os: ubuntu-latest},
+          {name: keyring-desktop, platform: windows/amd64, os: windows-latest},
+          {name: keyring-desktop, platform: darwin/universal, os: macos-latest}
+        ]
+    runs-on: ${{ matrix.build.os }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Replace Secrets
-        uses: MathieuSoysal/replace-string-in-file@v1.0.0
+      - uses: actions/checkout@v2
         with:
-          old-string: "env:INFURA_API_TOKEN"
-          new-string: ${{ secrets.INFURA_API_TOKEN }}
-          file: "crosschain.yaml"
-      - name: Install Go
-        uses: actions/setup-go@v2
+          submodules: recursive
+      - uses: dAppServer/wails-build-action@v2.1
         with:
-          go-version: '1.20'
-      - name: setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-      # You may need to manually build you frontend manually here, unless you have configured frontend build and install commands in wails.json.
-      - name: Get Wails
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - name: Install libpcsclite
-        if: matrix.platform == 'ubuntu-latest'
-        run: sudo apt install libpcsclite-dev libwebkit2gtk-4.0-dev
-      - name: Build Wails app
-        run: |
-          wails build
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/bin/*
+          build-name: ${{ matrix.build.name }}
+          build-platform: ${{ matrix.build.platform }}
