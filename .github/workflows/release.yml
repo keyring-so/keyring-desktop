@@ -1,7 +1,8 @@
 name: Release
 on:
-  workflow_dispatch:
-    # This Action only starts when you go to Actions and manually run the workflow.
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
   package:
@@ -39,4 +40,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            */bin/*
+            build/bin/*
