@@ -5,27 +5,84 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build:
+  build-wails:
+    name: Build wails
     strategy:
       fail-fast: false
       matrix:
-        build: [
-          {name: keyring-wallet-linux, platform: linux/amd64, os: ubuntu-latest},
-          {name: keyring-wallet-windows.exe, platform: windows/amd64, os: windows-latest},
-          {name: keyring-desktop, platform: darwin/universal, os: macos-latest}
-        ]
-    runs-on: ${{ matrix.build.os }}
+        include:
+          - os: windows-latest
+            platform: windows/amd64
+            output: keyring-wallet-windows.exe
+          - os: macos-latest
+            platform: darwin/universal
+            # wails bug, mac outputfile name not work
+            output: keyring-desktop
+          - os: ubuntu-latest
+            platform: linux/amd64
+            output: keyring-wallet-linux
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Install libpcsclite
-        if: matrix.build.platform == 'linux/amd64'
+        if: matrix.platform == 'linux/amd64'
         run: sudo apt install libpcsclite-dev
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+      - run: npm install && npm run build
+        working-directory: frontend
       - uses: dAppServer/wails-build-action@v2
         with:
-          build-name: ${{ matrix.build.name }}
-          build-platform: ${{ matrix.build.platform }}
+          build-name: ${{ matrix.output }}
+          build-platform: ${{ matrix.platform }}
+          go-version: 1.20.x
+          package: false
+      - if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          rm -rf ./build/bin/${{ matrix.output }}.app.zip
+          ditto -c -k --keepParent ./build/bin/${{matrix.output}}.app ./build/bin/${{matrix.output}}.app.zip
+          rm -rf ./build/bin/${{ matrix.output }}.app
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: target
+          path: build/bin/*
+
+  collect-release:
+    name: Collect and release
+    needs: [ build-wails ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: target
+          path: target
+      - run: ls -al target && ls -R target/
+      - working-directory: target
+        run: |
+          rm -rf keyring-desktop-amd64-installer.exe
+          rm -rf keyring-desktop.pkg
+          mv keyring-desktop.app.zip keyring-wallet-darwin.app.zip
+      - run: ls -al target && ls -R target/ && file target/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: target-release
+          path: target/*
+
+      # release assets
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: target/*
+      
