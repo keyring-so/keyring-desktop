@@ -31,7 +31,7 @@ jobs:
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Install libpcsclite
         if: matrix.platform == 'ubuntu-latest'
-        run: sudo apt install libpcsclite-dev
+        run: sudo apt install libpcsclite-dev libwebkit2gtk-4.0-dev
       - name: Build Wails app
         run: |
           wails build

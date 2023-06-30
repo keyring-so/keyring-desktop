@@ -1,10 +1,11 @@
 package utils
 
 import (
+	"embed"
 	"encoding/json"
-	"io/ioutil"
-	"os"
 )
+
+var RegistryFile embed.FS
 
 type ChainConfig struct {
 	Symbol string        `json:"symbol"`
@@ -19,13 +20,11 @@ type TokenConfig struct {
 
 func GetChainConfigs() []ChainConfig {
 	// read chain configuration
-	file, err := os.Open(ChainRegistry)
+	bytes, err := RegistryFile.ReadFile(ChainRegistry)
 	if err != nil {
 		Sugar.Fatal(err)
 	}
-	defer file.Close()
 
-	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
 		Sugar.Fatal(err)
 	}
