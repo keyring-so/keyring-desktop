@@ -6,6 +6,7 @@ import (
 )
 
 var RegistryFile embed.FS
+var CrosschainFile embed.FS
 
 type ChainConfig struct {
 	Symbol string        `json:"symbol"`

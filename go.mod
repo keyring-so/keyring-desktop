@@ -7,6 +7,7 @@ require (
 	github.com/ebfe/scard v0.0.0-20190212122703-c3d1b1916a95
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/jumpcrypto/crosschain v0.3.0
+	github.com/spf13/viper v1.14.0
 	github.com/status-im/keycard-go v0.2.0
 	github.com/wailsapp/wails/v2 v2.5.1
 	go.etcd.io/bbolt v1.3.6
@@ -86,7 +87,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.14.0 // indirect
 	github.com/streamingfast/logging v0.0.0-20220405224725-2755dab2ce75 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/teris-io/shortid v0.0.0-20201117134242-e59966efd125 // indirect
@@ -129,6 +129,6 @@ replace (
 	github.com/cosmos/ledger-cosmos-go => github.com/terra-money/ledger-terra-go v0.11.2
 	github.com/gagliardetto/solana-go => github.com/conorpp/solana-go v1.0.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/jumpcrypto/crosschain => github.com/kaichaosun/crosschain v0.0.2
+	github.com/jumpcrypto/crosschain => github.com/kaichaosun/crosschain v0.0.3
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )

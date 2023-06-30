@@ -15,8 +15,12 @@ var assets embed.FS
 //go:embed registry.json
 var registryFile embed.FS
 
+//go:embed crosschain.yaml
+var crosschainFile embed.FS
+
 func main() {
 	utils.RegistryFile = registryFile
+	utils.CrosschainFile = crosschainFile
 
 	// Create an instance of the app structure
 	app := NewApp()
