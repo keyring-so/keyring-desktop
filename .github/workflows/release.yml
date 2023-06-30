@@ -35,21 +35,8 @@ jobs:
       - name: Build Wails app
         run: |
           wails build
-      - name: upload artifacts macOS
-        if: matrix.platform == 'macos-latest'
-        uses: actions/upload-artifact@v2
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: keyring-wallet-macos
-          path: build/bin/*
-      - name: upload artifacts windows
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v2
-        with:
-          name: keyring-wallet-windows
-          path: build/bin/*
-      - name: upload artifacts Linux
-        if: matrix.platform == 'ubuntu-latest'
-        uses: actions/upload-artifact@v2
-        with:
-          name: keyring-wallet-linux
-          path: build/bin/*
+          files: |
+            */bin/*
