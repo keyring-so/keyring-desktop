@@ -4,6 +4,9 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -12,7 +15,7 @@ jobs:
         build: [
           {name: keyring-wallet-linux, platform: linux/amd64, os: ubuntu-latest},
           {name: keyring-wallet-windows.exe, platform: windows/amd64, os: windows-latest},
-          {name: keyring-wallet-darwin, platform: darwin/universal, os: macos-latest}
+          {name: keyring-desktop, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -20,11 +23,9 @@ jobs:
         with:
           submodules: recursive
       - name: Install libpcsclite
-        if: matrix.platform == 'linux/amd64'
+        if: matrix.build.platform == 'linux/amd64'
         run: sudo apt install libpcsclite-dev
       - uses: dAppServer/wails-build-action@v2
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
