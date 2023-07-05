@@ -129,76 +129,82 @@ function Wallet() {
   };
 
   return (
-    <div className="flex flex-row mt-6 gap-20">
+    <div className="flex flex-col mt-6 gap-20">
       <div className="mt-6 flex flex-col gap-16">
         <div>
-          <h2 className="text-3xl">Assets</h2>
+          <div className="flex flex-row justify-between">
+            <h2 className="text-3xl">Assets</h2>
+            <div className="mt-2 flex flex-row gap-2">
+                <Popover
+                  open={openSelectAssets}
+                  onOpenChange={setOpenSelectAssets}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openSelectAssets}
+                      className="w-[200px] justify-between"
+                    >
+                      {selectAssetValue
+                        ? chainConfig?.tokens.find(
+                            (token) => token.symbol === selectAssetValue
+                          )?.symbol
+                        : "Select a token..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search token..." />
+                      <CommandEmpty>No token found.</CommandEmpty>
+                      <CommandGroup>
+                        {chainConfig?.tokens.map((token) => (
+                          <CommandItem
+                            key={token.symbol}
+                            onSelect={(currentValue) => {
+                              let curr = currentValue.toUpperCase();
+                              setSelectAssetValue(
+                                curr === selectAssetValue ? "" : curr
+                              );
+                              setOpenSelectAssets(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectAssetValue === token.symbol
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {token.symbol}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <Button onClick={addAsset}>Add Asset</Button>
+              </div>
+          </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4">
+          <div className="mt-6 flex flex-row flex-wrap gap-4">
             {userAssets.map((userAsset) => {
               return (
-                <Button onClick={() => setAsset(userAsset)}>{userAsset}</Button>
+                <Button
+                  className="w-32 h-32 rounded-lg text-lg"
+                  onClick={() => setAsset(userAsset)}
+                >
+                  {userAsset}
+                </Button>
               );
             })}
           </div>
         </div>
-
-        <div>
-          <Label className="text-md">Add a New Asset</Label>
-          <div className="mt-2 flex flex-row gap-2">
-            <Popover open={openSelectAssets} onOpenChange={setOpenSelectAssets}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openSelectAssets}
-                  className="w-[200px] justify-between"
-                >
-                  {selectAssetValue
-                    ? chainConfig?.tokens.find(
-                        (token) => token.symbol === selectAssetValue
-                      )?.symbol
-                    : "Select a token..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput placeholder="Search token..." />
-                  <CommandEmpty>No token found.</CommandEmpty>
-                  <CommandGroup>
-                    {chainConfig?.tokens.map((token) => (
-                      <CommandItem
-                        key={token.symbol}
-                        onSelect={(currentValue) => {
-                          let curr = currentValue.toUpperCase();
-                          setSelectAssetValue(
-                            curr === selectAssetValue ? "" : curr
-                          );
-                          setOpenSelectAssets(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectAssetValue === token.symbol
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {token.symbol}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <Button onClick={addAsset}>Add</Button>
-          </div>
-        </div>
       </div>
 
-      <div className="flex flex-col gap-8 mt-7 ml-12">
+      <div className="flex flex-col gap-8 mt-7">
         <h2 className="fond-bold text-xl">
           Send
           <span className="text-3xl text-primary"> {asset} </span>
@@ -224,17 +230,6 @@ function Wallet() {
 
         <div>Address: {fromAddr}</div>
         <div>TransactionId: {txId}</div>
-
-        <div>
-          <Tabs defaultValue="account" className="w-[400px]">
-            <TabsList>
-              <TabsTrigger value="assets">Assets</TabsTrigger>
-              <TabsTrigger value="records">Records</TabsTrigger>
-            </TabsList>
-            <TabsContent value="assets">Show assets here.</TabsContent>
-            <TabsContent value="records">Show records here.</TabsContent>
-          </Tabs>
-        </div>
       </div>
     </div>
   );

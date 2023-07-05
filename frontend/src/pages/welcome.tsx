@@ -110,7 +110,7 @@ function WelcomePage() {
   };
 
   return (
-    <div className="flex flex-row gap-20">
+    <div className="flex flex-row gap-60">
       {showNewLedger && newLedgerDialog()}
       <Sidebar chains={chains} lastSelectedChain={ledger} />
       {chains.length === 0 ? <Guide /> : <Wallet />}
