@@ -7,13 +7,14 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/use-toast";
-import { LEDGERS } from "@/constants";
+import { ETHEREUM_INFO, LEDGERS } from "@/constants";
 import { cn } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
@@ -127,75 +128,82 @@ function Wallet() {
   };
 
   return (
-    <div className="flex flex-col mt-6 gap-20">
+    <div className="flex flex-col mt-6 gap-20 flex-grow items-center">
       <div className="mt-6 flex flex-col gap-16">
         <div>
           <div className="flex flex-row justify-between">
             <h2 className="text-3xl">Assets</h2>
             <div className="mt-2 flex flex-row gap-2">
-                <Popover
-                  open={openSelectAssets}
-                  onOpenChange={setOpenSelectAssets}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openSelectAssets}
-                      className="w-[200px] justify-between"
-                    >
-                      {selectAssetValue
-                        ? chainConfig?.tokens.find(
-                            (token) => token.symbol === selectAssetValue
-                          )?.symbol
-                        : "Select a token..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search token..." />
-                      <CommandEmpty>No token found.</CommandEmpty>
-                      <CommandGroup>
-                        {chainConfig?.tokens?.map((token) => (
-                          <CommandItem
-                            key={token.symbol}
-                            onSelect={(currentValue) => {
-                              let curr = currentValue.toUpperCase();
-                              setSelectAssetValue(
-                                curr === selectAssetValue ? "" : curr
-                              );
-                              setOpenSelectAssets(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectAssetValue === token.symbol
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {token.symbol}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <Button onClick={addAsset}>Add Asset</Button>
-              </div>
+              <Popover
+                open={openSelectAssets}
+                onOpenChange={setOpenSelectAssets}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openSelectAssets}
+                    className="w-[200px] justify-between"
+                  >
+                    {selectAssetValue
+                      ? chainConfig?.tokens.find(
+                          (token) => token.symbol === selectAssetValue
+                        )?.symbol
+                      : "Select a token..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search token..." />
+                    <CommandEmpty>No token found.</CommandEmpty>
+                    <CommandGroup>
+                      {chainConfig?.tokens?.map((token) => (
+                        <CommandItem
+                          key={token.symbol}
+                          onSelect={(currentValue) => {
+                            let curr = currentValue.toUpperCase();
+                            setSelectAssetValue(
+                              curr === selectAssetValue ? "" : curr
+                            );
+                            setOpenSelectAssets(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectAssetValue === token.symbol
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {token.symbol}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <Button onClick={addAsset}>Add Asset</Button>
+            </div>
           </div>
 
-          <div className="mt-6 flex flex-row flex-wrap gap-4">
+          <div className="mt-6 flex flex-col flex-wrap gap-4">
             {userAssets.map((userAsset) => {
               return (
-                <Button
-                  className="w-32 h-32 rounded-lg text-lg"
+                <div
+                  className="flex flex-row items-center justify-between
+                              bg-secondary rounded-xl shadow-md pr-6 hover:bg-primary hover:text-white"
                   onClick={() => setAsset(userAsset)}
                 >
-                  {userAsset}
-                </Button>
+                  <div className="flex flex-row items-center gap-2">
+                    <img className="w-16" src={ETHEREUM_INFO.img} />
+
+                    <Label className="text-lg">{userAsset}</Label>
+                  </div>
+
+                  <Label className="text-lg">10.99</Label>
+                </div>
               );
             })}
           </div>
