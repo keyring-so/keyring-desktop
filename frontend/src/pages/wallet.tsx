@@ -14,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/use-toast";
-import { ETHEREUM_INFO, LEDGERS } from "@/constants";
+import { ETHEREUM_INFO, LEDGERS, TOKENS } from "@/constants";
 import { cn } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
@@ -151,11 +151,12 @@ function Wallet() {
                 return (
                   <div
                     className="flex flex-row items-center justify-between
-                              bg-secondary rounded-xl shadow-md pr-6 hover:bg-primary hover:text-white"
+                              bg-secondary rounded-xl shadow-md p-2 pr-6
+                              hover:bg-primary hover:text-white"
                     onClick={() => setAsset(userAsset)}
                   >
                     <div className="flex flex-row items-center gap-2">
-                      <img className="w-16" src={ETHEREUM_INFO.img} />
+                      <img className="w-14" src={(TOKENS.get(userAsset) || ETHEREUM_INFO).img} />
 
                       <Label className="text-lg">{userAsset}</Label>
                     </div>
@@ -217,7 +218,9 @@ function Wallet() {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <Button className="text-md" onClick={addAsset}>Add Asset</Button>
+              <Button className="text-md" onClick={addAsset}>
+                Add Asset
+              </Button>
             </div>
           </div>
         </TabsContent>
