@@ -7,13 +7,11 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { LEDGERS } from "@/constants";
 import { cn } from "@/lib/utils";
@@ -159,7 +157,7 @@ function Wallet() {
                       <CommandInput placeholder="Search token..." />
                       <CommandEmpty>No token found.</CommandEmpty>
                       <CommandGroup>
-                        {chainConfig?.tokens.map((token) => (
+                        {chainConfig?.tokens?.map((token) => (
                           <CommandItem
                             key={token.symbol}
                             onSelect={(currentValue) => {

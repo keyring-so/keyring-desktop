@@ -26,8 +26,8 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   return (
     <div
       className="
-            top-2 left-2 h-screen w-16
-            flex flex-col bg-white dark:bg-gray-900 shadow-lg
+            top-2 left-2 w-auto h-screen p-2
+            flex flex-col bg-gray-100 dark:bg-gray-900 shadow-lg
             items-center
             "
     >

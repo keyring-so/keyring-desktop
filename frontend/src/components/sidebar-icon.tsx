@@ -15,10 +15,10 @@ const SidebarIcon = ({ icon, text, onClick }: Props) => {
       className="
             relative flex items-center justify-center
             h-14 w-14 mt-2 mb-2 mx-auto
-            bg-gray-300 hover:bg-green-600 dark:bg-gray-800
+            bg-secondary hover:bg-primary dark:bg-gray-800
             text-zinc-600 hover:text-white
             hover:rounded-xl rounded-full
-            transition-all duration-200 ease-linear
+            transition-all duration-100 ease-linear
             cursor-pointer shadow-lg
             group
             "
