@@ -27,6 +27,7 @@ import {
   Transfer,
 } from "../../wailsjs/go/main/App";
 import { utils } from "../../wailsjs/go/models";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -128,12 +129,44 @@ function Wallet() {
   };
 
   return (
-    <div className="flex flex-col mt-6 gap-20 flex-grow items-center">
-      <div className="mt-6 flex flex-col gap-16">
-        <div>
-          <div className="flex flex-row justify-between">
-            <h2 className="text-3xl">Assets</h2>
-            <div className="mt-2 flex flex-row gap-2">
+    <div className="flex flex-col mt-20 gap-20 flex-grow items-center">
+      <Tabs defaultValue="assets" className="w-[400px]">
+        <TabsList className="grid w-full h-auto p-1 grid-cols-2 bg-gray-200 rounded-lg">
+          <TabsTrigger className="text-lg rounded-lg" value="assets">
+            Assets
+          </TabsTrigger>
+          <TabsTrigger className="text-lg rounded-lg" value="transactions">
+            Transactions
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="assets">
+          <div className="mt-6 flex flex-col gap-2">
+            <div className="flex flex-row justify-between">
+              <Label className="text-lg">Total</Label>
+              <Label className="text-lg">$1099.99</Label>
+            </div>
+
+            <div className="flex flex-col flex-wrap gap-4">
+              {userAssets.map((userAsset) => {
+                return (
+                  <div
+                    className="flex flex-row items-center justify-between
+                              bg-secondary rounded-xl shadow-md pr-6 hover:bg-primary hover:text-white"
+                    onClick={() => setAsset(userAsset)}
+                  >
+                    <div className="flex flex-row items-center gap-2">
+                      <img className="w-16" src={ETHEREUM_INFO.img} />
+
+                      <Label className="text-lg">{userAsset}</Label>
+                    </div>
+
+                    <Label className="text-lg">10.99</Label>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 flex flex-row justify-center gap-3">
               <Popover
                 open={openSelectAssets}
                 onOpenChange={setOpenSelectAssets}
@@ -143,7 +176,7 @@ function Wallet() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={openSelectAssets}
-                    className="w-[200px] justify-between"
+                    className="w-[200px] justify-between text-md"
                   >
                     {selectAssetValue
                       ? chainConfig?.tokens.find(
@@ -184,59 +217,43 @@ function Wallet() {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <Button onClick={addAsset}>Add Asset</Button>
+              <Button className="text-md" onClick={addAsset}>Add Asset</Button>
             </div>
           </div>
+        </TabsContent>
+        <TabsContent value="transactions">
+          <Label className="text-lg">Transaction History</Label>
 
-          <div className="mt-6 flex flex-col flex-wrap gap-4">
-            {userAssets.map((userAsset) => {
-              return (
-                <div
-                  className="flex flex-row items-center justify-between
-                              bg-secondary rounded-xl shadow-md pr-6 hover:bg-primary hover:text-white"
-                  onClick={() => setAsset(userAsset)}
-                >
-                  <div className="flex flex-row items-center gap-2">
-                    <img className="w-16" src={ETHEREUM_INFO.img} />
+          <div className="flex flex-col gap-8 mt-7">
+            <h2 className="fond-bold text-xl">
+              Send
+              <span className="text-3xl text-primary"> {asset} </span>
+              from{" "}
+              <span className="text-3xl text-primary">{ledgerName()} </span>
+              blockchain
+            </h2>
 
-                    <Label className="text-lg">{userAsset}</Label>
-                  </div>
+            <div className="">
+              <label>To</label>
+              <Input onChange={updateToAddr} />
+              <label>Amount</label>
+              <Input onChange={updateAmount} />
+            </div>
 
-                  <Label className="text-lg">10.99</Label>
-                </div>
-              );
-            })}
+            <div className="flex gap-4">
+              <Button variant="outline" onClick={transfer}>
+                Send
+              </Button>
+              <Button variant="outline" onClick={receive}>
+                Receive
+              </Button>
+            </div>
+
+            <div>Address: {fromAddr}</div>
+            <div>TransactionId: {txId}</div>
           </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-8 mt-7">
-        <h2 className="fond-bold text-xl">
-          Send
-          <span className="text-3xl text-primary"> {asset} </span>
-          from <span className="text-3xl text-primary">{ledgerName()} </span>
-          blockchain
-        </h2>
-
-        <div className="">
-          <label>To</label>
-          <Input onChange={updateToAddr} />
-          <label>Amount</label>
-          <Input onChange={updateAmount} />
-        </div>
-
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={transfer}>
-            Send
-          </Button>
-          <Button variant="outline" onClick={receive}>
-            Receive
-          </Button>
-        </div>
-
-        <div>Address: {fromAddr}</div>
-        <div>TransactionId: {txId}</div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
