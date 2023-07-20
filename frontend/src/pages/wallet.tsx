@@ -1,3 +1,9 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -13,8 +19,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { ETHEREUM_INFO, LEDGERS, TOKENS } from "@/constants";
+import { LEDGERS, TOKENS } from "@/constants";
 import { cn } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
@@ -27,7 +34,6 @@ import {
   Transfer,
 } from "../../wailsjs/go/main/App";
 import { utils } from "../../wailsjs/go/models";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -146,26 +152,43 @@ function Wallet() {
               <Label className="text-lg">$1099.99</Label>
             </div>
 
-            <div className="flex flex-col flex-wrap gap-4">
+            <Accordion type="single" collapsible>
               {userAssets.map((userAsset) => {
                 return (
-                  <div
-                    className="flex flex-row items-center justify-between
-                              bg-secondary rounded-xl shadow-md p-2 pr-6
-                              hover:bg-primary hover:text-white"
-                    onClick={() => setAsset(userAsset)}
-                  >
-                    <div className="flex flex-row items-center gap-2">
-                      <img className="w-14" src={TOKENS.get(userAsset)?.img || ""} />
+                  <AccordionItem value={userAsset}>
+                    <AccordionTrigger>
+                      <div
+                        className={`flex flex-row items-center justify-between grow
+                        bg-secondary rounded-xl shadow-md p-2 pr-6
+                        hover:bg-primary hover:text-white`}
+                        onClick={() => setAsset(userAsset)}
+                      >
+                        <div className="flex flex-row items-center gap-2">
+                          <img
+                            className="w-14"
+                            src={TOKENS.get(userAsset)?.img || ""}
+                          />
 
-                      <Label className="text-lg">{userAsset}</Label>
-                    </div>
+                          <Label className="text-lg">{userAsset}</Label>
+                        </div>
 
-                    <Label className="text-lg">10.99</Label>
-                  </div>
+                        <Label className="text-lg">10.99</Label>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={transfer}>
+                          Send
+                        </Button>
+                        <Button variant="outline" onClick={receive}>
+                          Receive
+                        </Button>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 );
               })}
-            </div>
+            </Accordion>
 
             <div className="mt-6 flex flex-row justify-center gap-3">
               <Popover
