@@ -8,3 +8,5 @@ export const accountAtom = atom("");
 export const showNewLedgerAtom = atom(false);
 
 export const chainConfigsAtom = atom<utils.ChainConfig[]>([])
+
+export const showSettingsAtom = atom(false);

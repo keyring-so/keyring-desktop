@@ -1,7 +1,7 @@
 import {
   LEDGERS
 } from "@/constants";
-import { chainConfigsAtom, showNewLedgerAtom } from "@/store/state";
+import { chainConfigsAtom, showNewLedgerAtom, showSettingsAtom } from "@/store/state";
 import { useSetAtom } from "jotai";
 import { Key, Plus, Settings, UserCircle } from "lucide-react";
 import SidebarLedger from "./sidebar-ledger";
@@ -16,6 +16,7 @@ type Props = {
 const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setShowNewLedger = useSetAtom(showNewLedgerAtom);
   const setChainConfigs = useSetAtom(chainConfigsAtom);
+  const setShowSettings = useSetAtom(showSettingsAtom);
 
   const clickAddButton = async () => {
     let chainConfigs = await GetChainConfigs();
@@ -54,7 +55,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <div className="flex flex-col fixed bottom-2">
         <SidebarIcon icon={UserCircle} text="Accounts" onClick={() => console.log("click")} />
-        <SidebarIcon icon={Settings} text="Settings" onClick={() => console.log("click")} />
+        <SidebarIcon icon={Settings} text="Settings" onClick={() => setShowSettings(true)} />
       </div>
     </div>
   );

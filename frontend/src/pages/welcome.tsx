@@ -22,12 +22,14 @@ import {
   chainConfigsAtom,
   ledgerAtom,
   showNewLedgerAtom,
+  showSettingsAtom,
 } from "@/store/state";
 import { useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AddLedger, GetChains } from "../../wailsjs/go/main/App";
 import Wallet from "./wallet";
+import Settings from "@/components/settings";
 
 function WelcomePage() {
   const [chains, setChains] = useState<string[]>([]);
@@ -37,6 +39,7 @@ function WelcomePage() {
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const account = useAtomValue(accountAtom);
   const chainConfigs = useAtomValue(chainConfigsAtom);
+  const showSettings = useAtomValue(showSettingsAtom);
 
   const { toast } = useToast();
 
@@ -114,6 +117,7 @@ function WelcomePage() {
       {showNewLedger && newLedgerDialog()}
       <Sidebar chains={chains} lastSelectedChain={ledger} />
       {chains.length === 0 ? <Guide /> : <Wallet />}
+      {showSettings && <Settings />}
     </div>
   );
 }

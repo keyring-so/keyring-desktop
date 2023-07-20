@@ -156,7 +156,7 @@ function Wallet() {
                     onClick={() => setAsset(userAsset)}
                   >
                     <div className="flex flex-row items-center gap-2">
-                      <img className="w-14" src={(TOKENS.get(userAsset) || ETHEREUM_INFO).img} />
+                      <img className="w-14" src={TOKENS.get(userAsset)?.img || ""} />
 
                       <Label className="text-lg">{userAsset}</Label>
                     </div>

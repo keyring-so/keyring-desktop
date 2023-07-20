@@ -1,13 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import {
   CheckCardConnection,
   CheckCardInitialized,
   Initialize,
-  Install,
-  Pair,
+  Pair
 } from "@/../wailsjs/go/main/App";
-import { useToast } from "@/components/ui/use-toast";
+import Settings from "@/components/settings";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useSetAtom } from "jotai";
-import { accountAtom } from "@/store/state";
-import { Settings } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { accountAtom, showSettingsAtom } from "@/store/state";
+import { useAtom, useSetAtom } from "jotai";
+import { Settings as SettingsIcon } from "lucide-react";
+import { useState } from "react";
 
 function ConnectPage() {
   const [cardInitialized, setCardInitialized] = useState<boolean>(false);
@@ -29,9 +29,9 @@ function ConnectPage() {
   const [cardName, setCardName] = useState("");
   const [checkSumSize, setCheckSumSize] = useState(4); // TODO advanced setting -> select box
   const [mnemonic, setMnemonic] = useState("");
-  const [showSettings, setShowSettings] = useState(false);
 
   const setAccount = useSetAtom(accountAtom);
+  const [showSettings, setShowSettings] = useAtom(showSettingsAtom);
 
   const { toast } = useToast();
 
@@ -195,42 +195,6 @@ function ConnectPage() {
     );
   };
 
-  const resetCard = async () => {
-    try {
-      const _ = await Install();
-      toast({
-        title: "Success!",
-        description: "Card is reset.",
-      });
-      setShowSettings(false);
-    } catch (err) {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    }
-  };
-
-  const settingsDialog = () => {
-    return (
-      <Dialog open={true} onOpenChange={setShowSettings}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogDescription>
-              Please only change the settings when needed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="">
-            <Button className="" onClick={resetCard}>
-              Card Factory Rest
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  };
-
   return (
     <div className="flex flex-row justify-evenly h-screen">
       {connectDialog && cardInitialized === false && initializeDialog()}
@@ -247,9 +211,9 @@ function ConnectPage() {
       </div>
 
       <div className="fixed right-6 bottom-6">
-        <Settings onClick={() => setShowSettings(true)} />
+        <SettingsIcon onClick={() => setShowSettings(true)} />
       </div>
-      {showSettings && settingsDialog()}
+      {showSettings && <Settings />}
     </div>
   );
 }
