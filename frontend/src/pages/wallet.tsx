@@ -25,7 +25,7 @@ import { LEDGERS, TOKENS } from "@/constants";
 import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
-import { Check, ChevronsUpDown, Loader2, Copy, CopyCheck } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, Clipboard, ClipboardCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
@@ -51,7 +51,6 @@ import {
 import { useClipboard } from "@/hooks/useClipboard";
 
 function Wallet() {
-  const [txId, setTxId] = useState("");
   const [asset, setAsset] = useState("");
   const [fromAddr, setFromAddr] = useState("");
   const [toAddr, setToAddr] = useState("");
@@ -123,8 +122,11 @@ function Wallet() {
     setLoadingTx(true);
     Transfer(asset, ledger, fromAddr, toAddr, amount)
       .then((resp) => {
-        setTxId(resp);
         setLoadingTx(false);
+        toast({
+          title: "Send transaction successfully.",
+          description: `Transaction: ${resp}`,
+        });
       })
       .catch((err) => {
         setLoadingTx(false);
@@ -234,8 +236,6 @@ function Wallet() {
                                   Send
                                 </Button>
                               )}
-
-                              <div>TransactionId: {txId}</div>
                             </div>
                           </SheetContent>
                         </Sheet>
@@ -315,7 +315,7 @@ function Wallet() {
             <TooltipTrigger asChild>
               <Button onClick={() => onCopy(fromAddr)} className="rounded-3xl">
                 <Label className="mr-2">{shortenAddress(fromAddr)}</Label>
-                {hasCopied ? <CopyCheck /> : <Copy />}
+                {hasCopied ? <ClipboardCheck /> : <Clipboard />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>

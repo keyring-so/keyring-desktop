@@ -7,7 +7,7 @@ import copy from "copy-to-clipboard";
  * @param text the text or value to copy
  * @param timeout delay (in ms) to switch back to initial state once copied.
  */
-export function useClipboard(timeout = 1500) {
+export function useClipboard(timeout = 2000) {
   const [hasCopied, setHasCopied] = useState(false);
 
   const onCopy = useCallback((text: string) => {
