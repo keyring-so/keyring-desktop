@@ -22,10 +22,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { LEDGERS, TOKENS } from "@/constants";
-import { cn } from "@/lib/utils";
+import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, Copy, CopyCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
@@ -42,6 +42,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useClipboard } from "@/hooks/useClipboard";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -59,6 +66,8 @@ function Wallet() {
   const account = useAtomValue(accountAtom);
 
   const { toast } = useToast();
+
+  const { hasCopied, onCopy } = useClipboard();
 
   // get the address for a specific chain
   useEffect(() => {
@@ -95,6 +104,12 @@ function Wallet() {
         });
       });
   }, [ledger]);
+
+  useEffect(() => {
+    if (hasCopied) {
+      toast({ description: "Copied to clipboard" });
+    }
+  }, [hasCopied]);
 
   const updateToAddr = (event: React.ChangeEvent<HTMLInputElement>) => {
     setToAddr(event.target.value);
@@ -215,10 +230,11 @@ function Wallet() {
                                   Please wait
                                 </Button>
                               ) : (
-                                <Button className="w-1/2" onClick={transfer}>Send</Button>
+                                <Button className="w-1/2" onClick={transfer}>
+                                  Send
+                                </Button>
                               )}
 
-                              <div>Address: {fromAddr}</div>
                               <div>TransactionId: {txId}</div>
                             </div>
                           </SheetContent>
@@ -292,6 +308,22 @@ function Wallet() {
           <Label className="text-lg">Transaction History</Label>
         </TabsContent>
       </Tabs>
+
+      <div className="absolute right-16 top-6">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => onCopy(fromAddr)} className="rounded-3xl">
+                <Label className="mr-2">{shortenAddress(fromAddr)}</Label>
+                {hasCopied ? <CopyCheck /> : <Copy />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Click to copy address</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }
