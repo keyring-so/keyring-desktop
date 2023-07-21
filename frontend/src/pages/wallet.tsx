@@ -25,7 +25,7 @@ import { LEDGERS, TOKENS } from "@/constants";
 import { cn } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
@@ -53,6 +53,7 @@ function Wallet() {
   const [userAssets, setUserAssets] = useState<string[]>([]);
   const [openSelectAssets, setOpenSelectAssets] = useState(false);
   const [selectAssetValue, setSelectAssetValue] = useState("");
+  const [loadingTx, setLoadingTx] = useState(false);
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -95,8 +96,6 @@ function Wallet() {
       });
   }, [ledger]);
 
-  const updateTxId = (txId: string) => setTxId(txId);
-
   const updateToAddr = (event: React.ChangeEvent<HTMLInputElement>) => {
     setToAddr(event.target.value);
   };
@@ -106,14 +105,19 @@ function Wallet() {
   };
 
   const transfer = () => {
+    setLoadingTx(true);
     Transfer(asset, ledger, fromAddr, toAddr, amount)
-      .then(updateTxId)
-      .catch((err) =>
+      .then((resp) => {
+        setTxId(resp);
+        setLoadingTx(false);
+      })
+      .catch((err) => {
+        setLoadingTx(false);
         toast({
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,
-        })
-      );
+        });
+      });
   };
 
   const receive = () => {
@@ -205,7 +209,14 @@ function Wallet() {
                                 <label>Amount</label>
                                 <Input onChange={updateAmount} />
                               </div>
-                              <Button onClick={transfer}>Send</Button>
+                              {loadingTx ? (
+                                <Button className="w-1/2" disabled>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Please wait
+                                </Button>
+                              ) : (
+                                <Button className="w-1/2" onClick={transfer}>Send</Button>
+                              )}
 
                               <div>Address: {fromAddr}</div>
                               <div>TransactionId: {txId}</div>
