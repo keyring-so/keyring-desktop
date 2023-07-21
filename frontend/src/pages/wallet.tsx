@@ -34,6 +34,14 @@ import {
   Transfer,
 } from "../../wailsjs/go/main/App";
 import { utils } from "../../wailsjs/go/models";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 function Wallet() {
   const [txId, setTxId] = useState("");
@@ -165,7 +173,7 @@ function Wallet() {
                       >
                         <div className="flex flex-row items-center gap-2">
                           <img
-                            className="w-14"
+                            className="h-12"
                             src={TOKENS.get(userAsset)?.img || ""}
                           />
 
@@ -177,12 +185,34 @@ function Wallet() {
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="flex gap-2">
-                        <Button variant="outline" onClick={transfer}>
-                          Send
-                        </Button>
-                        <Button variant="outline" onClick={receive}>
-                          Receive
-                        </Button>
+                        <Sheet>
+                          <SheetTrigger>
+                            <Button>Transfer</Button>
+                          </SheetTrigger>
+                          <SheetContent>
+                            <SheetHeader>
+                              <SheetTitle>
+                                Sending {asset} on {ledgerName()} blockchain
+                              </SheetTitle>
+                              <SheetDescription></SheetDescription>
+                            </SheetHeader>
+                            <div className="flex flex-col gap-6 mt-10">
+                              <div>
+                                <label>To</label>
+                                <Input onChange={updateToAddr} />
+                              </div>
+                              <div>
+                                <label>Amount</label>
+                                <Input onChange={updateAmount} />
+                              </div>
+                              <Button onClick={transfer}>Send</Button>
+
+                              <div>Address: {fromAddr}</div>
+                              <div>TransactionId: {txId}</div>
+                            </div>
+                          </SheetContent>
+                        </Sheet>
+                        <Button onClick={receive}>Receive</Button>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -249,35 +279,6 @@ function Wallet() {
         </TabsContent>
         <TabsContent value="transactions">
           <Label className="text-lg">Transaction History</Label>
-
-          <div className="flex flex-col gap-8 mt-7">
-            <h2 className="fond-bold text-xl">
-              Send
-              <span className="text-3xl text-primary"> {asset} </span>
-              from{" "}
-              <span className="text-3xl text-primary">{ledgerName()} </span>
-              blockchain
-            </h2>
-
-            <div className="">
-              <label>To</label>
-              <Input onChange={updateToAddr} />
-              <label>Amount</label>
-              <Input onChange={updateAmount} />
-            </div>
-
-            <div className="flex gap-4">
-              <Button variant="outline" onClick={transfer}>
-                Send
-              </Button>
-              <Button variant="outline" onClick={receive}>
-                Receive
-              </Button>
-            </div>
-
-            <div>Address: {fromAddr}</div>
-            <div>TransactionId: {txId}</div>
-          </div>
         </TabsContent>
       </Tabs>
     </div>
