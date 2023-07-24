@@ -61,16 +61,12 @@ func (a *App) Connect() (string, error) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin string, accountName string) (string, error) {
+func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
 	if pin == "" || accountName == "" {
 		return "", errors.New("pin or card name can not be empty")
 	}
-
-	// TODO improve it like generate randomly
-	puk := pin + pin
-	code := pin
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
@@ -87,7 +83,7 @@ func (a *App) Pair(pin string, accountName string) (string, error) {
 		return "", errors.New("failed to pair with card")
 	}
 
-	err = database.SaveCredential(a.db, pin, puk, code, accountName)
+	err = database.SaveCredential(a.db, puk, code, accountName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to update database")
@@ -111,7 +107,7 @@ func (a *App) GetChains(account string) (*database.AccountChainInfo, error) {
 }
 
 // generate a new address for the selected account and chain
-func (a *App) AddLedger(account string, chain string) (string, error) {
+func (a *App) AddLedger(account string, chain string, pin string) (string, error) {
 	utils.Sugar.Infow("Generate account address",
 		"account", account,
 		"chain", chain,
@@ -138,7 +134,7 @@ func (a *App) AddLedger(account string, chain string) (string, error) {
 		return "", errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
-	address, err := keyringCard.ChainAddress(credential.Pin, credential.Puk, credential.Code, chainConfig)
+	address, err := keyringCard.ChainAddress(pin, credential.Puk, credential.Code, chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get chain address")
@@ -222,6 +218,7 @@ func (a *App) Transfer(
 	to string,
 	amount string,
 	tip string,
+	pin string,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
 
@@ -311,7 +308,7 @@ func (a *App) Transfer(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to read database")
 	}
-	signature, err := keyringCard.Sign(sighash, chainConfig, credential.Pin, credential.Puk, credential.Code)
+	signature, err := keyringCard.Sign(sighash, chainConfig, pin, credential.Puk, credential.Code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to sign transaction hash")
@@ -378,9 +375,8 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 		return "", errors.New("pin or card name can not be empty")
 	}
 
-	// TODO improve it like generate randomly
-	puk := pin + pin
-	code := pin
+	puk := utils.GenPuk()
+	code := utils.GenPairingCode()
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
@@ -403,7 +399,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 		return "", errors.New("failed to generate key")
 	}
 
-	err = database.SaveCredential(a.db, pin, puk, code, accountName)
+	err = database.SaveCredential(a.db, puk, code, accountName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to update database")

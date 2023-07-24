@@ -6,8 +6,8 @@ export function AddAsset(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddAsset'](arg1, arg2, arg3);
 }
 
-export function AddLedger(arg1, arg2) {
-  return window['go']['main']['App']['AddLedger'](arg1, arg2);
+export function AddLedger(arg1, arg2, arg3) {
+  return window['go']['main']['App']['AddLedger'](arg1, arg2, arg3);
 }
 
 export function CalculateFee(arg1, arg2, arg3, arg4, arg5) {
@@ -50,10 +50,10 @@ export function Install() {
   return window['go']['main']['App']['Install']();
 }
 
-export function Pair(arg1, arg2) {
-  return window['go']['main']['App']['Pair'](arg1, arg2);
+export function Pair(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
 }
 
-export function Transfer(arg1, arg2, arg3, arg4, arg5, arg6) {
-  return window['go']['main']['App']['Transfer'](arg1, arg2, arg3, arg4, arg5, arg6);
+export function Transfer(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+  return window['go']['main']['App']['Transfer'](arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }

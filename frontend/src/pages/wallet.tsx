@@ -70,6 +70,7 @@ function Wallet() {
   const [loadingTx, setLoadingTx] = useState(false);
   const [fee, setFee] = useState<main.FeeInfo>();
   const [tip, setTip] = useState("");
+  const [pin, setPin] = useState("");
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -152,7 +153,7 @@ function Wallet() {
 
   const transfer = () => {
     setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount, tip)
+    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin)
       .then((resp) => {
         setLoadingTx(false);
         toast({
@@ -258,6 +259,12 @@ function Wallet() {
                                 <label>Amount</label>
                                 <Input onChange={updateAmount} />
                               </div>
+
+                              <div>
+                                <label>PIN</label>
+                                <Input onChange={(event) => setPin(event.target.value)} />
+                              </div>
+
                               <div className="flex items-center space-x-2">
                                 <Switch
                                   id="advance-fee-mode"

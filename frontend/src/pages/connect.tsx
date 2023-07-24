@@ -2,7 +2,7 @@ import {
   CheckCardConnection,
   CheckCardInitialized,
   Initialize,
-  Pair
+  Pair,
 } from "@/../wailsjs/go/main/App";
 import Settings from "@/components/settings";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,8 @@ function ConnectPage() {
   const [cardInitialized, setCardInitialized] = useState<boolean>(false);
   const [connectDialog, setConnectDialog] = useState(false);
   const [pin, setPin] = useState("");
+  const [puk, setPuk] = useState("");
+  const [pairingCode, setPairingCode] = useState("");
   const [cardName, setCardName] = useState("");
   const [checkSumSize, setCheckSumSize] = useState(4); // TODO advanced setting -> select box
   const [mnemonic, setMnemonic] = useState("");
@@ -58,7 +60,7 @@ function ConnectPage() {
 
   const pair = async () => {
     try {
-      const res = await Pair(pin, cardName);
+      const res = await Pair(pin, puk, pairingCode, cardName);
       setAccount(res);
       toast({
         title: "Success!",
@@ -74,18 +76,18 @@ function ConnectPage() {
 
   const init = async () => {
     try {
-        const words = await Initialize(pin, cardName, checkSumSize);
-        setMnemonic(words);
-        toast({
-          title: "Success!",
-          description: "Card is initialized.",
-        });
-      } catch (err) {
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        });
-      }
+      const words = await Initialize(pin, cardName, checkSumSize);
+      setMnemonic(words);
+      toast({
+        title: "Success!",
+        description: "Card is initialized.",
+      });
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
   };
 
   // TODO improve secrets words display
@@ -129,6 +131,24 @@ function ConnectPage() {
               id="pin"
               className="col-span-3"
               onChange={(e) => setPin(e.target.value)}
+            />
+
+            <Label htmlFor="puk" className="text-right">
+              PUK
+            </Label>
+            <Input
+              id="puk"
+              className="col-span-3"
+              onChange={(e) => setPuk(e.target.value)}
+            />
+
+            <Label htmlFor="code" className="text-right">
+              Pairing Code
+            </Label>
+            <Input
+              id="code"
+              className="col-span-3"
+              onChange={(e) => setPairingCode(e.target.value)}
             />
 
             <Label htmlFor="name" className="text-right">

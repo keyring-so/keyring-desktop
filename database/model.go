@@ -6,7 +6,6 @@ type AccountChainInfo struct {
 }
 
 type AccountCredential struct {
-	Pin  string `json:"pin"`
 	Puk  string `json:"puk"`
 	Code string `json:"code"`
 }
