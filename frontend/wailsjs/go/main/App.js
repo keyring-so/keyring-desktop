@@ -10,6 +10,10 @@ export function AddLedger(arg1, arg2) {
   return window['go']['main']['App']['AddLedger'](arg1, arg2);
 }
 
+export function CalculateFee(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['CalculateFee'](arg1, arg2, arg3, arg4, arg5);
+}
+
 export function CheckCardConnection() {
   return window['go']['main']['App']['CheckCardConnection']();
 }
@@ -50,6 +54,6 @@ export function Pair(arg1, arg2) {
   return window['go']['main']['App']['Pair'](arg1, arg2);
 }
 
-export function Transfer(arg1, arg2, arg3, arg4, arg5) {
-  return window['go']['main']['App']['Transfer'](arg1, arg2, arg3, arg4, arg5);
+export function Transfer(arg1, arg2, arg3, arg4, arg5, arg6) {
+  return window['go']['main']['App']['Transfer'](arg1, arg2, arg3, arg4, arg5, arg6);
 }

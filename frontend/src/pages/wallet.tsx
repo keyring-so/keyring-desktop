@@ -25,15 +25,22 @@ import { LEDGERS, TOKENS } from "@/constants";
 import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
-import { Check, ChevronsUpDown, Loader2, Clipboard, ClipboardCheck } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Loader2,
+  Clipboard,
+  ClipboardCheck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
+  CalculateFee,
   GetAddressAndAssets,
   GetChainConfig,
   Transfer,
 } from "../../wailsjs/go/main/App";
-import { utils } from "../../wailsjs/go/models";
+import { main, utils } from "../../wailsjs/go/models";
 import {
   Sheet,
   SheetContent,
@@ -49,6 +56,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useClipboard } from "@/hooks/useClipboard";
+import { Switch } from "@/components/ui/switch";
 
 function Wallet() {
   const [asset, setAsset] = useState("");
@@ -60,6 +68,8 @@ function Wallet() {
   const [openSelectAssets, setOpenSelectAssets] = useState(false);
   const [selectAssetValue, setSelectAssetValue] = useState("");
   const [loadingTx, setLoadingTx] = useState(false);
+  const [fee, setFee] = useState<main.FeeInfo>();
+  const [tip, setTip] = useState("");
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -106,7 +116,7 @@ function Wallet() {
 
   useEffect(() => {
     if (hasCopied) {
-      toast({ description: "Copied to clipboard" });
+      toast({ description: "Copied to clipboard!" });
     }
   }, [hasCopied]);
 
@@ -118,14 +128,36 @@ function Wallet() {
     setAmount(event.target.value);
   };
 
+  const updateTip = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTip(event.target.value);
+  };
+
+  const calculateFee = async (checked: boolean) => {
+    if (checked) {
+      try {
+        setLoadingTx(true);
+        let fee = await CalculateFee(asset, ledger, fromAddr, toAddr, amount);
+        setLoadingTx(false);
+        setFee(fee);
+      } catch (err) {
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        });
+      }
+    } else {
+      setFee(undefined);
+    }
+  };
+
   const transfer = () => {
     setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount)
+    Transfer(asset, ledger, fromAddr, toAddr, amount, tip)
       .then((resp) => {
         setLoadingTx(false);
         toast({
           title: "Send transaction successfully.",
-          description: `Transaction: ${resp}`,
+          description: `${resp}`,
         });
       })
       .catch((err) => {
@@ -226,6 +258,27 @@ function Wallet() {
                                 <label>Amount</label>
                                 <Input onChange={updateAmount} />
                               </div>
+                              <div className="flex items-center space-x-2">
+                                <Switch
+                                  id="advance-fee-mode"
+                                  onCheckedChange={calculateFee}
+                                />
+                                <Label htmlFor="advance-fee-mode">
+                                  Fee Options
+                                </Label>
+                              </div>
+                              {fee ? (
+                                <div>
+                                  <div>
+                                    <label>Base Fee (in WEI)</label>
+                                    <Input disabled value={fee.base} />
+                                  </div>
+                                  <div>
+                                    <label>Tip Fee (in WEI)</label>
+                                    <Input defaultValue={fee.tip} onChange={updateTip} />
+                                  </div>
+                                </div>
+                              ) : null}
                               {loadingTx ? (
                                 <Button className="w-1/2" disabled>
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

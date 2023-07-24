@@ -31,6 +31,25 @@ export namespace database {
 
 }
 
+export namespace main {
+	
+	export class FeeInfo {
+	    base: string;
+	    tip: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FeeInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.base = source["base"];
+	        this.tip = source["tip"];
+	    }
+	}
+
+}
+
 export namespace utils {
 	
 	export class TokenConfig {

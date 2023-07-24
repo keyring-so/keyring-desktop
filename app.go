@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/jumpcrypto/crosschain"
+	"github.com/jumpcrypto/crosschain/chain/evm"
 	"github.com/jumpcrypto/crosschain/factory"
 	"github.com/spf13/viper"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -155,13 +156,72 @@ func (a *App) AddLedger(account string, chain string) (string, error) {
 	return address, nil
 }
 
-// TODO show gas fee and adjust by user
+func (a *App) CalculateFee(
+	asset string,
+	nativeAsset string,
+	from string,
+	to string,
+	amount string,
+) (*FeeInfo, error) {
+	utils.Sugar.Infof("Calculate fee for %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
+
+	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
+	if chainConfig == nil {
+		return nil, errors.New("chain configuration not found")
+	}
+
+	// prepare asset config
+	configData, err := crosschainFile.ReadFile("crosschain.yaml")
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read crosschain configurate")
+	}
+	v := viper.New()
+	v.SetConfigType("yaml")
+	err = v.ReadConfig(bytes.NewReader(configData))
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read crosschain configurate")
+	}
+	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
+	ctx := context.Background()
+
+	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("unsupported asset")
+	}
+
+	fromAddress := xc.MustAddress(assetConfig, from)
+	toAddress := xc.MustAddress(assetConfig, to)
+
+	client, _ := xc.NewClient(assetConfig)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to create a client")
+	}
+
+	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to fetch tx input")
+	}
+
+	feeInfo := &FeeInfo{
+		Base: input.(*evm.TxInput).BaseFee.String(),
+		Tip:  input.(*evm.TxInput).GasTipCap.String(),
+	}
+
+	return feeInfo, nil
+}
+
 func (a *App) Transfer(
 	asset string,
 	nativeAsset string,
 	from string,
 	to string,
 	amount string,
+	tip string,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
 
@@ -203,6 +263,9 @@ func (a *App) Transfer(
 	}
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
+	if tip != "" {
+		input.(*evm.TxInput).GasTipCap = crosschain.NewAmountBlockchainFromStr(tip)
+	}
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to fetch tx input")
