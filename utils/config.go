@@ -1,12 +1,8 @@
 package utils
 
 import (
-	"embed"
 	"encoding/json"
 )
-
-var RegistryFile embed.FS
-var CrosschainFile embed.FS
 
 type ChainConfig struct {
 	Symbol string        `json:"symbol"`
@@ -19,19 +15,9 @@ type TokenConfig struct {
 	Symbol string `json:"symbol"`
 }
 
-func GetChainConfigs() []ChainConfig {
-	// read chain configuration
-	bytes, err := RegistryFile.ReadFile(ChainRegistry)
-	if err != nil {
-		Sugar.Fatal(err)
-	}
-
-	if err != nil {
-		Sugar.Fatal(err)
-	}
-
+func GetChainConfigs(bytes []byte) []ChainConfig {
 	var chainConfigs []ChainConfig
-	err = json.Unmarshal(bytes, &chainConfigs)
+	err := json.Unmarshal(bytes, &chainConfigs)
 	if err != nil {
 		Sugar.Fatal(err)
 	}

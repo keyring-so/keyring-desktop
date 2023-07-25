@@ -1,0 +1,46 @@
+crosschain:
+  chains:
+  - asset: ETH
+    driver: evm
+    net: mainnet
+    url: 'https://mainnet.infura.io/v3'
+    auth: 'env:INFURA_API_TOKEN'
+    provider: infura
+    chain_id: 1
+    chain_name: Ethereum
+    explorer_url: 'https://etherscan.io'
+    decimals: 18
+  - asset: MATIC
+    driver: evm
+    net: mainnet
+    url: 'https://polygon-rpc.com'
+    chain_id: 137
+    chain_name: Polygon
+    explorer_url: 'https://polygonscan.com'
+    decimals: 18
+  tokens:
+  - asset: USDT
+    chain: ETH
+    net: mainnet
+    decimals: 6
+    contract: 0xdAC17F958D2ee523a2206206994597C13D831ec7
+  - asset: USDC
+    chain: ETH
+    net: mainnet
+    decimals: 6
+    contract: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+  - asset: DAI
+    chain: ETH
+    net: mainnet
+    decimals: 18
+    contract: 0x6B175474E89094C44Da98b954EedeAC495271d0F
+  - asset: WETH
+    chain: ETH
+    net: mainnet
+    decimals: 18
+    contract: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+  - asset: HOT
+    chain: ETH
+    net: mainnet
+    decimals: 18
+    contract: 0x6c6EE5e31d828De241282B9606C8e98Ea48526E2

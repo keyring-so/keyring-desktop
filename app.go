@@ -20,9 +20,10 @@ import (
 
 // App struct
 type App struct {
-	ctx          context.Context
-	chainConfigs []utils.ChainConfig
-	db           *bolt.DB
+	ctx              context.Context
+	chainConfigs     []utils.ChainConfig
+	db               *bolt.DB
+	crosschainConfig []byte
 }
 
 // NewApp creates a new App application struct
@@ -36,8 +37,19 @@ func (a *App) startup(ctx context.Context) {
 	utils.SetupLog()
 
 	a.ctx = ctx
-	a.chainConfigs = utils.GetChainConfigs()
 	a.db = utils.InitDb()
+
+	crosschainConfig, err := resources.ReadFile("resources/crosschain-mainnet.yaml")
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	a.crosschainConfig = crosschainConfig
+
+	registryConfig, err := resources.ReadFile("resources/registry.json")
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	a.chainConfigs = utils.GetChainConfigs(registryConfig)
 }
 
 // shutdown is called when app quits
@@ -166,15 +178,9 @@ func (a *App) CalculateFee(
 		return nil, errors.New("chain configuration not found")
 	}
 
-	// prepare asset config
-	configData, err := crosschainFile.ReadFile("crosschain.yaml")
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read crosschain configurate")
-	}
 	v := viper.New()
 	v.SetConfigType("yaml")
-	err = v.ReadConfig(bytes.NewReader(configData))
+	err := v.ReadConfig(bytes.NewReader(a.crosschainConfig))
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read crosschain configurate")
@@ -227,15 +233,9 @@ func (a *App) Transfer(
 		return "", errors.New("chain configuration not found")
 	}
 
-	// prepare asset config
-	configData, err := crosschainFile.ReadFile("crosschain.yaml")
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to read crosschain configurate")
-	}
 	v := viper.New()
 	v.SetConfigType("yaml")
-	err = v.ReadConfig(bytes.NewReader(configData))
+	err := v.ReadConfig(bytes.NewReader(a.crosschainConfig))
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to read crosschain configurate")

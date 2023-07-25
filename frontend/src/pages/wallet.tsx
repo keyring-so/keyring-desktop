@@ -171,8 +171,7 @@ function Wallet() {
   };
 
   const receive = () => {
-    // TODO verify the address by connecting the card
-    // TODO encrypt the address so no one can change the integrity
+    // TODO verify the address by connecting the card, encrypt the address so no one can change the integrity
     console.log("receive");
   };
 
