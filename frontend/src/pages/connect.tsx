@@ -29,7 +29,7 @@ function ConnectPage() {
   const [puk, setPuk] = useState("");
   const [pairingCode, setPairingCode] = useState("");
   const [cardName, setCardName] = useState("");
-  const [checkSumSize, setCheckSumSize] = useState(4); // TODO advanced setting -> select box
+  const [checkSumSize, setCheckSumSize] = useState(4); // TODO advanced setting allow change secretw words count -> select box
   const [mnemonic, setMnemonic] = useState("");
 
   const setAccount = useSetAtom(accountAtom);

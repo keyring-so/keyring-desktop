@@ -34,7 +34,13 @@ jobs:
         with:
           old-string: "env:INFURA_API_TOKEN"
           new-string: ${{ secrets.INFURA_API_TOKEN }}
-          file: "crosschain.yaml"
+          file: "resources/crosschain.yaml"
+      - name: Replace Mainnet Secrets
+        uses: MathieuSoysal/replace-string-in-file@v1.0.0
+        with:
+          old-string: "env:INFURA_API_TOKEN"
+          new-string: ${{ secrets.INFURA_API_TOKEN }}
+          file: "resources/crosschain-mainnet.yaml"
       - name: Install libpcsclite
         if: matrix.platform == 'linux/amd64'
         run: sudo apt install libpcsclite-dev

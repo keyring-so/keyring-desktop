@@ -42,6 +42,10 @@ export function GetChains(arg1) {
   return window['go']['main']['App']['GetChains'](arg1);
 }
 
+export function GetNetwork() {
+  return window['go']['main']['App']['GetNetwork']();
+}
+
 export function Initialize(arg1, arg2, arg3) {
   return window['go']['main']['App']['Initialize'](arg1, arg2, arg3);
 }
@@ -52,6 +56,10 @@ export function Install() {
 
 export function Pair(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
+}
+
+export function SetNetwork(arg1) {
+  return window['go']['main']['App']['SetNetwork'](arg1);
 }
 
 export function Transfer(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"keyring-desktop/utils"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -12,16 +11,10 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-//go:embed registry.json
-var registryFile embed.FS
-
-//go:embed crosschain.yaml
-var crosschainFile embed.FS
+//go:embed resources
+var resources embed.FS
 
 func main() {
-	utils.RegistryFile = registryFile
-	utils.CrosschainFile = crosschainFile
-
 	// Create an instance of the app structure
 	app := NewApp()
 
