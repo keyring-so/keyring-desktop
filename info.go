@@ -6,6 +6,27 @@ import (
 	"keyring-desktop/utils"
 )
 
+func (a *App) SetNetwork(network string) error {
+	config := "crosschain-mainnet.yaml"
+	if network == "testnet" {
+		config = "crosschain.yaml"
+	}
+
+	crosschainConfig, err := resources.ReadFile("resources/" + config)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+	a.crosschainConfig = crosschainConfig
+	a.network = network
+
+	return nil
+}
+
+func (a *App) GetNetwork() string {
+	return a.network
+}
+
 func (a *App) GetChainConfigs() []utils.ChainConfig {
 	return a.chainConfigs
 }
