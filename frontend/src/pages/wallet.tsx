@@ -64,7 +64,7 @@ function Wallet() {
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
   const [chainConfig, setChainConfig] = useState<utils.ChainConfig>();
-  const [userAssets, setUserAssets] = useState<string[]>([]);
+  const [userAssets, setUserAssets] = useState<main.AssetInfo[]>([]);
   const [openSelectAssets, setOpenSelectAssets] = useState(false);
   const [selectAssetValue, setSelectAssetValue] = useState("");
   const [loadingTx, setLoadingTx] = useState(false);
@@ -216,24 +216,24 @@ function Wallet() {
             <Accordion type="single" collapsible>
               {userAssets.map((userAsset) => {
                 return (
-                  <AccordionItem value={userAsset}>
+                  <AccordionItem value={userAsset.name}>
                     <AccordionTrigger>
                       <div
                         className={`flex flex-row items-center justify-between grow
                         bg-secondary rounded-xl shadow-md p-2 pr-6
                         hover:bg-primary hover:text-white`}
-                        onClick={() => setAsset(userAsset)}
+                        onClick={() => setAsset(userAsset.name)}
                       >
                         <div className="flex flex-row items-center gap-2">
                           <img
                             className="h-12"
-                            src={TOKENS.get(userAsset)?.img || ""}
+                            src={TOKENS.get(userAsset.name)?.img || ""}
                           />
 
-                          <Label className="text-lg">{userAsset}</Label>
+                          <Label className="text-lg">{userAsset.name}</Label>
                         </div>
 
-                        <Label className="text-lg">10.99</Label>
+                        <Label className="text-lg">{parseFloat(parseFloat(userAsset.balance).toFixed(3))}</Label>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
