@@ -7,8 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
-import { showSettingsAtom } from "@/store/state";
-import { useSetAtom } from "jotai";
+import { showSettingsAtom, isTestnetAtom } from "@/store/state";
+import { useAtom, useSetAtom } from "jotai";
 import { GetNetwork, Install, SetNetwork } from "@/../wailsjs/go/main/App";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -16,8 +16,7 @@ import { useEffect, useState } from "react";
 
 const Settings = () => {
   const setShowSettings = useSetAtom(showSettingsAtom);
-
-  const [isTestnet, setIsTestnet] = useState(false);
+  const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
 
   useEffect(() => {
     (async () => {

@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { LEDGERS, TOKENS } from "@/constants";
 import { cn, shortenAddress } from "@/lib/utils";
-import { accountAtom, ledgerAtom } from "@/store/state";
+import { accountAtom, isTestnetAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
 import {
   Check,
@@ -74,6 +74,7 @@ function Wallet() {
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
+  const isTestnet = useAtomValue(isTestnetAtom);
 
   const { toast } = useToast();
 
@@ -100,7 +101,7 @@ function Wallet() {
           });
         });
     }
-  }, [account, ledger]);
+  }, [account, ledger, isTestnet]);
 
   useEffect(() => {
     GetChainConfig(ledger)
