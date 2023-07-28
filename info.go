@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"keyring-desktop/database"
+	"keyring-desktop/oracle"
 	"keyring-desktop/utils"
 
 	"github.com/jumpcrypto/crosschain/factory"
@@ -71,9 +71,16 @@ func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, e
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset" + asset)
 		}
+
+		price, err := oracle.GetPrice(asset, a.chainConfigs)
+		if err != nil {
+			utils.Sugar.Error(err)
+		}
+
 		assetInfo := AssetInfo{
 			Name:    asset,
 			Balance: balance.String(),
+			Price:   price,
 		}
 		assets = append(assets, assetInfo)
 	}
@@ -124,9 +131,16 @@ func (a *App) AddAsset(account string, chain string, asset string) (*ChainAssets
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset" + asset)
 		}
+
+		price, err := oracle.GetPrice(asset, a.chainConfigs)
+		if err != nil {
+			utils.Sugar.Error(err)
+		}
+
 		assetInfo := AssetInfo{
 			Name:    asset,
-			Balance: fmt.Sprintf("%f", &balance),
+			Balance: balance.String(),
+			Price:   price,
 		}
 		assets = append(assets, assetInfo)
 	}

@@ -5,14 +5,16 @@ import (
 )
 
 type ChainConfig struct {
-	Symbol string        `json:"symbol"`
-	Name   string        `json:"name"`
-	Path   string        `json:"path"`
-	Tokens []TokenConfig `json:"tokens"`
+	Symbol  string        `json:"symbol"`
+	Name    string        `json:"name"`
+	Path    string        `json:"path"`
+	PriceId string        `json:"priceId"`
+	Tokens  []TokenConfig `json:"tokens"`
 }
 
 type TokenConfig struct {
-	Symbol string `json:"symbol"`
+	Symbol  string `json:"symbol"`
+	PriceId string `json:"priceId"`
 }
 
 func GetChainConfigs(bytes []byte) []ChainConfig {

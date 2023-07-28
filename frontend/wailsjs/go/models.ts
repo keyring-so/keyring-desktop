@@ -22,6 +22,7 @@ export namespace main {
 	export class AssetInfo {
 	    name: string;
 	    balance: string;
+	    price: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new AssetInfo(source);
@@ -31,6 +32,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
 	        this.balance = source["balance"];
+	        this.price = source["price"];
 	    }
 	}
 	export class ChainAssets {
@@ -86,6 +88,7 @@ export namespace utils {
 	
 	export class TokenConfig {
 	    symbol: string;
+	    priceId: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TokenConfig(source);
@@ -94,12 +97,14 @@ export namespace utils {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.symbol = source["symbol"];
+	        this.priceId = source["priceId"];
 	    }
 	}
 	export class ChainConfig {
 	    symbol: string;
 	    name: string;
 	    path: string;
+	    priceId: string;
 	    tokens: TokenConfig[];
 	
 	    static createFrom(source: any = {}) {
@@ -111,6 +116,7 @@ export namespace utils {
 	        this.symbol = source["symbol"];
 	        this.name = source["name"];
 	        this.path = source["path"];
+	        this.priceId = source["priceId"];
 	        this.tokens = this.convertValues(source["tokens"], TokenConfig);
 	    }
 	

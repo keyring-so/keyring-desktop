@@ -211,7 +211,7 @@ function Wallet() {
           <div className="mt-6 flex flex-col gap-2">
             <div className="flex flex-row justify-between">
               <Label className="text-lg">Total</Label>
-              <Label className="text-lg">$1099.99</Label>
+              <Label className="text-lg">${parseFloat(userAssets.reduce((temp, asset) => temp + parseFloat(asset.balance) * asset.price, 0).toFixed(2))}</Label>
             </div>
 
             <Accordion type="single" collapsible>

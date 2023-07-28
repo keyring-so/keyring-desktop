@@ -2,30 +2,37 @@
   {
     "symbol": "BTC",
     "name": "Bitcoin",
-    "path": "m/44'/0'/0'/0/0"
+    "path": "m/44'/0'/0'/0/0",
+    "priceId": "bitcoin"
   },
   {
     "symbol": "ETH",
     "name": "Ethereum",
     "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
     "tokens": [
       {
-        "symbol": "USDC"
+        "symbol": "USDC",
+        "priceId": "usd-coin"
       },
       {
-        "symbol": "USDT"
+        "symbol": "USDT",
+        "priceId": "tether"
       },
       {
-        "symbol": "DAI"
+        "symbol": "DAI",
+        "priceId": "dai"
       },
       {
-        "symbol": "HOT"
+        "symbol": "HOT",
+        "priceId": "holo"
       }
     ]
   },
   {
     "symbol": "MATIC",
     "name": "Polygon",
-    "path": "m/44'/60'/0'/0/0"
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "polygon"
   }
 ]

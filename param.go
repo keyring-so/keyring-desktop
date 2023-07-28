@@ -6,8 +6,9 @@ type FeeInfo struct {
 }
 
 type AssetInfo struct {
-	Name    string `json:"name"`
-	Balance string `json:"balance"`
+	Name    string  `json:"name"`
+	Balance string  `json:"balance"`
+	Price   float32 `json:"price"`
 }
 
 type ChainAssets struct {
