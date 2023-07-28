@@ -241,7 +241,7 @@ function Wallet() {
                       <div className="flex gap-2">
                         <Sheet>
                           <SheetTrigger>
-                            <Button>Transfer</Button>
+                            <Button onClick={() => {setFee(undefined)}}>Transfer</Button>
                           </SheetTrigger>
                           <SheetContent>
                             <SheetHeader>

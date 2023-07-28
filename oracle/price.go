@@ -12,6 +12,7 @@ type Price struct {
 	Usd float32 `json:"usd"`
 }
 
+// TODO get all the assets price together with comma split
 func GetPrice(asset string, config []utils.ChainConfig) (float32, error) {
 	var id string
 	for _, c := range config {
