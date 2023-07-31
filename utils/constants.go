@@ -6,6 +6,10 @@ const BucketName = "Keyring"
 const ChainRegistry = "registry.json"
 
 const DbCurrentAccountKey = "current_account"
+const DbSettingsNetwork = "settings_network"
+
+const Mainnet = "mainnet"
+const Testnet = "testnet"
 
 func DatabasePath() (string, error) {
 	dataPath, err := DataPath()

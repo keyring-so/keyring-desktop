@@ -34,7 +34,7 @@ jobs:
         with:
           old-string: "env:INFURA_API_TOKEN"
           new-string: ${{ secrets.INFURA_API_TOKEN }}
-          file: "resources/crosschain.yaml"
+          file: "resources/crosschain-testnet.yaml"
       - name: Replace Mainnet Secrets
         uses: MathieuSoysal/replace-string-in-file@v1.0.0
         with:

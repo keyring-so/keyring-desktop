@@ -13,9 +13,13 @@ import (
 )
 
 func (a *App) SetNetwork(network string) error {
-	config := "crosschain-mainnet.yaml"
-	if network == "testnet" {
-		config = "crosschain.yaml"
+	var config string
+	if network == utils.Testnet {
+		database.SaveNetwork(a.db, utils.Testnet)
+		config = "crosschain-testnet.yaml"
+	} else {
+		database.SaveNetwork(a.db, utils.Mainnet)
+		config = "crosschain-mainnet.yaml"
 	}
 
 	crosschainConfig, err := resources.ReadFile("resources/" + config)
@@ -24,13 +28,17 @@ func (a *App) SetNetwork(network string) error {
 		return err
 	}
 	a.crosschainConfig = crosschainConfig
-	a.network = network
 
 	return nil
 }
 
-func (a *App) GetNetwork() string {
-	return a.network
+func (a *App) GetNetwork() (string, error) {
+	network, err := database.QueryNetwork(a.db)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to read database")
+	}
+	return network, nil
 }
 
 func (a *App) GetChainConfigs() []utils.ChainConfig {

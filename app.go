@@ -24,7 +24,6 @@ type App struct {
 	chainConfigs     []utils.ChainConfig
 	db               *bolt.DB
 	crosschainConfig []byte
-	network          string
 }
 
 // NewApp creates a new App application struct
@@ -40,12 +39,21 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.db = utils.InitDb()
 
-	crosschainConfig, err := resources.ReadFile("resources/crosschain-mainnet.yaml")
+	network, err := database.QueryNetwork(a.db)
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	var crosschainConfigPath string
+	if network == utils.Testnet {
+		crosschainConfigPath = "resources/crosschain-testnet.yaml"
+	} else {
+		crosschainConfigPath = "resources/crosschain-mainnet.yaml"
+	}
+	crosschainConfig, err := resources.ReadFile(crosschainConfigPath)
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
 	a.crosschainConfig = crosschainConfig
-	a.network = "mainnet"
 
 	registryConfig, err := resources.ReadFile("resources/registry.json")
 	if err != nil {
