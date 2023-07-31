@@ -106,7 +106,7 @@ function WelcomePage() {
 
             <div>
               <label>PIN</label>
-              <Input onChange={(event) => setPin(event.target.value)} />
+              <Input type="password" onChange={(event) => setPin(event.target.value)} />
             </div>
           </div>
           <DialogFooter>

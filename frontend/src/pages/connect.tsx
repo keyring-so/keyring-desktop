@@ -129,6 +129,7 @@ function ConnectPage() {
             </Label>
             <Input
               id="pin"
+              type="password"
               className="col-span-3"
               onChange={(e) => setPin(e.target.value)}
             />
@@ -192,6 +193,7 @@ function ConnectPage() {
             </Label>
             <Input
               id="pin"
+              type="password"
               className="col-span-3"
               onChange={(e) => setPin(e.target.value)}
             />

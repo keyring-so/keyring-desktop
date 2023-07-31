@@ -262,7 +262,7 @@ function Wallet() {
 
                               <div>
                                 <label>PIN</label>
-                                <Input onChange={(event) => setPin(event.target.value)} />
+                                <Input type="password" onChange={(event) => setPin(event.target.value)} />
                               </div>
 
                               <div className="flex items-center space-x-2">
