@@ -90,11 +90,10 @@ function ConnectPage() {
     }
   };
 
-  // TODO improve secrets words display
   const mnemonicDialog = () => {
     return (
       <Dialog open={true} onOpenChange={() => setMnemonic("")}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Keep your secret words safe!</DialogTitle>
             <DialogDescription>
@@ -103,7 +102,14 @@ function ConnectPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-4 items-center gap-4">
-            <p>{mnemonic}</p>
+            {mnemonic.split(" ").map((word, index) => {
+              return (
+                <div>
+                  <span>{index + 1}. </span>
+                  <span className="underline font-medium">{word}</span>
+                </div>
+              );
+            })}
           </div>
         </DialogContent>
       </Dialog>
