@@ -19,18 +19,33 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { LEDGERS, TOKENS } from "@/constants";
+import { useClipboard } from "@/hooks/useClipboard";
 import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, isTestnetAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
 import {
   Check,
   ChevronsUpDown,
-  Loader2,
   Clipboard,
   ClipboardCheck,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -41,22 +56,6 @@ import {
   Transfer,
 } from "../../wailsjs/go/main/App";
 import { main, utils } from "../../wailsjs/go/models";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useClipboard } from "@/hooks/useClipboard";
-import { Switch } from "@/components/ui/switch";
 
 function Wallet() {
   const [asset, setAsset] = useState("");
@@ -71,6 +70,7 @@ function Wallet() {
   const [fee, setFee] = useState<main.FeeInfo>();
   const [tip, setTip] = useState("");
   const [pin, setPin] = useState("");
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -157,6 +157,7 @@ function Wallet() {
     Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin)
       .then((resp) => {
         setLoadingTx(false);
+        setTransferOpen(false);
         toast({
           title: "Send transaction successfully.",
           description: `${resp}`,
@@ -211,7 +212,18 @@ function Wallet() {
           <div className="mt-6 flex flex-col gap-2">
             <div className="flex flex-row justify-between">
               <Label className="text-lg">Total</Label>
-              <Label className="text-lg">${parseFloat(userAssets.reduce((temp, asset) => temp + parseFloat(asset.balance) * asset.price, 0).toFixed(2))}</Label>
+              <Label className="text-lg">
+                $
+                {parseFloat(
+                  userAssets
+                    .reduce(
+                      (temp, asset) =>
+                        temp + parseFloat(asset.balance) * asset.price,
+                      0
+                    )
+                    .toFixed(2)
+                )}
+              </Label>
             </div>
 
             <Accordion type="single" collapsible>
@@ -234,21 +246,29 @@ function Wallet() {
                           <Label className="text-lg">{userAsset.name}</Label>
                         </div>
 
-                        <Label className="text-lg">{parseFloat(parseFloat(userAsset.balance).toFixed(3))}</Label>
+                        <Label className="text-lg">
+                          {parseFloat(parseFloat(userAsset.balance).toFixed(3))}
+                        </Label>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="flex gap-2">
-                        <Sheet>
+                        <Sheet open={transferOpen} onOpenChange={setTransferOpen}>
                           <SheetTrigger>
-                            <Button onClick={() => {setFee(undefined)}}>Transfer</Button>
+                            <Button
+                              onClick={() => {
+                                setTransferOpen(true);
+                                setFee(undefined);
+                              }}
+                            >
+                              Transfer
+                            </Button>
                           </SheetTrigger>
                           <SheetContent>
                             <SheetHeader>
                               <SheetTitle>
                                 Sending {asset} on {ledgerName()} blockchain
                               </SheetTitle>
-                              <SheetDescription></SheetDescription>
                             </SheetHeader>
                             <div className="flex flex-col gap-6 mt-10">
                               <div>
@@ -262,7 +282,12 @@ function Wallet() {
 
                               <div>
                                 <label>PIN</label>
-                                <Input type="password" onChange={(event) => setPin(event.target.value)} />
+                                <Input
+                                  type="password"
+                                  onChange={(event) =>
+                                    setPin(event.target.value)
+                                  }
+                                />
                               </div>
 
                               <div className="flex items-center space-x-2">
@@ -282,7 +307,10 @@ function Wallet() {
                                   </div>
                                   <div>
                                     <label>Tip Fee (in WEI)</label>
-                                    <Input defaultValue={fee.tip} onChange={updateTip} />
+                                    <Input
+                                      defaultValue={fee.tip}
+                                      onChange={updateTip}
+                                    />
                                   </div>
                                 </div>
                               ) : null}
