@@ -21,8 +21,8 @@ export namespace main {
 	
 	export class AssetInfo {
 	    name: string;
-	    balance: string;
-	    price: number;
+	    balance?: string;
+	    price?: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new AssetInfo(source);

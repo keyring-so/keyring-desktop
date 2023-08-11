@@ -70,6 +70,49 @@ func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, e
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read crosschain configurate")
 	}
+	var assets []AssetInfo
+	for _, asset := range chainData.Assets {
+		assetInfo := AssetInfo{
+			Name:    asset,
+			Balance: nil,
+			Price:   nil,
+		}
+		assets = append(assets, assetInfo)
+	}
+	chainDataRes := ChainAssets{
+		Address: chainData.Address,
+		Assets:  assets,
+	}
+
+	err = database.SaveLastSelectedChain(a.db, account, chain)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to update database")
+	}
+
+	return &chainDataRes, nil
+}
+
+func (a *App) GetAssetPrices(account string, chain string) (*ChainAssets, error) {
+	utils.Sugar.Infof("Get asset prices, %s", account)
+
+	if account == "" || chain == "" {
+		return nil, errors.New("invalid account or chain")
+	}
+
+	chainData, err := database.QueryChainAssets(a.db, account, chain)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read database")
+	}
+
+	v := viper.New()
+	v.SetConfigType("yaml")
+	err = v.ReadConfig(bytes.NewReader(a.crosschainConfig))
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read crosschain configurate")
+	}
 	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 	var assets []AssetInfo
@@ -85,10 +128,11 @@ func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, e
 			utils.Sugar.Error(err)
 		}
 
+		bals := balance.String()
 		assetInfo := AssetInfo{
 			Name:    asset,
-			Balance: balance.String(),
-			Price:   price,
+			Balance: &bals,
+			Price:   &price,
 		}
 		assets = append(assets, assetInfo)
 	}
@@ -145,10 +189,11 @@ func (a *App) AddAsset(account string, chain string, asset string) (*ChainAssets
 			utils.Sugar.Error(err)
 		}
 
+		bals := balance.String()
 		assetInfo := AssetInfo{
 			Name:    asset,
-			Balance: balance.String(),
-			Price:   price,
+			Balance: &bals,
+			Price:   &price,
 		}
 		assets = append(assets, assetInfo)
 	}

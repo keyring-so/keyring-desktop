@@ -2,6 +2,7 @@ package oracle
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"keyring-desktop/utils"
@@ -37,6 +38,11 @@ func GetPrice(asset string, config []utils.ChainConfig) (float32, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return 0, err
+	}
+
+	if resp.StatusCode != 200 {
+		utils.Sugar.Infof("Response status: %v", resp.StatusCode)
+		return 0, errors.New("failed to get price, response status code is not 200")
 	}
 	defer resp.Body.Close()
 

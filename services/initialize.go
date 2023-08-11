@@ -107,7 +107,7 @@ func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumS
 	utils.Sugar.Info("load key from seed")
 	entropy, _ := bip39.NewEntropy(32 * checksumSize)
 	mnemonic, _ := bip39.NewMnemonic(entropy)
-	seed := bip39.NewSeed(mnemonic, "") // TODO should user input passphrase?
+	seed := bip39.NewSeed(mnemonic, "")
 
 	_, err = cmdSet.LoadSeed(seed)
 	if err != nil {

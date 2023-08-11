@@ -52,6 +52,7 @@ import {
   AddAsset,
   CalculateFee,
   GetAddressAndAssets,
+  GetAssetPrices,
   GetChainConfig,
   Transfer,
 } from "../../wailsjs/go/main/App";
@@ -82,25 +83,32 @@ function Wallet() {
 
   // get the address for a specific chain
   useEffect(() => {
-    if (account && ledger) {
-      GetAddressAndAssets(account, ledger)
-        .then((res) => {
-          setFromAddr(res.address);
-          setUserAssets(res.assets);
-          if (!res.address) {
+    const fn = async () => {
+      if (account && ledger) {
+        try {
+          let assets = await GetAddressAndAssets(account, ledger);
+          setFromAddr(assets.address);
+          setUserAssets(assets.assets);
+          if (!assets.address) {
             toast({
               title: "Uh oh! Something went wrong.",
               description: `Error happens: address is empty`,
             });
           }
-        })
-        .catch((err) => {
+
+          let prices = await GetAssetPrices(account, ledger);
+          console.log("price", prices);
+          setUserAssets(prices.assets);
+        } catch (err) {
           toast({
             title: "Uh oh! Something went wrong.",
             description: `Error happens: ${err}`,
           });
-        });
-    }
+        }
+      }
+    };
+
+    fn();
   }, [account, ledger, isTestnet]);
 
   useEffect(() => {
@@ -218,7 +226,8 @@ function Wallet() {
                   userAssets
                     .reduce(
                       (temp, asset) =>
-                        temp + parseFloat(asset.balance) * asset.price,
+                        temp +
+                        parseFloat(asset.balance || "0") * (asset.price || 0),
                       0
                     )
                     .toFixed(2)
@@ -247,13 +256,20 @@ function Wallet() {
                         </div>
 
                         <Label className="text-lg">
-                          {parseFloat(parseFloat(userAsset.balance).toFixed(3))}
+                          {userAsset.balance ? (
+                            parseFloat(parseFloat(userAsset.balance).toFixed(3))
+                          ) : (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
                         </Label>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="flex gap-2">
-                        <Sheet open={transferOpen} onOpenChange={setTransferOpen}>
+                        <Sheet
+                          open={transferOpen}
+                          onOpenChange={setTransferOpen}
+                        >
                           <SheetTrigger>
                             <Button
                               onClick={() => {

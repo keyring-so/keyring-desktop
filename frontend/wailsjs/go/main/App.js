@@ -30,6 +30,10 @@ export function GetAddressAndAssets(arg1, arg2) {
   return window['go']['main']['App']['GetAddressAndAssets'](arg1, arg2);
 }
 
+export function GetAssetPrices(arg1, arg2) {
+  return window['go']['main']['App']['GetAssetPrices'](arg1, arg2);
+}
+
 export function GetChainConfig(arg1) {
   return window['go']['main']['App']['GetChainConfig'](arg1);
 }

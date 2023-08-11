@@ -14,7 +14,7 @@ crosschain:
   - asset: MATIC
     driver: evm
     net: testnet
-    url: 'https://rpc-mumbai.matic.today'
+    url: 'https://rpc.ankr.com/polygon_mumbai'
     chain_id: 80001
     chain_name: Polygon (Mumbai)
     explorer_url: 'https://mumbai.polygonscan.com'

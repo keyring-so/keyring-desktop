@@ -19,6 +19,8 @@ export function Connect():Promise<string>;
 
 export function GetAddressAndAssets(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
+export function GetAssetPrices(arg1:string,arg2:string):Promise<main.ChainAssets>;
+
 export function GetChainConfig(arg1:string):Promise<utils.ChainConfig>;
 
 export function GetChainConfigs():Promise<Array<utils.ChainConfig>>;
