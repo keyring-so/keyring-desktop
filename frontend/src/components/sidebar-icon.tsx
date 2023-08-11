@@ -1,5 +1,3 @@
-import { ledgerAtom } from "@/store/state";
-import { useSetAtom } from "jotai";
 import { LucideIcon } from "lucide-react";
 import React from "react";
 

@@ -3,10 +3,11 @@ import {
 } from "@/constants";
 import { chainConfigsAtom, showNewLedgerAtom, showSettingsAtom } from "@/store/state";
 import { useSetAtom } from "jotai";
-import { Key, Plus, Settings, UserCircle } from "lucide-react";
-import SidebarLedger from "./sidebar-ledger";
-import SidebarIcon from "./sidebar-icon";
+import { Plus, Settings, UserCircle } from "lucide-react";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";
+import Logo from "./logo";
+import SidebarIcon from "./sidebar-icon";
+import SidebarLedger from "./sidebar-ledger";
 
 type Props = {
   chains: string[];
@@ -32,7 +33,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
             items-center
             "
     >
-      <SidebarIcon icon={Key} text="Keyring" onClick={() => console.log("click")} />
+      <SidebarIcon icon={Logo} text="Keyring" onClick={() => console.log("click")} />
 
       <Divider />
 
