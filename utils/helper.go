@@ -8,7 +8,7 @@ const numberBytes = "0123456789"
 func RandStringBytes(n int, bytes string) string {
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(bytes))]
+		b[i] = bytes[rand.Intn(len(bytes))]
 	}
 	return string(b)
 }

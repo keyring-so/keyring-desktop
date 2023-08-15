@@ -92,7 +92,13 @@ function ConnectPage() {
 
   const mnemonicDialog = () => {
     return (
-      <Dialog open={true} onOpenChange={() => setMnemonic("")}>
+      <Dialog
+        open={true}
+        onOpenChange={() => {
+          setMnemonic("");
+          setAccount(cardName);
+        }}
+      >
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Keep your secret words safe!</DialogTitle>
