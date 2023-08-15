@@ -20,7 +20,7 @@ jobs:
           - os: macos-latest
             platform: darwin/universal
             # wails bug, mac outputfile name not work
-            output: keyring-desktop
+            output: Keyring Wallet
           - os: ubuntu-latest
             platform: linux/amd64
             output: keyring-wallet-linux
@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: |
           rm -rf ./build/bin/${{ matrix.output }}.app.zip
-          ditto -c -k --keepParent ./build/bin/${{matrix.output}}.app ./build/bin/${{matrix.output}}.app.zip
+          ditto -c -k --keepParent ./build/bin/${{matrix.output}}.app ./build/bin/keyring-desktop.app.zip
           rm -rf ./build/bin/${{ matrix.output }}.app
 
       - uses: actions/upload-artifact@v2
