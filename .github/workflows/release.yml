@@ -20,7 +20,7 @@ jobs:
           - os: macos-latest
             platform: darwin/universal
             # wails bug, mac outputfile name not work
-            output: Keyring Wallet
+            output: Keyring\ Wallet
           - os: ubuntu-latest
             platform: linux/amd64
             output: keyring-wallet-linux
