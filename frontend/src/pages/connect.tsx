@@ -5,6 +5,16 @@ import {
   Pair,
 } from "@/../wailsjs/go/main/App";
 import Settings from "@/components/settings";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,13 +24,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -29,10 +32,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
 import { accountAtom, showSettingsAtom } from "@/store/state";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom, useSetAtom } from "jotai";
 import { Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const InitCardSchema = z.object({
   name: z.string().min(2).max(20),
@@ -112,21 +122,21 @@ function ConnectPage() {
 
   const mnemonicDialog = () => {
     return (
-      <Dialog
+      <AlertDialog
         open={true}
         onOpenChange={() => {
           setMnemonic("");
           setAccount(cardName);
         }}
       >
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Keep your secret words safe!</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent className="sm:max-w-[480px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keep your secret words safe!</AlertDialogTitle>
+            <AlertDialogDescription>
               Write down the secret words and keep them safe, it's the only way
               to recover your funds if you lose your card and PIN.
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           <div className="grid grid-cols-4 items-center gap-4">
             {mnemonic.split(" ").map((word, index) => {
               return (
@@ -137,8 +147,11 @@ function ConnectPage() {
               );
             })}
           </div>
-        </DialogContent>
-      </Dialog>
+          <AlertDialogFooter>
+            <AlertDialogAction>I wrote it down!</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     );
   };
 
