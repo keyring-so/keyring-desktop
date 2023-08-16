@@ -17,10 +17,40 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { accountAtom, showSettingsAtom } from "@/store/state";
 import { useAtom, useSetAtom } from "jotai";
 import { Settings as SettingsIcon } from "lucide-react";
 import { useState } from "react";
+
+const InitCardSchema = z.object({
+  name: z.string().min(2).max(20),
+  pin: z.string().transform((val, ctx) => {
+    if (val.length !== 6 || isNaN(Number(val))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "PIN must have 6 digits",
+      });
+
+      return z.NEVER;
+    }
+    return val;
+  }),
+  checksum: z.enum(["4", "6", "8"], {
+    required_error: "You need to choose the count of words.",
+  }),
+});
 
 function ConnectPage() {
   const [cardInitialized, setCardInitialized] = useState<boolean>(false);
@@ -29,13 +59,19 @@ function ConnectPage() {
   const [puk, setPuk] = useState("");
   const [pairingCode, setPairingCode] = useState("");
   const [cardName, setCardName] = useState("");
-  const [checkSumSize, setCheckSumSize] = useState(4); // TODO advanced setting allow change secretw words count -> select box
   const [mnemonic, setMnemonic] = useState("");
 
   const setAccount = useSetAtom(accountAtom);
   const [showSettings, setShowSettings] = useAtom(showSettingsAtom);
 
   const { toast } = useToast();
+
+  const initForm = useForm<z.infer<typeof InitCardSchema>>({
+    resolver: zodResolver(InitCardSchema),
+    defaultValues: {
+      checksum: "4",
+    },
+  });
 
   const connect = async () => {
     try {
@@ -65,22 +101,6 @@ function ConnectPage() {
       toast({
         title: "Success!",
         description: "Card is paired.",
-      });
-    } catch (err) {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    }
-  };
-
-  const init = async () => {
-    try {
-      const words = await Initialize(pin, cardName, checkSumSize);
-      setMnemonic(words);
-      toast({
-        title: "Success!",
-        description: "Card is initialized.",
       });
     } catch (err) {
       toast({
@@ -183,6 +203,27 @@ function ConnectPage() {
     );
   };
 
+  const initCard = async (data: z.infer<typeof InitCardSchema>) => {
+    try {
+      const words = await Initialize(
+        data.pin,
+        data.name,
+        parseInt(data.checksum)
+      );
+      setMnemonic(words);
+      setCardName(data.name);
+      toast({
+        title: "Success!",
+        description: "Card is initialized.",
+      });
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
   const initializeDialog = () => {
     return (
       <Dialog open={true} onOpenChange={setConnectDialog}>
@@ -199,31 +240,84 @@ function ConnectPage() {
               PIN is used to protect your card from unauthorized access.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="pin" className="text-right">
-              PIN
-            </Label>
-            <Input
-              id="pin"
-              type="password"
-              className="col-span-3"
-              onChange={(e) => setPin(e.target.value)}
-            />
-
-            <Label htmlFor="name" className="text-right">
-              Card Name
-            </Label>
-            <Input
-              id="name"
-              className="col-span-3"
-              onChange={(e) => setCardName(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" onClick={init}>
-              Initalize
-            </Button>
-          </DialogFooter>
+          <Form {...initForm}>
+            <form
+              onSubmit={initForm.handleSubmit(initCard)}
+              className="w-2/3 space-y-6"
+            >
+              <FormField
+                control={initForm.control}
+                name="checksum"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Choose the count of secret words</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="4" />
+                          </FormControl>
+                          <FormLabel className="font-normal">12</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="6" />
+                          </FormControl>
+                          <FormLabel className="font-normal">18</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="8" />
+                          </FormControl>
+                          <FormLabel className="font-normal">24</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={initForm.control}
+                name="pin"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Input your PIN</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        className="col-span-3"
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={initForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Name the card</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="col-span-3"
+                        onChange={field.onChange}
+                        autoCorrect="off"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     );
