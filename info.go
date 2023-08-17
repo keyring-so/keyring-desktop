@@ -106,6 +106,11 @@ func (a *App) GetAssetPrices(account string, chain string) (*ChainAssets, error)
 		return nil, errors.New("failed to read database")
 	}
 
+	prices, err := oracle.GetPrice(chainData.Assets, a.chainConfigs)
+	if err != nil {
+		utils.Sugar.Error(err)
+	}
+
 	v := viper.New()
 	v.SetConfigType("yaml")
 	err = v.ReadConfig(bytes.NewReader(a.crosschainConfig))
@@ -123,10 +128,7 @@ func (a *App) GetAssetPrices(account string, chain string) (*ChainAssets, error)
 			return nil, errors.New("failed to read balance of asset" + asset)
 		}
 
-		price, err := oracle.GetPrice(asset, a.chainConfigs)
-		if err != nil {
-			utils.Sugar.Error(err)
-		}
+		price := prices[asset].Usd
 
 		bals := balance.String()
 		assetInfo := AssetInfo{
@@ -167,6 +169,11 @@ func (a *App) AddAsset(account string, chain string, asset string) (*ChainAssets
 		return nil, errors.New("failed to read database")
 	}
 
+	prices, err := oracle.GetPrice(chainData.Assets, a.chainConfigs)
+	if err != nil {
+		utils.Sugar.Error(err)
+	}
+
 	v := viper.New()
 	v.SetConfigType("yaml")
 	err = v.ReadConfig(bytes.NewReader(a.crosschainConfig))
@@ -184,10 +191,7 @@ func (a *App) AddAsset(account string, chain string, asset string) (*ChainAssets
 			return nil, errors.New("failed to read balance of asset" + asset)
 		}
 
-		price, err := oracle.GetPrice(asset, a.chainConfigs)
-		if err != nil {
-			utils.Sugar.Error(err)
-		}
+		price := prices[asset].Usd
 
 		bals := balance.String()
 		assetInfo := AssetInfo{

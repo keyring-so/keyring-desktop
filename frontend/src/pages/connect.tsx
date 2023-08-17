@@ -148,7 +148,7 @@ function ConnectPage() {
             })}
           </div>
           <AlertDialogFooter>
-            <AlertDialogAction>I wrote it down!</AlertDialogAction>
+            <AlertDialogAction>I've written it down!</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
