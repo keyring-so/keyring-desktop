@@ -105,7 +105,17 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 		return "", errors.New("failed to pair with card")
 	}
 
-	err = database.SaveCredential(a.db, puk, code, accountName)
+	encryptedPuk, err := utils.Encrypt([]byte(pin), puk)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to encrypt PUK")
+	}
+	enryptedCode, err := utils.Encrypt([]byte(pin), code)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to encrypt Pairing Code")
+	}
+	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, accountName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to update database")
@@ -156,7 +166,19 @@ func (a *App) AddLedger(account string, chain string, pin string) (string, error
 		return "", errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
-	address, err := keyringCard.ChainAddress(pin, credential.Puk, credential.Code, chainConfig)
+
+	puk, err := utils.Decrypt([]byte(pin), credential.Puk)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to decrypt PUK")
+	}
+	code, err := utils.Decrypt([]byte(pin), credential.Code)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to decrypt Pairing Code")
+	}
+
+	address, err := keyringCard.ChainAddress(pin, puk, code, chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get chain address")
@@ -318,7 +340,18 @@ func (a *App) Transfer(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to read database")
 	}
-	signature, err := keyringCard.Sign(sighash, chainConfig, pin, credential.Puk, credential.Code)
+	puk, err := utils.Decrypt([]byte(pin), credential.Puk)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to decrypt PUK")
+	}
+	pairingCode, err := utils.Decrypt([]byte(pin), credential.Code)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to decrypt Pairing Code")
+	}
+
+	signature, err := keyringCard.Sign(sighash, chainConfig, pin, puk, pairingCode)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to sign transaction hash")
@@ -386,7 +419,18 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	}
 
 	puk := utils.GenPuk()
+	encryptedPuk, err := utils.Encrypt([]byte(pin), puk)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to encrypt PUK")
+	}
+
 	code := utils.GenPairingCode()
+	enryptedCode, err := utils.Encrypt([]byte(pin), code)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to encrypt Pairing Code")
+	}
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
@@ -409,7 +453,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 		return "", errors.New("failed to generate key")
 	}
 
-	err = database.SaveCredential(a.db, puk, code, accountName)
+	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, accountName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to update database")
