@@ -90,6 +90,17 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 		return "", errors.New("pin or card name can not be empty")
 	}
 
+	puk, err := utils.Decrypt(pin, puk)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to decrypt PUK")
+	}
+	code, err = utils.Decrypt(pin, code)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to decrypt Pairing Code")
+	}
+
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
@@ -105,12 +116,12 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 		return "", errors.New("failed to pair with card")
 	}
 
-	encryptedPuk, err := utils.Encrypt([]byte(pin), puk)
+	encryptedPuk, err := utils.Encrypt(pin, puk)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to encrypt PUK")
 	}
-	enryptedCode, err := utils.Encrypt([]byte(pin), code)
+	enryptedCode, err := utils.Encrypt(pin, code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to encrypt Pairing Code")
@@ -167,12 +178,12 @@ func (a *App) AddLedger(account string, chain string, pin string) (string, error
 	}
 	defer keyringCard.Release()
 
-	puk, err := utils.Decrypt([]byte(pin), credential.Puk)
+	puk, err := utils.Decrypt(pin, credential.Puk)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decrypt PUK")
 	}
-	code, err := utils.Decrypt([]byte(pin), credential.Code)
+	code, err := utils.Decrypt(pin, credential.Code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decrypt Pairing Code")
@@ -340,12 +351,12 @@ func (a *App) Transfer(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to read database")
 	}
-	puk, err := utils.Decrypt([]byte(pin), credential.Puk)
+	puk, err := utils.Decrypt(pin, credential.Puk)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decrypt PUK")
 	}
-	pairingCode, err := utils.Decrypt([]byte(pin), credential.Code)
+	pairingCode, err := utils.Decrypt(pin, credential.Code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decrypt Pairing Code")
@@ -419,14 +430,14 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	}
 
 	puk := utils.GenPuk()
-	encryptedPuk, err := utils.Encrypt([]byte(pin), puk)
+	encryptedPuk, err := utils.Encrypt(pin, puk)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to encrypt PUK")
 	}
 
 	code := utils.GenPairingCode()
-	enryptedCode, err := utils.Encrypt([]byte(pin), code)
+	enryptedCode, err := utils.Encrypt(pin, code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to encrypt Pairing Code")

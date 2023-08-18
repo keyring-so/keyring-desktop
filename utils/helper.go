@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"io"
 	"math/rand"
+
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -28,10 +30,11 @@ func GenPairingCode() string {
 	return RandStringBytes(24, letterBytes)
 }
 
-func Encrypt(key []byte, text string) (string, error) {
+func Encrypt(key string, text string) (string, error) {
+	keyBytes := crypto.Keccak256([]byte(key))
 	plaintext := []byte(text)
 
-	block, err := aes.NewCipher(key)
+	block, err := aes.NewCipher(keyBytes)
 	if err != nil {
 		return "", err
 	}
@@ -52,10 +55,11 @@ func Encrypt(key []byte, text string) (string, error) {
 }
 
 // decrypt from base64 to decrypted string
-func Decrypt(key []byte, cryptoText string) (string, error) {
+func Decrypt(key string, cryptoText string) (string, error) {
+	keyBytes := crypto.Keccak256([]byte(key))
 	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
 
-	block, err := aes.NewCipher(key)
+	block, err := aes.NewCipher(keyBytes)
 	if err != nil {
 		return "", err
 	}

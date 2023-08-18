@@ -8,12 +8,11 @@ import Settings from "@/components/settings";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +39,7 @@ import { accountAtom, showSettingsAtom } from "@/store/state";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom, useSetAtom } from "jotai";
 import { Settings as SettingsIcon } from "lucide-react";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -82,6 +81,12 @@ function ConnectPage() {
       checksum: "4",
     },
   });
+
+  const setCredentials = (e: ChangeEvent<HTMLInputElement>) => {
+    let credentials = JSON.parse(e.target.value);
+    setPuk(credentials.puk);
+    setPairingCode(credentials.code);
+  };
 
   const connect = async () => {
     try {
@@ -179,24 +184,6 @@ function ConnectPage() {
               onChange={(e) => setPin(e.target.value)}
             />
 
-            <Label htmlFor="puk" className="text-right">
-              PUK
-            </Label>
-            <Input
-              id="puk"
-              className="col-span-3"
-              onChange={(e) => setPuk(e.target.value)}
-            />
-
-            <Label htmlFor="code" className="text-right">
-              Pairing Code
-            </Label>
-            <Input
-              id="code"
-              className="col-span-3"
-              onChange={(e) => setPairingCode(e.target.value)}
-            />
-
             <Label htmlFor="name" className="text-right">
               Card Name
             </Label>
@@ -204,6 +191,16 @@ function ConnectPage() {
               id="name"
               className="col-span-3"
               onChange={(e) => setCardName(e.target.value)}
+              autoCorrect="off"
+            />
+
+            <Label htmlFor="credential" className="text-right">
+              Pairing Credential
+            </Label>
+            <Input
+              id="credential"
+              className="col-span-3"
+              onChange={setCredentials}
             />
           </div>
           <DialogFooter>
