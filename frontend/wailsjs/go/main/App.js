@@ -46,6 +46,10 @@ export function GetChains(arg1) {
   return window['go']['main']['App']['GetChains'](arg1);
 }
 
+export function GetCredentials() {
+  return window['go']['main']['App']['GetCredentials']();
+}
+
 export function GetNetwork() {
   return window['go']['main']['App']['GetNetwork']();
 }

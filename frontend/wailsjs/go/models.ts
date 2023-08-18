@@ -14,6 +14,20 @@ export namespace database {
 	        this.lastSelectedChain = source["lastSelectedChain"];
 	    }
 	}
+	export class AccountCredential {
+	    puk: string;
+	    code: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AccountCredential(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.puk = source["puk"];
+	        this.code = source["code"];
+	    }
+	}
 
 }
 

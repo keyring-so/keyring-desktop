@@ -49,6 +49,16 @@ func (a *App) GetChainConfig(chain string) *utils.ChainConfig {
 	return utils.GetChainConfig(a.chainConfigs, chain)
 }
 
+func (a *App) GetCredentials() (*database.AccountCredential, error) {
+	credential, err := database.QueryCurrentAccountCredential(a.db)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to query credential")
+	}
+
+	return credential, nil
+}
+
 // return the address of the selected account and chain
 func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, error) {
 	utils.Sugar.Infof("Get account address, %s", account)
