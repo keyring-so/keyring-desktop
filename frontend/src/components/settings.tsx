@@ -22,6 +22,8 @@ import { database } from "wailsjs/go/models";
 import { errToast } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
 import logo from "@/assets/logo.png";
+import { useClipboard } from "@/hooks/useClipboard";
+import { ClipboardCheck, Clipboard } from "lucide-react";
 
 const Settings = () => {
   const [credentials, setCredentials] = useState<
@@ -30,6 +32,8 @@ const Settings = () => {
 
   const setShowSettings = useSetAtom(showSettingsAtom);
   const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
+
+  const { hasCopied, onCopy } = useClipboard();
 
   useEffect(() => {
     (async () => {
@@ -81,32 +85,37 @@ const Settings = () => {
     }
   };
 
-  const showCredentialsQRcode = () => {
-    return (
-      <Dialog open={true} onOpenChange={() => setCredentials(undefined)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Credentials</DialogTitle>
-            <DialogDescription>
-              Please only share the pairing credentials with trusted devices.
-            </DialogDescription>
-          </DialogHeader>
-          <div>
-            <QRCodeSVG
-              value={JSON.stringify(credentials)}
-              size={128}
-              imageSettings={{
-                src: logo,
-                height: 24,
-                width: 24,
-                excavate: true,
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  };
+  const showCredentialsQRcode = () => (
+    <Dialog open={true} onOpenChange={() => setCredentials(undefined)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Credentials</DialogTitle>
+          <DialogDescription>
+            Please only share the pairing credentials with trusted devices.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-row gap-3 items-start">
+          <QRCodeSVG
+            value={JSON.stringify(credentials)}
+            size={128}
+            imageSettings={{
+              src: logo,
+              height: 24,
+              width: 24,
+              excavate: true,
+            }}
+          />
+          <Button
+            className="w-1/5 rounded-3xl"
+            onClick={() => onCopy(JSON.stringify(credentials))}
+          >
+            <Label>Copy </Label>
+            {hasCopied ? <ClipboardCheck /> : <Clipboard />}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
     <div>
