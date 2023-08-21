@@ -155,6 +155,39 @@ func (a *App) AddLedger(account string, chain string, pin string) (string, error
 		"account", account,
 		"chain", chain,
 	)
+
+	address, err := a.getAddrFromCard(account, chain, pin)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to get address from card")
+	}
+
+	// save slected chain and address
+	err = database.SaveChainAddress(a.db, account, chain, address)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to update database")
+	}
+
+	return address, nil
+}
+
+func (a *App) VerifyAddress(account string, chain string, pin string) (string, error) {
+	utils.Sugar.Infow("Verify account address",
+		"account", account,
+		"chain", chain,
+	)
+
+	address, err := a.getAddrFromCard(account, chain, pin)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to get address from card")
+	}
+
+	return address, nil
+}
+
+func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 	if account == "" || chain == "" {
 		return "", errors.New("invalid account or chain")
 	}
@@ -196,14 +229,6 @@ func (a *App) AddLedger(account string, chain string, pin string) (string, error
 	}
 
 	utils.Sugar.Infof("chain: %s, address: %s", chain, address)
-
-	// save slected chain and address
-	err = database.SaveChainAddress(a.db, account, chain, address)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to update database")
-	}
-
 	return address, nil
 }
 

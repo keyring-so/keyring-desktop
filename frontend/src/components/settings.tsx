@@ -61,7 +61,6 @@ const Settings = () => {
   const getCredentials = async () => {
     try {
       const res = await GetCredentials();
-      console.log(JSON.stringify(res));
       setCredentials(res);
     } catch (err) {
       errToast(err);

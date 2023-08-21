@@ -73,3 +73,7 @@ export function SetNetwork(arg1) {
 export function Transfer(arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
   return window['go']['main']['App']['Transfer'](arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
+
+export function VerifyAddress(arg1, arg2, arg3) {
+  return window['go']['main']['App']['VerifyAddress'](arg1, arg2, arg3);
+}

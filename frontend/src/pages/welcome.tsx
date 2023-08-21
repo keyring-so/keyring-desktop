@@ -49,7 +49,6 @@ function WelcomePage() {
   useEffect(() => {
     GetChains(account)
       .then((chains) => {
-        console.log("GetChains response: ", JSON.stringify(chains));
         setLedger(chains.lastSelectedChain);
         setChains(chains.chains);
       })

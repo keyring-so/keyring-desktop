@@ -1,3 +1,4 @@
+import logo from "@/assets/logo.png";
 import {
   Accordion,
   AccordionContent,
@@ -12,6 +13,13 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -47,6 +55,7 @@ import {
   ClipboardCheck,
   Loader2,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
@@ -55,6 +64,7 @@ import {
   GetAssetPrices,
   GetChainConfig,
   Transfer,
+  VerifyAddress,
 } from "../../wailsjs/go/main/App";
 import { main, utils } from "../../wailsjs/go/models";
 
@@ -72,6 +82,8 @@ function Wallet() {
   const [tip, setTip] = useState("");
   const [pin, setPin] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);
+  const [receiveOpen, setReceiveOpen] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -97,7 +109,6 @@ function Wallet() {
           }
 
           let prices = await GetAssetPrices(account, ledger);
-          console.log("price", prices);
           setUserAssets(prices.assets);
         } catch (err) {
           toast({
@@ -181,8 +192,33 @@ function Wallet() {
   };
 
   const receive = () => {
-    // TODO verify the address by connecting the card, encrypt the address so no one can change the integrity
-    console.log("receive");
+    setReceiveOpen(true);
+  };
+
+  const verifyAddr = async () => {
+    try {
+      let addr = await VerifyAddress(account, ledger, pin);
+      if (addr === fromAddr) {
+        toast({
+          title: "Your receive address is verified.",
+          description: `${addr}`,
+        });
+        setVerified(true);
+        setPin("");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Your receive address is hacked.",
+          description:
+            "Please remove the malicious software, then reset the app and connect with your card again.",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
   };
 
   const addAsset = async () => {
@@ -203,6 +239,66 @@ function Wallet() {
     let ledgerInfo = LEDGERS.get(ledger);
     let name = ledgerInfo ? ledgerInfo.name : "";
     return name;
+  };
+
+  const showReceiveAddrQRcode = () => {
+    return (
+      <Dialog
+        open={true}
+        onOpenChange={() => {
+          setReceiveOpen(false);
+          setVerified(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Receive Address</DialogTitle>
+            <DialogDescription>
+              You can verify the address by connecting the card.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 items-start">
+            <div className="flex flex-col gap-1">
+              <label>PIN:</label>
+              <Input
+                type="password"
+                onChange={(event) => setPin(event.target.value)}
+                value={pin}
+              />
+            </div>
+            <Button className="w-1/3" onClick={verifyAddr}>
+              Verify Address
+            </Button>
+          </div>
+          {verified && (
+            <div className="flex flex-col gap-4 mt-6">
+              <div>
+                <Label>Address:</Label>
+                <div className="flex flex-row gap-0">
+                  <Input disabled value={fromAddr} />
+                  <Button
+                    className="rounded-full"
+                    onClick={() => onCopy(fromAddr)}
+                  >
+                    {hasCopied ? <ClipboardCheck /> : <Clipboard />}
+                  </Button>
+                </div>
+              </div>
+              <QRCodeSVG
+                value={fromAddr}
+                size={128}
+                imageSettings={{
+                  src: logo,
+                  height: 24,
+                  width: 24,
+                  excavate: true,
+                }}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   return (
@@ -428,6 +524,8 @@ function Wallet() {
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      {receiveOpen && showReceiveAddrQRcode()}
     </div>
   );
 }
