@@ -6,7 +6,6 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-// TODO encrypt the puk and code, probably read others from QR code
 func SaveCredential(db *bolt.DB, puk string, code string, account string) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
