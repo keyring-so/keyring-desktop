@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"keyring-desktop/utils"
 
 	keycard "github.com/status-im/keycard-go"
@@ -49,13 +48,9 @@ func (i *KeyringCard) Sign(
 
 	utils.Sugar.Info("set pairing info")
 	cmdSet.PairingInfo = pairingInfo
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, err
-	}
 	if cmdSet.PairingInfo == nil {
 		utils.Sugar.Info("cannot open secure channel without setting pairing info")
-		return nil, errors.New("failed to pair")
+		return nil, errNoPairingInfo
 	}
 
 	utils.Sugar.Info("open keycard secure channel")

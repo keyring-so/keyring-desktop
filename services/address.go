@@ -38,14 +38,9 @@ func (i *KeyringCard) ChainAddress(pin string, pairingInfo *types.PairingInfo, c
 
 	utils.Sugar.Info("set pairing info")
 	cmdSet.PairingInfo = pairingInfo
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", err
-	}
-
 	if cmdSet.PairingInfo == nil {
 		utils.Sugar.Infof("cannot open secure channel without setting pairing info")
-		return "", err
+		return "", errNoPairingInfo
 	}
 
 	utils.Sugar.Infof("open keycard secure channel")

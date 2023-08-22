@@ -62,7 +62,7 @@ func (i *KeyringCard) Pair(pin string, puk string, code string) (*types.PairingI
 	return cmdSet.PairingInfo, nil
 }
 
-func (i *KeyringCard) Unpair(pin string, puk string, code string, pairingInfo types.PairingInfo) error {
+func (i *KeyringCard) Unpair(pin string, pairingInfo *types.PairingInfo) error {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Infof("select keycard applet")
@@ -83,7 +83,11 @@ func (i *KeyringCard) Unpair(pin string, puk string, code string, pairingInfo ty
 	}
 
 	utils.Sugar.Info("set pairing info")
-	cmdSet.PairingInfo = &pairingInfo
+	cmdSet.PairingInfo = pairingInfo
+	if cmdSet.PairingInfo == nil {
+		utils.Sugar.Infof("cannot open secure channel without setting pairing info")
+		return errNoPairingInfo
+	}
 
 	utils.Sugar.Infof("open keycard secure channel")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
