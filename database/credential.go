@@ -6,12 +6,14 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-func SaveCredential(db *bolt.DB, puk string, code string, account string) error {
+func SaveCredential(db *bolt.DB, puk, code, pairingKey, pairingIndex, account string) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
 		b.Put([]byte(utils.DbCurrentAccountKey), []byte(account))
 		b.Put([]byte(account+"_puk"), []byte(puk))
 		b.Put([]byte(account+"_code"), []byte(code))
+		b.Put([]byte(account+"_pairing_key"), []byte(pairingKey))
+		b.Put([]byte(account+"_pairing_index"), []byte(pairingIndex))
 		return nil
 	})
 
@@ -19,7 +21,6 @@ func SaveCredential(db *bolt.DB, puk string, code string, account string) error 
 }
 
 func QueryCredential(db *bolt.DB, account string) (*AccountCredential, error) {
-	var credential *AccountCredential
 	var puk string
 	var code string
 
@@ -33,7 +34,7 @@ func QueryCredential(db *bolt.DB, account string) (*AccountCredential, error) {
 		return nil, err
 	}
 
-	credential = &AccountCredential{
+	credential := &AccountCredential{
 		puk,
 		code,
 	}
@@ -54,4 +55,26 @@ func QueryCurrentAccountCredential(db *bolt.DB) (*AccountCredential, error) {
 	}
 
 	return QueryCredential(db, account)
+}
+
+func QueryPairingInfo(db *bolt.DB, account string) (*EncryptedPairingInfo, error) {
+	var key string
+	var index string
+
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		key = string(b.Get([]byte(account + "_pairing_key")))
+		index = string(b.Get([]byte(account + "_pairing_index")))
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	enPairingInfo := &EncryptedPairingInfo{
+		Key:   key,
+		Index: index,
+	}
+
+	return enPairingInfo, nil
 }

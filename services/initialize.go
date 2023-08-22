@@ -5,7 +5,13 @@ import (
 
 	"github.com/cosmos/go-bip39"
 	keycard "github.com/status-im/keycard-go"
+	"github.com/status-im/keycard-go/types"
 )
+
+type GenerateKeyResponse struct {
+	Mnemonic    string
+	PairingInfo *types.PairingInfo
+}
 
 func (i *KeyringCard) IsInitialized() (bool, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
@@ -64,22 +70,22 @@ func (i *KeyringCard) Init(pin string, puk string, code string) error {
 //
 // keycard-verify-pin {{ session_pin }}
 // keycard-unpair {{ session_pairing_index }}
-func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumSize int) (string, error) {
+func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumSize int) (*GenerateKeyResponse, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Info("select keycard applet")
 	err := cmdSet.Select()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	utils.Sugar.Infow("is initialized", "Initialized", cmdSet.ApplicationInfo.Initialized)
 
 	if !cmdSet.ApplicationInfo.Installed {
-		return "", errCardNotInstalled
+		return nil, errCardNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
-		return "", errCardNotInitialized
+		return nil, errCardNotInitialized
 	}
 
 	secrets := keycard.NewSecrets(pin, puk, code)
@@ -87,21 +93,21 @@ func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumS
 	utils.Sugar.Info("pairing")
 	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if cmdSet.PairingInfo == nil {
-		return "", errNoPairingInfo
+		return nil, errNoPairingInfo
 	}
 
 	utils.Sugar.Infof("open keycard secure channel")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	utils.Sugar.Infof("verify PIN")
 	if err := cmdSet.VerifyPIN(pin); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	utils.Sugar.Info("load key from seed")
@@ -111,14 +117,13 @@ func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumS
 
 	_, err = cmdSet.LoadSeed(seed)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	utils.Sugar.Infof("unpair index")
-	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
-	if err != nil {
-		return "", err
+	response := &GenerateKeyResponse{
+		Mnemonic:    mnemonic,
+		PairingInfo: cmdSet.PairingInfo,
 	}
 
-	return mnemonic, nil
+	return response, nil
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/crypto"
 	keycard "github.com/status-im/keycard-go"
+	"github.com/status-im/keycard-go/types"
 )
 
 // keycard-select
@@ -15,7 +16,7 @@ import (
 // keycard-derive-key
 // keycard-sign "hello"
 // keycard-unpair {{ session_pairing_index }}
-func (i *KeyringCard) ChainAddress(pin string, puk string, code string, config *utils.ChainConfig) (string, error) {
+func (i *KeyringCard) ChainAddress(pin string, pairingInfo *types.PairingInfo, config *utils.ChainConfig) (string, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Infof("select keycard applet")
@@ -35,10 +36,8 @@ func (i *KeyringCard) ChainAddress(pin string, puk string, code string, config *
 		return "", errCardNotInitialized
 	}
 
-	secrets := keycard.NewSecrets(pin, puk, code)
-
-	utils.Sugar.Infof("pairing")
-	err = cmdSet.Pair(secrets.PairingPass())
+	utils.Sugar.Info("set pairing info")
+	cmdSet.PairingInfo = pairingInfo
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", err
@@ -82,14 +81,6 @@ func (i *KeyringCard) ChainAddress(pin string, puk string, code string, config *
 	}
 
 	address := crypto.PubkeyToAddress(*ecdsaPubKey).Hex()
-
-	// TODO pair and unpair should only be called when add a new card
-	utils.Sugar.Infof("unpair index")
-	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
-	if err != nil {
-		utils.Sugar.Infof("unpair failed, error: %s", err)
-		return "", err
-	}
 
 	return address, nil
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/jumpcrypto/crosschain/chain/evm"
 	"github.com/jumpcrypto/crosschain/factory"
 	"github.com/spf13/viper"
+	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	bolt "go.etcd.io/bbolt"
@@ -110,29 +111,53 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 	defer keyringCard.Release()
 
 	// pair with card
-	err = keyringCard.Pair(pin, puk, code)
+	pairingInfo, err := keyringCard.Pair(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to pair with card")
 	}
 
-	encryptedPuk, err := utils.Encrypt(pin, puk)
+	err = a.encryptAndSaveCredential(accountName, pin, puk, code, pairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to encrypt PUK")
-	}
-	enryptedCode, err := utils.Encrypt(pin, code)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to encrypt Pairing Code")
-	}
-	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, accountName)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to update database")
+		return "", errors.New("failed to save credentials")
 	}
 
 	return accountName, nil
+}
+
+func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingInfo *types.PairingInfo) error {
+	encryptedPuk, err := utils.Encrypt(pin, puk)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to encrypt PUK")
+	}
+
+	enryptedCode, err := utils.Encrypt(pin, code)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to encrypt Pairing Code")
+	}
+
+	encryptedPairingKey, err := utils.Encrypt(pin, string(pairingInfo.Key))
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to encrypt Pairing Key")
+	}
+
+	encryptedPairingIndex, err := utils.Encrypt(pin, string([]byte{byte(pairingInfo.Index)}))
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to encrypt Pairing Index")
+	}
+
+	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, encryptedPairingKey, encryptedPairingIndex, account)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to update database")
+	}
+
+	return nil
 }
 
 // add a new chain if not exist
@@ -196,13 +221,6 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 		return "", errors.New("chain configuration not found")
 	}
 
-	// get credential
-	credential, err := database.QueryCredential(a.db, account)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to read database")
-	}
-
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
@@ -211,18 +229,14 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 	}
 	defer keyringCard.Release()
 
-	puk, err := utils.Decrypt(pin, credential.Puk)
+	// get pairing info
+	pairingInfo, err := a.getPairingInfo(pin, account)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to decrypt PUK")
-	}
-	code, err := utils.Decrypt(pin, credential.Code)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to decrypt Pairing Code")
+		return "", errors.New("failed to get pairing info")
 	}
 
-	address, err := keyringCard.ChainAddress(pin, puk, code, chainConfig)
+	address, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get chain address")
@@ -230,6 +244,32 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 
 	utils.Sugar.Infof("chain: %s, address: %s", chain, address)
 	return address, nil
+}
+
+func (a *App) getPairingInfo(pin, account string) (*types.PairingInfo, error) {
+	enPairingInfo, err := database.QueryPairingInfo(a.db, account)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read pairing info")
+	}
+	pairingKey, err := utils.Decrypt(pin, enPairingInfo.Key)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to decrypt pairing key")
+	}
+
+	pairingIndex, err := utils.Decrypt(pin, enPairingInfo.Index)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to decrypt pairing index")
+	}
+
+	pairingInfo := types.PairingInfo{
+		Key:   []byte(pairingKey),
+		Index: int([]byte(pairingIndex)[0]),
+	}
+
+	return &pairingInfo, nil
 }
 
 func (a *App) CalculateFee(
@@ -293,6 +333,7 @@ func (a *App) Transfer(
 	amount string,
 	tip string,
 	pin string,
+	account string,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
 
@@ -370,24 +411,14 @@ func (a *App) Transfer(
 	}
 	defer keyringCard.Release()
 
-	// sign transaction with credential
-	credential, err := database.QueryCurrentAccountCredential(a.db)
+	// get pairing info
+	pairingInfo, err := a.getPairingInfo(pin, account)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to read database")
-	}
-	puk, err := utils.Decrypt(pin, credential.Puk)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to decrypt PUK")
-	}
-	pairingCode, err := utils.Decrypt(pin, credential.Code)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to decrypt Pairing Code")
+		return "", errors.New("failed to get pairing info")
 	}
 
-	signature, err := keyringCard.Sign(sighash, chainConfig, pin, puk, pairingCode)
+	signature, err := keyringCard.Sign(sighash, chainConfig, pin, pairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to sign transaction hash")
@@ -455,18 +486,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	}
 
 	puk := utils.GenPuk()
-	encryptedPuk, err := utils.Encrypt(pin, puk)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to encrypt PUK")
-	}
-
 	code := utils.GenPairingCode()
-	enryptedCode, err := utils.Encrypt(pin, code)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to encrypt Pairing Code")
-	}
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
@@ -483,19 +503,19 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 		return "", errors.New("failed to init card")
 	}
 
-	mnemonic, err := keyringCard.GenerateKey(pin, puk, code, checkSumSize)
+	res, err := keyringCard.GenerateKey(pin, puk, code, checkSumSize)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to generate key")
 	}
 
-	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, accountName)
+	err = a.encryptAndSaveCredential(accountName, pin, puk, code, res.PairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to update database")
+		return "", errors.New("failed to save credentials")
 	}
 
-	return mnemonic, nil
+	return res.Mnemonic, nil
 }
 
 // Now to remove the key from the card, we need to reinstall the applet
