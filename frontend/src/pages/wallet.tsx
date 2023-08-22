@@ -173,10 +173,11 @@ function Wallet() {
 
   const transfer = () => {
     setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin)
+    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account)
       .then((resp) => {
         setLoadingTx(false);
         setTransferOpen(false);
+        setPin("");
         toast({
           title: "Send transaction successfully.",
           description: `${resp}`,
@@ -184,6 +185,7 @@ function Wallet() {
       })
       .catch((err) => {
         setLoadingTx(false);
+        setPin("");
         toast({
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,

@@ -1,10 +1,10 @@
 package services
 
 import (
-	"errors"
 	"keyring-desktop/utils"
 
 	keycard "github.com/status-im/keycard-go"
+	"github.com/status-im/keycard-go/types"
 )
 
 // Signing workflow:
@@ -24,8 +24,7 @@ func (i *KeyringCard) Sign(
 	rawData []byte,
 	config *utils.ChainConfig,
 	pin string,
-	puk string,
-	pairingCode string,
+	pairingInfo *types.PairingInfo,
 ) ([]byte, error) {
 	utils.Sugar.Info("signing started")
 	cmdSet := keycard.NewCommandSet(i.c)
@@ -47,17 +46,11 @@ func (i *KeyringCard) Sign(
 		return nil, errCardNotInitialized
 	}
 
-	secrets := keycard.NewSecrets(pin, puk, pairingCode)
-
-	utils.Sugar.Info("pairing")
-	err = cmdSet.Pair(secrets.PairingPass())
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, err
-	}
+	utils.Sugar.Info("set pairing info")
+	cmdSet.PairingInfo = pairingInfo
 	if cmdSet.PairingInfo == nil {
 		utils.Sugar.Info("cannot open secure channel without setting pairing info")
-		return nil, errors.New("failed to pair")
+		return nil, errNoPairingInfo
 	}
 
 	utils.Sugar.Info("open keycard secure channel")
@@ -87,13 +80,6 @@ func (i *KeyringCard) Sign(
 
 	ethSig := append(sig.R(), sig.S()...)
 	ethSig = append(ethSig, []byte{sig.V()}...)
-
-	utils.Sugar.Info("unpair index")
-	err = cmdSet.Unpair(uint8(cmdSet.PairingInfo.Index))
-	if err != nil {
-		utils.Sugar.Info("unpair failed, error: %s", err)
-		return nil, err
-	}
 
 	return ethSig, nil
 }
