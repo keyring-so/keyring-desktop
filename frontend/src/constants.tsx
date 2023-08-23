@@ -47,3 +47,5 @@ export const TOKENS = new Map<String, TokenInfo>([
   ["USDT", { name: "Tether USD", img: usdt }],
   ["HOT", { name: "HoloToken", img: hot }],
 ]);
+
+export const GWEI = 1000_000_000;

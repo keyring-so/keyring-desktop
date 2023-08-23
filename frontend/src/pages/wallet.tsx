@@ -43,7 +43,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { LEDGERS, TOKENS } from "@/constants";
+import { GWEI, LEDGERS, TOKENS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
 import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, isTestnetAtom, ledgerAtom } from "@/store/state";
@@ -150,7 +150,8 @@ function Wallet() {
   };
 
   const updateTip = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTip(event.target.value);
+    const tipFee = Number(event.target.value) * GWEI;
+    setTip(tipFee.toString());
   };
 
   const calculateFee = async (checked: boolean) => {
@@ -261,7 +262,7 @@ function Wallet() {
           </DialogHeader>
           <div className="flex flex-col gap-4 items-start">
             <div className="flex flex-col gap-1">
-              <label>PIN:</label>
+              <Label>PIN:</Label>
               <Input
                 type="password"
                 onChange={(event) => setPin(event.target.value)}
@@ -386,16 +387,16 @@ function Wallet() {
                             </SheetHeader>
                             <div className="flex flex-col gap-6 mt-10">
                               <div>
-                                <label>To</label>
+                                <Label>To</Label>
                                 <Input onChange={updateToAddr} />
                               </div>
                               <div>
-                                <label>Amount</label>
+                                <Label>Amount</Label>
                                 <Input onChange={updateAmount} />
                               </div>
 
                               <div>
-                                <label>PIN</label>
+                                <Label>PIN</Label>
                                 <Input
                                   type="password"
                                   onChange={(event) =>
@@ -416,13 +417,16 @@ function Wallet() {
                               {fee ? (
                                 <div>
                                   <div>
-                                    <label>Base Fee (in WEI)</label>
-                                    <Input disabled value={fee.base} />
+                                    <Label>Base Fee (GWEI)</Label>
+                                    <Input
+                                      disabled
+                                      value={(Number(fee.base) / GWEI).toFixed(2)}
+                                    />
                                   </div>
                                   <div>
-                                    <label>Tip Fee (in WEI)</label>
+                                    <Label>Tip Fee (GWEI)</Label>
                                     <Input
-                                      defaultValue={fee.tip}
+                                      defaultValue={(Number(fee.tip) / GWEI).toFixed(2)}
                                       onChange={updateTip}
                                     />
                                   </div>
