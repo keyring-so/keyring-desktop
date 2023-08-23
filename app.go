@@ -69,20 +69,6 @@ func (a *App) shutdown(ctx context.Context) {
 	utils.Logger.Sync()
 }
 
-// check if there is card paired already
-func (a *App) Connect() (string, error) {
-	utils.Sugar.Info("Check if there is smart card paired")
-
-	account, err := database.QueryCurrentAccount(a.db)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to query current account")
-	}
-
-	utils.Sugar.Infof("The current account is: %s", account)
-	return account, nil
-}
-
 // start to pair a new card
 func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 	utils.Sugar.Info("Pairing with smart card")

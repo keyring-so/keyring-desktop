@@ -114,3 +114,26 @@ func SaveChainAsset(db *bolt.DB, account, chain, asset string) error {
 		return nil
 	})
 }
+
+func UpdateAccountName(db *bolt.DB, accountId, accountName string) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		b.Put([]byte(accountId+"_name"), []byte(accountName))
+		return nil
+	})
+}
+
+func QueryAccountName(db *bolt.DB, accountId string) (string, error) {
+	var name string
+
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		name = string(b.Get([]byte(accountId + "_name")))
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return name, nil
+}

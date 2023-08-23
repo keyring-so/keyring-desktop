@@ -25,8 +25,8 @@ function App() {
 
   return (
     <div>
-      {!account && <ConnectPage />}
-      {account && <WelcomePage />}
+      {!account.id && <ConnectPage />}
+      {account.id && <WelcomePage />}
       <Toaster />
     </div>
   );

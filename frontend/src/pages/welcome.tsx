@@ -1,3 +1,4 @@
+import Settings from "@/components/settings";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -23,14 +25,14 @@ import {
   ledgerAtom,
   showNewLedgerAtom,
   showSettingsAtom,
+  showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AddLedger, GetChains } from "../../wailsjs/go/main/App";
+import Accounts from "./accounts";
 import Wallet from "./wallet";
-import Settings from "@/components/settings";
-import { Input } from "@/components/ui/input";
 
 function WelcomePage() {
   const [chains, setChains] = useState<string[]>([]);
@@ -42,12 +44,13 @@ function WelcomePage() {
   const account = useAtomValue(accountAtom);
   const chainConfigs = useAtomValue(chainConfigsAtom);
   const showSettings = useAtomValue(showSettingsAtom);
+  const sidebarItem = useAtomValue(showSidebarItem);
 
   const { toast } = useToast();
 
   // get chains of the account
   useEffect(() => {
-    GetChains(account)
+    GetChains(account.id)
       .then((chains) => {
         setLedger(chains.lastSelectedChain);
         setChains(chains.chains);
@@ -58,12 +61,12 @@ function WelcomePage() {
           description: `Error happens: ${err}`,
         });
       });
-  }, []);
+  }, [account]);
 
   const addLedger = async () => {
     try {
-      let _ = await AddLedger(account, ledgerCandidate, pin);
-      let chains = await GetChains(account);
+      let _ = await AddLedger(account.id, ledgerCandidate, pin);
+      let chains = await GetChains(account.id);
       setChains(chains.chains);
       setLedger(chains.lastSelectedChain);
     } catch (err) {
@@ -105,7 +108,10 @@ function WelcomePage() {
 
             <div>
               <label>PIN</label>
-              <Input type="password" onChange={(event) => setPin(event.target.value)} />
+              <Input
+                type="password"
+                onChange={(event) => setPin(event.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
@@ -124,6 +130,7 @@ function WelcomePage() {
       <Sidebar chains={chains} lastSelectedChain={ledger} />
       {chains.length === 0 ? <Guide /> : <Wallet />}
       {showSettings && <Settings />}
+      {sidebarItem === "accounts" && <Accounts />}
     </div>
   );
 }

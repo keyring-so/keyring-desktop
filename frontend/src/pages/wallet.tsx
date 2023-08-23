@@ -96,9 +96,9 @@ function Wallet() {
   // get the address for a specific chain
   useEffect(() => {
     const fn = async () => {
-      if (account && ledger) {
+      if (account.id && ledger) {
         try {
-          let assets = await GetAddressAndAssets(account, ledger);
+          let assets = await GetAddressAndAssets(account.id, ledger);
           setFromAddr(assets.address);
           setUserAssets(assets.assets);
           if (!assets.address) {
@@ -108,7 +108,7 @@ function Wallet() {
             });
           }
 
-          let prices = await GetAssetPrices(account, ledger);
+          let prices = await GetAssetPrices(account.id, ledger);
           setUserAssets(prices.assets);
         } catch (err) {
           toast({
@@ -174,7 +174,7 @@ function Wallet() {
 
   const transfer = () => {
     setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account)
+    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account.id)
       .then((resp) => {
         setLoadingTx(false);
         setTransferOpen(false);
@@ -200,7 +200,7 @@ function Wallet() {
 
   const verifyAddr = async () => {
     try {
-      let addr = await VerifyAddress(account, ledger, pin);
+      let addr = await VerifyAddress(account.id, ledger, pin);
       if (addr === fromAddr) {
         toast({
           title: "Your receive address is verified.",
@@ -226,7 +226,7 @@ function Wallet() {
 
   const addAsset = async () => {
     try {
-      let res = await AddAsset(account, ledger, selectAssetValue);
+      let res = await AddAsset(account.id, ledger, selectAssetValue);
       setFromAddr(res.address);
       setUserAssets(res.assets);
       setSelectAssetValue("");
