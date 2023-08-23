@@ -15,7 +15,7 @@ export function CheckCardConnection():Promise<boolean>;
 
 export function CheckCardInitialized():Promise<boolean>;
 
-export function Connect():Promise<string>;
+export function Connect():Promise<main.AccountInfo>;
 
 export function GetAddressAndAssets(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
@@ -40,5 +40,7 @@ export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<st
 export function SetNetwork(arg1:string):Promise<void>;
 
 export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string):Promise<crosschain.TxHash>;
+
+export function UpdateAccountName(arg1:string,arg2:string):Promise<void>;
 
 export function VerifyAddress(arg1:string,arg2:string,arg3:string):Promise<string>;

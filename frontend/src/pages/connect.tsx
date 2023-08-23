@@ -112,7 +112,7 @@ function ConnectPage() {
   const pair = async () => {
     try {
       const res = await Pair(pin, puk, pairingCode, cardName);
-      setAccount(res);
+      setAccount({id: res, name: res});
       toast({
         title: "Success!",
         description: "Card is paired.",
@@ -131,7 +131,7 @@ function ConnectPage() {
         open={true}
         onOpenChange={() => {
           setMnemonic("");
-          setAccount(cardName);
+          setAccount({id: cardName, name: cardName});
         }}
       >
         <AlertDialogContent className="sm:max-w-[480px]">

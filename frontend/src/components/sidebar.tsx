@@ -1,7 +1,7 @@
 import {
   LEDGERS
 } from "@/constants";
-import { chainConfigsAtom, showNewLedgerAtom, showSettingsAtom } from "@/store/state";
+import { chainConfigsAtom, showNewLedgerAtom, showSettingsAtom, showSidebarItem } from "@/store/state";
 import { useSetAtom } from "jotai";
 import { Plus, Settings, UserCircle } from "lucide-react";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";
@@ -18,6 +18,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setShowNewLedger = useSetAtom(showNewLedgerAtom);
   const setChainConfigs = useSetAtom(chainConfigsAtom);
   const setShowSettings = useSetAtom(showSettingsAtom);
+  const setShowSidebarItem = useSetAtom(showSidebarItem);
 
   const clickAddButton = async () => {
     let chainConfigs = await GetChainConfigs();
@@ -55,7 +56,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
       <SidebarIcon icon={Plus} text="Add a Blockchain" onClick={clickAddButton} />
 
       <div className="flex flex-col fixed bottom-2">
-        <SidebarIcon icon={UserCircle} text="Accounts" onClick={() => console.log("click")} />
+        <SidebarIcon icon={UserCircle} text="Accounts" onClick={() => setShowSidebarItem("accounts")} />
         <SidebarIcon icon={Settings} text="Settings" onClick={() => setShowSettings(true)} />
       </div>
     </div>
