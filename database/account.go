@@ -115,6 +115,20 @@ func SaveChainAsset(db *bolt.DB, account, chain, asset string) error {
 	})
 }
 
+func RemoveChainAsset(db *bolt.DB, account, chain, asset string) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		assets := string(b.Get([]byte(account + "_" + chain + "_assets")))
+		assets = strings.ReplaceAll(assets, asset, "")
+		assets = strings.ReplaceAll(assets, ",,", ",")
+		assets = strings.TrimSuffix(assets, ",")
+		assets = strings.TrimPrefix(assets, ",")
+
+		b.Put([]byte(account+"_"+chain+"_assets"), []byte(assets))
+		return nil
+	})
+}
+
 func UpdateAccountName(db *bolt.DB, accountId, accountName string) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))

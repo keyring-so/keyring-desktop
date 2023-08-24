@@ -54,6 +54,7 @@ import {
   Clipboard,
   ClipboardCheck,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
@@ -63,6 +64,7 @@ import {
   GetAddressAndAssets,
   GetAssetPrices,
   GetChainConfig,
+  RemoveAsset,
   Transfer,
   VerifyAddress,
 } from "../../wailsjs/go/main/App";
@@ -238,6 +240,19 @@ function Wallet() {
     }
   };
 
+  const removeAsset = async () => {
+    try {
+      let res = await RemoveAsset(account.id, ledger, asset);
+      setFromAddr(res.address);
+      setUserAssets(res.assets);
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  }
+
   const ledgerName = () => {
     let ledgerInfo = LEDGERS.get(ledger);
     let name = ledgerInfo ? ledgerInfo.name : "";
@@ -364,7 +379,7 @@ function Wallet() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         <Sheet
                           open={transferOpen}
                           onOpenChange={setTransferOpen}
@@ -446,6 +461,7 @@ function Wallet() {
                           </SheetContent>
                         </Sheet>
                         <Button onClick={receive}>Receive</Button>
+                        {ledger !== asset && <Trash2 onClick={removeAsset} />} 
                       </div>
                     </AccordionContent>
                   </AccordionItem>
