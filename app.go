@@ -322,6 +322,9 @@ func (a *App) Transfer(
 	account string,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
+	if from == "" || to == "" || amount == "" || pin == "" {
+		return "", errors.New("input can not be empty")
+	}
 
 	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
 	if chainConfig == nil {
@@ -346,7 +349,11 @@ func (a *App) Transfer(
 
 	fromAddress := xc.MustAddress(assetConfig, from)
 	toAddress := xc.MustAddress(assetConfig, to)
-	amountInteger := xc.MustAmountBlockchain(assetConfig, amount)
+	amountInteger, err := xc.ConvertAmountStrToBlockchain(assetConfig, amount)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to convert the input amount")
+	}
 
 	client, _ := xc.NewClient(assetConfig)
 	if err != nil {

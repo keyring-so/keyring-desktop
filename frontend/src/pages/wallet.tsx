@@ -423,6 +423,7 @@ function Wallet() {
                                 <Label>PIN</Label>
                                 <Input
                                   type="password"
+                                  value={pin}
                                   onChange={(event) =>
                                     setPin(event.target.value)
                                   }
