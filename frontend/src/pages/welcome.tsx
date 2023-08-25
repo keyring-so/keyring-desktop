@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -83,7 +84,7 @@ function WelcomePage() {
       <Dialog open={true} onOpenChange={setShowNewLedger}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add a new Blockchain</DialogTitle>
+            <DialogTitle>Add a New Blockchain</DialogTitle>
             <DialogDescription>
               Choose one from the below list.
             </DialogDescription>
@@ -97,9 +98,11 @@ function WelcomePage() {
                 <SelectGroup>
                   {chainConfigs.map((chainConfig) => {
                     return (
-                      <SelectItem value={chainConfig.symbol}>
-                        {chainConfig.name}
-                      </SelectItem>
+                      !chainConfig.disable && (
+                        <SelectItem value={chainConfig.symbol}>
+                          {chainConfig.name}
+                        </SelectItem>
+                      )
                     );
                   })}
                 </SelectGroup>
@@ -107,7 +110,7 @@ function WelcomePage() {
             </Select>
 
             <div>
-              <label>PIN</label>
+              <Label>PIN</Label>
               <Input
                 type="password"
                 onChange={(event) => setPin(event.target.value)}

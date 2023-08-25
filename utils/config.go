@@ -9,6 +9,7 @@ type ChainConfig struct {
 	Name    string        `json:"name"`
 	Path    string        `json:"path"`
 	PriceId string        `json:"priceId"`
+	Disable bool          `json:"disable"`
 	Tokens  []TokenConfig `json:"tokens"`
 }
 

@@ -3,7 +3,8 @@
     "symbol": "BTC",
     "name": "Bitcoin",
     "path": "m/44'/0'/0'/0/0",
-    "priceId": "bitcoin"
+    "priceId": "bitcoin",
+    "disable": true
   },
   {
     "symbol": "ETH",
@@ -33,6 +34,7 @@
     "symbol": "MATIC",
     "name": "Polygon",
     "path": "m/44'/60'/0'/0/0",
-    "priceId": "polygon"
+    "priceId": "polygon",
+    "disable": true
   }
 ]

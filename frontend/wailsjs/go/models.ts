@@ -133,6 +133,7 @@ export namespace utils {
 	    name: string;
 	    path: string;
 	    priceId: string;
+	    disable: boolean;
 	    tokens: TokenConfig[];
 	
 	    static createFrom(source: any = {}) {
@@ -145,6 +146,7 @@ export namespace utils {
 	        this.name = source["name"];
 	        this.path = source["path"];
 	        this.priceId = source["priceId"];
+	        this.disable = source["disable"];
 	        this.tokens = this.convertValues(source["tokens"], TokenConfig);
 	    }
 	
