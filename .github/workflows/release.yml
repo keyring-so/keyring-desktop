@@ -63,7 +63,7 @@ jobs:
           ditto -c -k --keepParent ./build/bin/${{matrix.output}}.app ./build/bin/keyring-desktop.app.zip
           rm -rf ./build/bin/${{ matrix.output }}.app
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: target
           path: build/bin/*
@@ -83,8 +83,8 @@ jobs:
       - run: ls -al target && ls -R target/
       - working-directory: target
         run: |
-          rm -rf Keyring.Wallet-amd64-installer.exe
-          rm -rf Keyring.Wallet.pkg
+          rm -rf Keyring\ Wallet-amd64-installer.exe
+          rm -rf Keyring\ Wallet.pkg
           mv keyring-desktop.app.zip keyring-wallet-darwin.app.zip
       - run: ls -al target && ls -R target/ && file target/
       - uses: actions/upload-artifact@v3
