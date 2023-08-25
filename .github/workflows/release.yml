@@ -21,11 +21,9 @@ jobs:
             platform: darwin/universal
             # wails bug, mac outputfile name not work
             output: Keyring\ Wallet
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             platform: linux/amd64
             output: keyring-wallet-linux
-    env:
-      CGO_ENABLED: 0
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
