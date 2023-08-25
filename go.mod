@@ -12,6 +12,7 @@ require (
 	github.com/wailsapp/wails/v2 v2.5.1
 	go.etcd.io/bbolt v1.3.6
 	go.uber.org/zap v1.24.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (

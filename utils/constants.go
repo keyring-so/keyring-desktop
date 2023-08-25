@@ -23,6 +23,18 @@ func DatabasePath() (string, error) {
 	return dataPath + "/keyring.db", nil
 }
 
+func LogFilePath() (string, error) {
+	dataPath, err := DataPath()
+	if err != nil {
+		return "", err
+	}
+	err = os.MkdirAll(dataPath, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+	return dataPath + "/keyring.log", nil
+}
+
 func DataPath() (string, error) {
 	configPath, err := os.UserConfigDir()
 	if err != nil {
