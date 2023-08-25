@@ -86,6 +86,7 @@ function Wallet() {
   const [transferOpen, setTransferOpen] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [getBalanceErr, setGetBalanceErr] = useState(false);
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -113,6 +114,7 @@ function Wallet() {
           let prices = await GetAssetPrices(account.id, ledger);
           setUserAssets(prices.assets);
         } catch (err) {
+          setGetBalanceErr(true);
           toast({
             title: "Uh oh! Something went wrong.",
             description: `Error happens: ${err}`,
@@ -233,6 +235,7 @@ function Wallet() {
       setUserAssets(res.assets);
       setSelectAssetValue("");
     } catch (err) {
+      setGetBalanceErr(true);
       toast({
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,
@@ -251,7 +254,7 @@ function Wallet() {
         description: `Error happens: ${err}`,
       });
     }
-  }
+  };
 
   const ledgerName = () => {
     let ledgerInfo = LEDGERS.get(ledger);
@@ -319,6 +322,16 @@ function Wallet() {
     );
   };
 
+  const showBalance = (balance: string | undefined) => {
+    if (balance) {
+      return parseFloat(parseFloat(balance).toFixed(3));
+    }
+    if (getBalanceErr) {
+      return "n/a";
+    }
+    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+  };
+
   return (
     <div className="flex flex-col mt-20 gap-20 flex-grow items-center">
       <Tabs defaultValue="assets" className="w-[400px]">
@@ -370,11 +383,7 @@ function Wallet() {
                         </div>
 
                         <Label className="text-lg">
-                          {userAsset.balance ? (
-                            parseFloat(parseFloat(userAsset.balance).toFixed(3))
-                          ) : (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          )}
+                          {showBalance(userAsset.balance)}
                         </Label>
                       </div>
                     </AccordionTrigger>
@@ -435,13 +444,17 @@ function Wallet() {
                                     <Label>Base Fee (GWEI)</Label>
                                     <Input
                                       disabled
-                                      value={(Number(fee.base) / GWEI).toFixed(2)}
+                                      value={(Number(fee.base) / GWEI).toFixed(
+                                        2
+                                      )}
                                     />
                                   </div>
                                   <div>
                                     <Label>Tip Fee (GWEI)</Label>
                                     <Input
-                                      defaultValue={(Number(fee.tip) / GWEI).toFixed(2)}
+                                      defaultValue={(
+                                        Number(fee.tip) / GWEI
+                                      ).toFixed(2)}
                                       onChange={updateTip}
                                     />
                                   </div>
@@ -461,7 +474,7 @@ function Wallet() {
                           </SheetContent>
                         </Sheet>
                         <Button onClick={receive}>Receive</Button>
-                        {ledger !== asset && <Trash2 onClick={removeAsset} />} 
+                        {ledger !== asset && <Trash2 onClick={removeAsset} />}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
