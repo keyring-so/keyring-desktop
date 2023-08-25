@@ -80,6 +80,8 @@ function Wallet() {
   const [openSelectAssets, setOpenSelectAssets] = useState(false);
   const [selectAssetValue, setSelectAssetValue] = useState("");
   const [loadingTx, setLoadingTx] = useState(false);
+  const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
+  const [loadingAddAsset, setLoadingAddAsset] = useState(false);
   const [fee, setFee] = useState<main.FeeInfo>();
   const [tip, setTip] = useState("");
   const [pin, setPin] = useState("");
@@ -230,12 +232,15 @@ function Wallet() {
 
   const addAsset = async () => {
     try {
+      setLoadingAddAsset(true);
       let res = await AddAsset(account.id, ledger, selectAssetValue);
+      setLoadingAddAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);
       setSelectAssetValue("");
     } catch (err) {
       setGetBalanceErr(true);
+      setLoadingAddAsset(false);
       toast({
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,
@@ -243,12 +248,15 @@ function Wallet() {
     }
   };
 
-  const removeAsset = async () => {
+  const removeAsset = async (token: string) => {
     try {
-      let res = await RemoveAsset(account.id, ledger, asset);
+      setLoadingRemoveAsset(true);
+      let res = await RemoveAsset(account.id, ledger, token);
+      setLoadingRemoveAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);
     } catch (err) {
+      setLoadingRemoveAsset(false);
       toast({
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,
@@ -475,7 +483,15 @@ function Wallet() {
                           </SheetContent>
                         </Sheet>
                         <Button onClick={receive}>Receive</Button>
-                        {ledger !== asset && <Trash2 onClick={removeAsset} />}
+                        {ledger !== userAsset.name &&
+                          (loadingRemoveAsset ? (
+                            <Loader2 className="ml-2 animate-spin" />
+                          ) : (
+                            <Trash2
+                              className="ml-2"
+                              onClick={() => removeAsset(userAsset.name)}
+                            />
+                          ))}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -534,9 +550,16 @@ function Wallet() {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <Button className="text-md" onClick={addAsset}>
-                Add Asset
-              </Button>
+              {loadingAddAsset ? (
+                <Button className="text-md" disabled>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Please wait
+                </Button>
+              ) : (
+                <Button className="text-md" onClick={addAsset}>
+                  Add Asset
+                </Button>
+              )}
             </div>
           </div>
         </TabsContent>
