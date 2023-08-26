@@ -73,13 +73,6 @@ func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, e
 		return nil, errors.New("failed to read database")
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err = v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read crosschain configurate")
-	}
 	var assets []AssetInfo
 	for _, asset := range chainData.Assets {
 		assetInfo := AssetInfo{
