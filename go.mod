@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/ebfe/scard v0.0.0-20190212122703-c3d1b1916a95
+	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/jumpcrypto/crosschain v0.3.0
 	github.com/spf13/viper v1.14.0
