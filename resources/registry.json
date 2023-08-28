@@ -25,6 +25,34 @@
         "priceId": "dai"
       },
       {
+        "symbol": "WBTC",
+        "priceId": "wrapped-bitcoin"
+      },
+      {
+        "symbol": "LINK",
+        "priceId": "chainlink"
+      },
+      {
+        "symbol": "UNI",
+        "priceId": "uniswap"
+      },
+      {
+        "symbol": "stETH",
+        "priceId": "lido-staked-ether"
+      },
+      {
+        "symbol": "BNB",
+        "priceId": "bnb"
+      },
+      {
+        "symbol": "TRX",
+        "priceId": "tron"
+      },
+      {
+        "symbol": "THETA",
+        "priceId": "theta-network"
+      },
+      {
         "symbol": "HOT",
         "priceId": "holo"
       }

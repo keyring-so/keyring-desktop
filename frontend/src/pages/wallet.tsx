@@ -70,6 +70,11 @@ import {
 } from "../../wailsjs/go/main/App";
 import { main, utils } from "../../wailsjs/go/models";
 
+type SelectToken = {
+  value: string;
+  symbol: string;
+};
+
 function Wallet() {
   const [asset, setAsset] = useState("");
   const [fromAddr, setFromAddr] = useState("");
@@ -78,7 +83,9 @@ function Wallet() {
   const [chainConfig, setChainConfig] = useState<utils.ChainConfig>();
   const [userAssets, setUserAssets] = useState<main.AssetInfo[]>([]);
   const [openSelectAssets, setOpenSelectAssets] = useState(false);
-  const [selectAssetValue, setSelectAssetValue] = useState("");
+  const [selectToken, setSelectToken] = useState<SelectToken | undefined>(
+    undefined
+  );
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [loadingAddAsset, setLoadingAddAsset] = useState(false);
@@ -233,11 +240,11 @@ function Wallet() {
   const addAsset = async () => {
     try {
       setLoadingAddAsset(true);
-      let res = await AddAsset(account.id, ledger, selectAssetValue);
+      let res = await AddAsset(account.id, ledger, selectToken!.symbol);
       setLoadingAddAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);
-      setSelectAssetValue("");
+      setSelectToken(undefined);
     } catch (err) {
       setGetBalanceErr(true);
       setLoadingAddAsset(false);
@@ -511,11 +518,7 @@ function Wallet() {
                     aria-expanded={openSelectAssets}
                     className="w-[200px] justify-between text-md"
                   >
-                    {selectAssetValue
-                      ? chainConfig?.tokens.find(
-                          (token) => token.symbol === selectAssetValue
-                        )?.symbol
-                      : "Select a token..."}
+                    {selectToken ? selectToken.symbol : "Select a token..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -528,17 +531,24 @@ function Wallet() {
                         <CommandItem
                           key={token.symbol}
                           onSelect={(currentValue) => {
-                            let curr = currentValue.toUpperCase();
-                            setSelectAssetValue(
-                              curr === selectAssetValue ? "" : curr
-                            );
+                            if (
+                              selectToken &&
+                              selectToken.value === currentValue
+                            ) {
+                              setSelectToken(undefined);
+                            } else {
+                              setSelectToken({
+                                value: currentValue,
+                                symbol: token.symbol,
+                              });
+                            }
                             setOpenSelectAssets(false);
                           }}
                         >
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              selectAssetValue === token.symbol
+                              selectToken?.symbol === token.symbol
                                 ? "opacity-100"
                                 : "opacity-0"
                             )}
