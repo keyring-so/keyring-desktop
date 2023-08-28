@@ -526,7 +526,7 @@ function Wallet() {
                   <Command>
                     <CommandInput placeholder="Search token..." />
                     <CommandEmpty>No token found.</CommandEmpty>
-                    <CommandGroup>
+                    <CommandGroup className="overflow-auto max-h-56">
                       {chainConfig?.tokens?.map((token) => (
                         <CommandItem
                           key={token.symbol}
@@ -545,15 +545,23 @@ function Wallet() {
                             setOpenSelectAssets(false);
                           }}
                         >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectToken?.symbol === token.symbol
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {token.symbol}
+                          <div className="flex flex-row items-center gap-12">
+                            <div className="flex flex-row items-center">
+                              <img
+                                className="w-6 mr-2"
+                                src={`build/assets/${token.symbol}_logo.png`}
+                              />
+                              <Label>{token.symbol}</Label>
+                            </div>
+                            <Check
+                                className={cn(
+                                  "h-5 w-5",
+                                  selectToken?.symbol === token.symbol
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                          </div>
                         </CommandItem>
                       ))}
                     </CommandGroup>
