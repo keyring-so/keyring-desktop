@@ -1,4 +1,4 @@
-import logo from "@/assets/logo.png";
+import { LogoImageSrc } from "@/components/logo";
 import {
   Accordion,
   AccordionContent,
@@ -43,7 +43,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { GWEI, LEDGERS, TOKENS } from "@/constants";
+import { GWEI, LEDGERS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
 import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, isTestnetAtom, ledgerAtom } from "@/store/state";
@@ -317,7 +317,7 @@ function Wallet() {
                 value={fromAddr}
                 size={128}
                 imageSettings={{
-                  src: logo,
+                  src: LogoImageSrc,
                   height: 24,
                   width: 24,
                   excavate: true,
@@ -384,7 +384,7 @@ function Wallet() {
                         <div className="flex flex-row items-center gap-2">
                           <img
                             className="h-12"
-                            src={TOKENS.get(userAsset.name)?.img || ""}
+                            src={`build/assets/${userAsset.name}_logo.png`}
                           />
 
                           <Label className="text-lg">{userAsset.name}</Label>

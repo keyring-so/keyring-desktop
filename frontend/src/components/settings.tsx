@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { database } from "wailsjs/go/models";
 import { errToast } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
-import logo from "@/assets/logo.png";
+import { LogoImageSrc } from "./logo";
 import { useClipboard } from "@/hooks/useClipboard";
 import { ClipboardCheck, Clipboard } from "lucide-react";
 
@@ -98,7 +98,7 @@ const Settings = () => {
             value={JSON.stringify(credentials)}
             size={128}
             imageSettings={{
-              src: logo,
+              src: LogoImageSrc,
               height: 24,
               width: 24,
               excavate: true,
