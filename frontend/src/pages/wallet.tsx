@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToastAction } from "@/components/ui/toast";
 import {
   Tooltip,
   TooltipContent,
@@ -208,6 +209,11 @@ function Wallet() {
         toast({
           title: "Send transaction successfully.",
           description: `${resp}`,
+          action: (
+            <Button onClick={() => onCopy(resp)}>
+              Copy
+            </Button>
+          ),
         });
       })
       .catch((err) => {
