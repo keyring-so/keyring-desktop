@@ -54,6 +54,7 @@ import {
   Clipboard,
   ClipboardCheck,
   Loader2,
+  RotateCw,
   Trash2,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -153,6 +154,18 @@ function Wallet() {
       toast({ description: "Copied to clipboard!" });
     }
   }, [hasCopied]);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "r" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        window.location.reload();
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   const updateToAddr = (event: React.ChangeEvent<HTMLInputElement>) => {
     setToAddr(event.target.value);
@@ -361,7 +374,22 @@ function Wallet() {
         <TabsContent value="assets">
           <div className="mt-6 flex flex-col gap-2">
             <div className="flex flex-row justify-between">
-              <Label className="text-lg">Total</Label>
+              <div className="flex flex-row items-center gap-3">
+                <Label className="text-lg">Total</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <RotateCw
+                        className="h-5"
+                        onClick={() => window.location.reload()}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Click to refresh</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Label className="text-lg">
                 $
                 {parseFloat(
@@ -390,7 +418,7 @@ function Wallet() {
                       >
                         <div className="flex flex-row items-center gap-2">
                           <img
-                            className="h-12"
+                            className="h-12 rounded-full"
                             src={`build/assets/${userAsset.name}_logo.png`}
                           />
 
@@ -548,19 +576,19 @@ function Wallet() {
                           <div className="flex flex-row items-center gap-12">
                             <div className="flex flex-row items-center">
                               <img
-                                className="w-6 mr-2"
+                                className="w-6 mr-2 rounded-full"
                                 src={`build/assets/${token.symbol}_logo.png`}
                               />
                               <Label>{token.symbol}</Label>
                             </div>
                             <Check
-                                className={cn(
-                                  "h-5 w-5",
-                                  selectToken?.symbol === token.symbol
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
+                              className={cn(
+                                "h-5 w-5",
+                                selectToken?.symbol === token.symbol
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
                           </div>
                         </CommandItem>
                       ))}
