@@ -1,3 +1,11 @@
+import packageJson from "@/../package.json";
+import {
+  GetCredentials,
+  GetNetwork,
+  Install,
+  SetNetwork,
+} from "@/../wailsjs/go/main/App";
+import { database } from "@/../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -6,24 +14,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
-import { showSettingsAtom, isTestnetAtom } from "@/store/state";
-import { useAtom, useSetAtom } from "jotai";
-import {
-  GetCredentials,
-  GetNetwork,
-  Install,
-  SetNetwork,
-} from "@/../wailsjs/go/main/App";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useEffect, useState } from "react";
-import { database } from "wailsjs/go/models";
-import { errToast } from "@/lib/utils";
-import { QRCodeSVG } from "qrcode.react";
-import { LogoImageSrc } from "./logo";
+import { toast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
-import { ClipboardCheck, Clipboard } from "lucide-react";
+import { errToast } from "@/lib/utils";
+import { isTestnetAtom, showSettingsAtom } from "@/store/state";
+import { useAtom, useSetAtom } from "jotai";
+import { Clipboard, ClipboardCheck } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { useEffect, useState } from "react";
+import { LogoImageSrc } from "./logo";
 
 const Settings = () => {
   const [credentials, setCredentials] = useState<
@@ -128,6 +129,12 @@ const Settings = () => {
           </DialogHeader>
 
           <div className="flex flex-col gap-8 mt-6">
+            <Label>
+              App Version:{" "}
+              <span className="font-bold text-primary">
+                {packageJson.version}
+              </span>
+            </Label>
             <div className="flex flex-col gap-2">
               <Label>Connect card to a new device</Label>
               <Button className="w-1/2" onClick={getCredentials}>
