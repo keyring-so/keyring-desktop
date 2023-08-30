@@ -8,7 +8,8 @@ import (
 	"keyring-desktop/oracle"
 	"keyring-desktop/utils"
 
-	"github.com/jumpcrypto/crosschain/factory"
+	"keyring-desktop/crosschain/factory"
+
 	"github.com/spf13/viper"
 )
 

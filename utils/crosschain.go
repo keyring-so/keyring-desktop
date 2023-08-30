@@ -3,8 +3,9 @@ package utils
 import (
 	"context"
 
-	"github.com/jumpcrypto/crosschain"
-	"github.com/jumpcrypto/crosschain/factory"
+	"keyring-desktop/crosschain"
+
+	"keyring-desktop/crosschain/factory"
 )
 
 func GetAssetBalance(ctx context.Context, xc *factory.Factory, asset string, chain string, address string) (*crosschain.AmountHumanReadable, error) {

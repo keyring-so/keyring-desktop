@@ -9,9 +9,10 @@ import (
 	"keyring-desktop/utils"
 	"os"
 
-	"github.com/jumpcrypto/crosschain"
-	"github.com/jumpcrypto/crosschain/chain/evm"
-	"github.com/jumpcrypto/crosschain/factory"
+	"keyring-desktop/crosschain"
+	"keyring-desktop/crosschain/chain/evm"
+	"keyring-desktop/crosschain/factory"
+
 	"github.com/spf13/viper"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
