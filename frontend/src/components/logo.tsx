@@ -1,4 +1,4 @@
-export const LogoImageSrc = "build/appicon.png"
+export const LogoImageSrc = "/logo.png"
 
 const Logo = () => {
   return (

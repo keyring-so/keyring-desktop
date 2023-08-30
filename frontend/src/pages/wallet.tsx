@@ -425,7 +425,7 @@ function Wallet() {
                         <div className="flex flex-row items-center gap-2">
                           <img
                             className="h-12 rounded-full"
-                            src={`build/assets/${userAsset.name}_logo.png`}
+                            src={`/tokens/${userAsset.name}_logo.png`}
                           />
 
                           <Label className="text-lg">{userAsset.name}</Label>
@@ -583,7 +583,7 @@ function Wallet() {
                             <div className="flex flex-row items-center">
                               <img
                                 className="w-6 mr-2 rounded-full"
-                                src={`build/assets/${token.symbol}_logo.png`}
+                                src={`/tokens/${token.symbol}_logo.png`}
                               />
                               <Label>{token.symbol}</Label>
                             </div>

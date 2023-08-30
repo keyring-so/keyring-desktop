@@ -94,7 +94,7 @@ jobs:
       # upload to storj
       - uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --exclude '*'
+          args: --delete
         env:
           AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
