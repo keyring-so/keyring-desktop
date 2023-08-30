@@ -24,9 +24,6 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-const DEFAULT_GAS_PRICE = 20_000_000_000
-const DEFAULT_GAS_TIP = 3_000_000_000
-
 var ERC20 abi.ABI
 
 func init() {
@@ -187,7 +184,14 @@ func NewLegacyClient(cfg xc.ITask) (*Client, error) {
 func (client *Client) FetchTxInput(ctx context.Context, from xc.Address, _ xc.Address) (xc.TxInput, error) {
 	zero := xc.NewAmountBlockchainFromUint64(0)
 	result := NewTxInput()
-	result.GasTipCap = xc.NewAmountBlockchainFromUint64(DEFAULT_GAS_TIP)
+
+	// Fetch the gas tip
+	suggestTip, err := client.EthClient.SuggestGasTipCap(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result.GasTipCap = xc.NewAmountBlockchainFromUint64(suggestTip.Uint64())
 	result.GasFeeCap = zero
 	result.GasPrice = zero
 
@@ -205,7 +209,7 @@ func (client *Client) FetchTxInput(ctx context.Context, from xc.Address, _ xc.Ad
 	// Gas
 	gas, err := client.EstimateGas(ctx)
 	if err != nil {
-		// pass, return err later
+		return nil, err
 	}
 	result.GasPrice = gas  // legacy
 	result.GasFeeCap = gas // new
@@ -363,17 +367,12 @@ func (client *Client) LastBaseFee(ctx context.Context) (xc.AmountBlockchain, err
 	return xc.NewAmountBlockchainFromUint64(baseFee), nil
 }
 
-// EstimateGas estimates gas price for a Cosmos chain
+// EstimateGas estimates gas price for a evm chain
 func (client *Client) EstimateGas(ctx context.Context) (xc.AmountBlockchain, error) {
 	// invoke EstimateGasFunc callback, if registered
 	if client.EstimateGasFunc != nil {
 		nativeAsset := client.Asset.NativeAsset
-		res, err := client.EstimateGasFunc(nativeAsset)
-		if err != nil {
-			// continue with default implementation as fallback
-		} else {
-			return res, err
-		}
+		return client.EstimateGasFunc(nativeAsset)
 	}
 
 	// KLAY has fixed gas price of 250 ston
@@ -383,31 +382,34 @@ func (client *Client) EstimateGas(ctx context.Context) (xc.AmountBlockchain, err
 
 	// legacy gas estimation via SuggestGasPrice
 	var baseFee uint64
+	var tip uint64
 	if client.Legacy {
 		baseFeeInt, err := client.EthClient.SuggestGasPrice(ctx)
 		if err != nil {
-			// pass
-		} else {
-			baseFee = baseFeeInt.Uint64()
+			return xc.NewAmountBlockchainFromUint64(0), err
 		}
+		// baseFee = baseFeeInt.Uint64()
+		return xc.NewAmountBlockchainFromUint64(baseFeeInt.Uint64()), nil
 	} else {
 		latest, err := client.EthClient.HeaderByNumber(ctx, nil)
 		if err != nil {
-			// pass
-		} else {
-			baseFee = latest.BaseFee.Uint64()
+			return xc.NewAmountBlockchainFromUint64(0), err
 		}
+		baseFee = latest.BaseFee.Uint64()
+
+		suggestTip, err := client.EthClient.SuggestGasTipCap(ctx)
+		if err != nil {
+			return xc.NewAmountBlockchainFromUint64(0), err
+		}
+		tip = suggestTip.Uint64()
 	}
 
-	if baseFee < DEFAULT_GAS_PRICE {
-		baseFee = DEFAULT_GAS_PRICE
-	}
 	multiplier := 2.0
 	if client.Asset.ChainGasMultiplier > 0.0 {
 		multiplier = client.Asset.ChainGasMultiplier
 	}
 
-	gasPrice := (uint64)((float64)(baseFee+DEFAULT_GAS_TIP) * multiplier)
+	gasPrice := (uint64)((float64)(baseFee+tip) * multiplier)
 	return xc.NewAmountBlockchainFromUint64(gasPrice), nil
 }
 

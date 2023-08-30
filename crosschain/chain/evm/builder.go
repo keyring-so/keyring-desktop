@@ -46,10 +46,7 @@ func (txBuilder TxBuilder) NewTransfer(from xc.Address, to xc.Address, amount xc
 func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
 	txInput := input.(*TxInput)
 
-	txInput.GasLimit = 21_000
-	if txBuilder.Asset.NativeAsset == xc.OasisROSE {
-		txInput.GasLimit = 30_000
-	}
+	txInput.GasLimit = 90_000
 
 	return txBuilder.buildEvmTxWithPayload(to, amount.Int(), []byte{}, txInput)
 }
@@ -58,7 +55,7 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 func (txBuilder TxBuilder) NewTokenTransfer(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
 	txInput := input.(*TxInput)
 
-	txInput.GasLimit = 205_000
+	txInput.GasLimit = 350_000
 	if txBuilder.Asset.NativeAsset == xc.OasisROSE {
 		txInput.GasLimit = 500_000
 	}
