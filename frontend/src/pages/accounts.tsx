@@ -1,4 +1,6 @@
 import { UpdateAccountName } from "@/../wailsjs/go/main/App";
+import InitializeDialog from "@/components/initialize";
+import PairDialog from "@/components/pair";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { accountAtom, showSidebarItem } from "@/store/state";
 import { useAtom, useSetAtom } from "jotai";
 import { useState } from "react";
@@ -26,6 +28,8 @@ const Accounts = () => {
   const setSidebarItem = useSetAtom(showSidebarItem);
   const [account, setAccount] = useAtom(accountAtom);
 
+  const { toast } = useToast();
+
   const updateAccountName = async () => {
     try {
       if (name !== "") {
@@ -40,18 +44,14 @@ const Accounts = () => {
     }
   };
 
-  const handleAddCard = () => {
-    return (
-      <div>
-        <Dialog open={true} onOpenChange={() => setShowAddCardDialog(false)}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add new card</DialogTitle>
-              <DialogDescription>test</DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </div>
+  const addNewCardDialog = () => {
+    return initialized === InitializedFlagY ? (
+      <PairDialog open={showAddCardDialog} handleClose={setShowAddCardDialog} />
+    ) : (
+      <InitializeDialog
+        open={showAddCardDialog}
+        handleClose={setShowAddCardDialog}
+      />
     );
   };
 
@@ -123,7 +123,7 @@ const Accounts = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {showAddCardDialog && handleAddCard()}
+      {addNewCardDialog()}
     </div>
   );
 };

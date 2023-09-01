@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
 import { errToast } from "@/lib/utils";
 import { isTestnetAtom, showSettingsAtom } from "@/store/state";
@@ -35,6 +35,8 @@ const Settings = () => {
   const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
 
   const { hasCopied, onCopy } = useClipboard();
+
+  const { toast } = useToast()
 
   useEffect(() => {
     (async () => {
