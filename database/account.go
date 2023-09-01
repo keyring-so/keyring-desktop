@@ -22,6 +22,33 @@ func QueryCurrentAccount(db *bolt.DB) (string, error) {
 	return account, nil
 }
 
+func SaveCurrentAccount(db *bolt.DB, accountId string) error {
+	err := db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		return b.Put([]byte(utils.DbCurrentAccountKey), []byte(accountId))
+	})
+
+	return err
+}
+
+func QueryAllAccounts(db *bolt.DB) ([]string, error) {
+	var accounts string
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(utils.BucketName))
+		accounts = string(b.Get([]byte(utils.DbAllAccountsKey)))
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	arr := []string{}
+	if accounts != "" {
+		arr = strings.Split(accounts, ",")
+	}
+	return arr, nil
+}
+
 func QueryChains(db *bolt.DB, account string) (*AccountChainInfo, error) {
 	var chains string
 	var lastSelectedChain string

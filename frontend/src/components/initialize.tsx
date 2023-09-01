@@ -42,11 +42,10 @@ const InitCardSchema = z.object({
 });
 
 type Props = {
-  open: boolean;
   handleClose: (open: boolean) => void;
 };
 
-const InitializeDialog = ({ open, handleClose }: Props) => {
+const InitializeDialog = ({ handleClose }: Props) => {
   const [connectDialog, setConnectDialog] = useState(true);
   const [cardName, setCardName] = useState("");
   const [mnemonic, setMnemonic] = useState("");
@@ -82,7 +81,7 @@ const InitializeDialog = ({ open, handleClose }: Props) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={true} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>

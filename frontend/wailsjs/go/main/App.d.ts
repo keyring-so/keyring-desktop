@@ -19,6 +19,8 @@ export function Connect():Promise<main.AccountInfo>;
 
 export function GetAddressAndAssets(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
+export function GetAllAccounts():Promise<Array<main.AccountInfo>>;
+
 export function GetAssetPrices(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
 export function GetChainConfig(arg1:string):Promise<utils.ChainConfig>;
@@ -40,6 +42,8 @@ export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<st
 export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 
 export function SetNetwork(arg1:string):Promise<void>;
+
+export function SwitchAccount(arg1:string):Promise<main.AccountInfo>;
 
 export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string):Promise<crosschain.TxHash>;
 

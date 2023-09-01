@@ -1,4 +1,11 @@
-import { UpdateAccountName } from "@/../wailsjs/go/main/App";
+import {
+  CheckCardConnection,
+  CheckCardInitialized,
+  GetAllAccounts,
+  SwitchAccount,
+  UpdateAccountName,
+} from "@/../wailsjs/go/main/App";
+import { main } from "@/../wailsjs/go/models";
 import InitializeDialog from "@/components/initialize";
 import PairDialog from "@/components/pair";
 import { Button } from "@/components/ui/button";
@@ -11,24 +18,40 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { accountAtom, showSidebarItem } from "@/store/state";
 import { useAtom, useSetAtom } from "jotai";
-import { useState } from "react";
-
-const InitializedFlagY = "initialized-yes";
-const InitializedFlagN = "initialized-no";
+import { useEffect, useState } from "react";
 
 const Accounts = () => {
   const [name, setName] = useState("");
-  const [initialized, setInitialized] = useState(InitializedFlagY);
+  const [cardInitialized, setCardInitialized] = useState(false);
   const [showAddCardDialog, setShowAddCardDialog] = useState(false);
+  const [allAccounts, setAllAccounts] = useState<main.AccountInfo[]>([]);
+  const [switchToCard, setSwitchToCard] = useState("");
 
   const setSidebarItem = useSetAtom(showSidebarItem);
   const [account, setAccount] = useAtom(accountAtom);
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    GetAllAccounts()
+      .then((res) => setAllAccounts(res))
+      .catch((err) =>
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        })
+      );
+  }, []);
 
   const updateAccountName = async () => {
     try {
@@ -44,14 +67,47 @@ const Accounts = () => {
     }
   };
 
+  const addCard = async () => {
+    try {
+      const res = await CheckCardConnection();
+      if (res) {
+        const res = await CheckCardInitialized();
+        setCardInitialized(res);
+        setShowAddCardDialog(true);
+      } else {
+        toast({
+          description:
+            "Card is not detected, make sure it's connected via card reader and try again.",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
+  const handleSwitch = async () => {
+    try {
+      if (switchToCard !== "" && switchToCard !== account.id) {
+        const res = await SwitchAccount(switchToCard);
+        setAccount(res);
+        setSidebarItem("");
+      }
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  }
+
   const addNewCardDialog = () => {
-    return initialized === InitializedFlagY ? (
-      <PairDialog open={showAddCardDialog} handleClose={setShowAddCardDialog} />
+    return cardInitialized ? (
+      <PairDialog handleClose={setShowAddCardDialog} />
     ) : (
-      <InitializeDialog
-        open={showAddCardDialog}
-        handleClose={setShowAddCardDialog}
-      />
+      <InitializeDialog handleClose={setShowAddCardDialog} />
     );
   };
 
@@ -73,6 +129,23 @@ const Accounts = () => {
 
           <div className="flex flex-col gap-8 mt-6">
             <div className="flex flex-col gap-2">
+              <Label className="text-2xl">Switch Cards</Label>
+              <div className="flex flex-row gap-2">
+                <Select onValueChange={(v) => setSwitchToCard(v)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="select a card" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allAccounts.map((account) => (
+                      <SelectItem value={account.id}>{account.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleSwitch}>Confirm</Button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
               <Label className="text-2xl">Set Current Card</Label>
               <Label className="mt-1">Card name: {account.name}</Label>
               <div className="flex flex-row gap-2">
@@ -87,35 +160,12 @@ const Accounts = () => {
                 </Button>
               </div>
             </div>
+
             <div className="flex flex-col gap-2">
               <Label className="text-2xl">Add Another Card</Label>
-
-              <div className="mt-1">
-                <Label>Has the card been initialized?</Label>
-                <RadioGroup
-                  className="mt-2"
-                  defaultValue={initialized}
-                  onValueChange={(v) => setInitialized(v)}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value={InitializedFlagY}
-                      id={InitializedFlagY}
-                    />
-                    <Label htmlFor={InitializedFlagY}>Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value={InitializedFlagN}
-                      id={InitializedFlagN}
-                    />
-                    <Label htmlFor={InitializedFlagN}>No</Label>
-                  </div>
-                </RadioGroup>
-                <Button
-                  className="mt-3"
-                  onClick={() => setShowAddCardDialog(true)}
-                >
+              <div className="flex flex-col gap-3">
+                <Label>Make sure the new card is connected.</Label>
+                <Button className="w-1/3" onClick={addCard}>
                   Add Card
                 </Button>
               </div>
@@ -123,7 +173,7 @@ const Accounts = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {addNewCardDialog()}
+      {showAddCardDialog && addNewCardDialog()}
     </div>
   );
 };

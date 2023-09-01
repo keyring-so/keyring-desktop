@@ -107,7 +107,11 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 	err = a.encryptAndSaveCredential(accountName, pin, puk, code, pairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to save credentials")
+		err = keyringCard.Unpair(pin, pairingInfo)
+		if err != nil {
+			utils.Sugar.Error(err)
+		}
+		return "", err
 	}
 
 	return accountName, nil
@@ -141,7 +145,7 @@ func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingIn
 	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, encryptedPairingKey, encryptedPairingIndex, account)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return errors.New("failed to update database")
+		return err
 	}
 
 	return nil
@@ -506,7 +510,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	err = a.encryptAndSaveCredential(accountName, pin, puk, code, res.PairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to save credentials")
+		return "", err
 	}
 
 	return res.Mnemonic, nil

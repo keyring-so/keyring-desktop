@@ -1,3 +1,5 @@
+import { Pair } from "@/../wailsjs/go/main/App";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,24 +8,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ChangeEvent, useState } from "react";
-import { Pair } from "@/../wailsjs/go/main/App";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { accountAtom } from "@/store/state";
 import { useSetAtom } from "jotai";
+import { ChangeEvent, useState } from "react";
 
 type Props = {
-  open: boolean;
   handleClose: (open: boolean) => void;
 };
 
-const PairDialog = ({ open, handleClose }: Props) => {
+const PairDialog = ({ handleClose }: Props) => {
   const [pin, setPin] = useState("");
   const [cardName, setCardName] = useState("");
-  const [connectDialog, setConnectDialog] = useState(true);
   const [puk, setPuk] = useState("");
   const [pairingCode, setPairingCode] = useState("");
 
@@ -38,7 +36,6 @@ const PairDialog = ({ open, handleClose }: Props) => {
   const pair = async () => {
     try {
       const res = await Pair(pin, puk, pairingCode, cardName);
-      setAccount({ id: res, name: res });
       toast({
         title: "Success!",
         description: "Card is paired.",
@@ -52,7 +49,7 @@ const PairDialog = ({ open, handleClose }: Props) => {
   };
 
   return (
-    <Dialog open={open && connectDialog} onOpenChange={handleClose}>
+    <Dialog open={true} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Great! Your card is alread initialized.</DialogTitle>
