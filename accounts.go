@@ -11,30 +11,64 @@ func (a *App) UpdateAccountName(id, name string) error {
 }
 
 // check if there is card paired already
-func (a *App) Connect() (*AccountInfo, error) {
+func (a *App) CurrentAccount() (*AccountInfo, error) {
 	utils.Sugar.Info("Check if there is smart card paired")
 
-	account, err := database.QueryCurrentAccount(a.db)
+	accountId, err := database.QueryCurrentAccount(a.db)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to query current account")
 	}
 
-	name, err := database.QueryAccountName(a.db, account)
+	return a.queryAccountName(accountId)
+}
+
+func (a *App) GetAllAccounts() ([]AccountInfo, error) {
+	allAccounts, err := database.QueryAllAccounts(a.db)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to query all accounts")
+	}
+
+	var res []AccountInfo
+	for _, accountId := range allAccounts {
+		accountInfo, err := a.queryAccountName(accountId)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return nil, err
+		}
+		res = append(res, *accountInfo)
+	}
+
+	return res, nil
+}
+
+func (a *App) SwitchAccount(accountId string) (*AccountInfo, error) {
+	utils.Sugar.Infof("Switch account to: %v", accountId)
+
+	err := database.SaveCurrentAccount(a.db, accountId)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to switch account")
+	}
+
+	return a.queryAccountName(accountId)
+}
+
+func (a *App) queryAccountName(accountId string) (*AccountInfo, error) {
+	name, err := database.QueryAccountName(a.db, accountId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to query account name")
 	}
 
 	if name == "" {
-		name = account
+		name = accountId
 	}
 	accountInfo := &AccountInfo{
-		Id:   account,
+		Id:   accountId,
 		Name: name,
 	}
-
-	utils.Sugar.Infof("The current account is: %v", accountInfo)
 
 	return accountInfo, nil
 }

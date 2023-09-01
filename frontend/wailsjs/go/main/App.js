@@ -22,12 +22,16 @@ export function CheckCardInitialized() {
   return window['go']['main']['App']['CheckCardInitialized']();
 }
 
-export function Connect() {
-  return window['go']['main']['App']['Connect']();
+export function CurrentAccount() {
+  return window['go']['main']['App']['CurrentAccount']();
 }
 
 export function GetAddressAndAssets(arg1, arg2) {
   return window['go']['main']['App']['GetAddressAndAssets'](arg1, arg2);
+}
+
+export function GetAllAccounts() {
+  return window['go']['main']['App']['GetAllAccounts']();
 }
 
 export function GetAssetPrices(arg1, arg2) {
@@ -72,6 +76,10 @@ export function RemoveAsset(arg1, arg2, arg3) {
 
 export function SetNetwork(arg1) {
   return window['go']['main']['App']['SetNetwork'](arg1);
+}
+
+export function SwitchAccount(arg1) {
+  return window['go']['main']['App']['SwitchAccount'](arg1);
 }
 
 export function Transfer(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {

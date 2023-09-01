@@ -1,7 +1,9 @@
 package database
 
 import (
+	"errors"
 	"keyring-desktop/utils"
+	"strings"
 
 	bolt "go.etcd.io/bbolt"
 )
@@ -9,7 +11,24 @@ import (
 func SaveCredential(db *bolt.DB, puk, code, pairingKey, pairingIndex, account string) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(utils.DbCurrentAccountKey), []byte(account))
+
+		allAccounts := string(b.Get([]byte(utils.DbAllAccountsKey)))
+		if allAccounts == "" {
+			allAccounts = account
+		} else {
+			if strings.Contains(allAccounts, account) {
+				return errors.New("account already exists")
+			} else {
+				allAccounts = allAccounts + "," + account
+			}
+		}
+		b.Put([]byte(utils.DbAllAccountsKey), []byte(allAccounts))
+
+		currentAccount := string(b.Get([]byte(utils.DbCurrentAccountKey)))
+		if currentAccount == "" {
+			b.Put([]byte(utils.DbCurrentAccountKey), []byte(account))
+		}
+
 		b.Put([]byte(account+"_puk"), []byte(puk))
 		b.Put([]byte(account+"_code"), []byte(code))
 		b.Put([]byte(account+"_pairing_key"), []byte(pairingKey))

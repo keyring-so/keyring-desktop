@@ -117,8 +117,7 @@ function Wallet() {
           setUserAssets(assets.assets);
           if (!assets.address) {
             toast({
-              title: "Uh oh! Something went wrong.",
-              description: `Error happens: address is empty`,
+              description: `You are ready to add a new blockchain`,
             });
           }
 

@@ -1,10 +1,10 @@
-import {
-  CheckCardConnection,
-  CheckCardInitialized,
-  Initialize,
-  Pair,
-} from "@/../wailsjs/go/main/App";
-import Settings from "@/components/settings";
+import { CurrentAccount, Initialize } from "@/../wailsjs/go/main/App";
+import { accountAtom } from "@/store/state";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSetAtom } from "jotai";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,16 +13,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "./ui/alert-dialog";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "./ui/dialog";
 import {
   Form,
   FormControl,
@@ -30,18 +29,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/components/ui/use-toast";
-import { accountAtom, showSettingsAtom } from "@/store/state";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAtom, useSetAtom } from "jotai";
-import { Settings as SettingsIcon } from "lucide-react";
-import { ChangeEvent, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { useToast } from "./ui/use-toast";
 
 const InitCardSchema = z.object({
   name: z.string().min(2).max(20),
@@ -61,17 +52,14 @@ const InitCardSchema = z.object({
   }),
 });
 
-function ConnectPage() {
-  const [cardInitialized, setCardInitialized] = useState<boolean>(false);
-  const [connectDialog, setConnectDialog] = useState(false);
-  const [pin, setPin] = useState("");
-  const [puk, setPuk] = useState("");
-  const [pairingCode, setPairingCode] = useState("");
-  const [cardName, setCardName] = useState("");
+type Props = {
+  handleClose: (open: boolean) => void;
+};
+
+const InitializeDialog = ({ handleClose }: Props) => {
   const [mnemonic, setMnemonic] = useState("");
 
   const setAccount = useSetAtom(accountAtom);
-  const [showSettings, setShowSettings] = useAtom(showSettingsAtom);
 
   const { toast } = useToast();
 
@@ -82,40 +70,29 @@ function ConnectPage() {
     },
   });
 
-  const setCredentials = (e: ChangeEvent<HTMLInputElement>) => {
-    let credentials = JSON.parse(e.target.value);
-    setPuk(credentials.puk);
-    setPairingCode(credentials.code);
-  };
-
-  const connect = async () => {
+  const getCurrentAccount = async () => {
     try {
-      const res = await CheckCardConnection();
-      if (res) {
-        const res = await CheckCardInitialized();
-        setCardInitialized(res);
-        setConnectDialog(true);
-      } else {
-        toast({
-          description:
-            "Card is not detected, make sure it's connected via card reader and try again.",
-        });
-      }
+      const res = await CurrentAccount();
+      setAccount(res);
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,
       });
     }
-  };
+  }
 
-  const pair = async () => {
+  const initCard = async (data: z.infer<typeof InitCardSchema>) => {
     try {
-      const res = await Pair(pin, puk, pairingCode, cardName);
-      setAccount(res);
+      const words = await Initialize(
+        data.pin,
+        data.name,
+        parseInt(data.checksum)
+      );
+      setMnemonic(words);
       toast({
         title: "Success!",
-        description: "Card is paired.",
+        description: "Card is initialized.",
       });
     } catch (err) {
       toast({
@@ -131,7 +108,8 @@ function ConnectPage() {
         open={true}
         onOpenChange={() => {
           setMnemonic("");
-          setAccount({id: cardName, name: cardName});
+          handleClose(false);
+          getCurrentAccount();
         }}
       >
         <AlertDialogContent className="sm:max-w-[480px]">
@@ -160,83 +138,9 @@ function ConnectPage() {
     );
   };
 
-  const pairDialog = () => {
-    return (
-      <Dialog open={true} onOpenChange={setConnectDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Great! Your card is alread initialized.</DialogTitle>
-            <DialogDescription>
-              You need to input the PIN to connect to the card.
-            </DialogDescription>
-            <DialogDescription>
-              Remove the card if you want to connect another one.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="pin" className="text-right">
-              PIN
-            </Label>
-            <Input
-              id="pin"
-              type="password"
-              className="col-span-3"
-              onChange={(e) => setPin(e.target.value)}
-            />
-
-            <Label htmlFor="name" className="text-right">
-              Card Name
-            </Label>
-            <Input
-              id="name"
-              className="col-span-3"
-              onChange={(e) => setCardName(e.target.value)}
-              autoCorrect="off"
-            />
-
-            <Label htmlFor="credential" className="text-right">
-              Pairing Credential
-            </Label>
-            <Input
-              id="credential"
-              className="col-span-3"
-              onChange={setCredentials}
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" onClick={pair}>
-              Connect
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  };
-
-  const initCard = async (data: z.infer<typeof InitCardSchema>) => {
-    try {
-      const words = await Initialize(
-        data.pin,
-        data.name,
-        parseInt(data.checksum)
-      );
-      setMnemonic(words);
-      setCardName(data.name);
-      toast({
-        title: "Success!",
-        description: "Card is initialized.",
-      });
-    } catch (err) {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    }
-  };
-
-  const initializeDialog = () => {
-    return (
-      <Dialog open={true} onOpenChange={setConnectDialog}>
+  return (
+    <div>
+      <Dialog open={true} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
@@ -253,7 +157,7 @@ function ConnectPage() {
           <Form {...initForm}>
             <form
               onSubmit={initForm.handleSubmit(initCard)}
-              className="w-2/3 space-y-6"
+              className="space-y-6"
             >
               <FormField
                 control={initForm.control}
@@ -300,7 +204,7 @@ function ConnectPage() {
                     <FormControl>
                       <Input
                         type="password"
-                        className="col-span-3"
+                        className="col-span-3 w-2/3"
                         onChange={field.onChange}
                       />
                     </FormControl>
@@ -316,7 +220,7 @@ function ConnectPage() {
                     <FormLabel>Name the card</FormLabel>
                     <FormControl>
                       <Input
-                        className="col-span-3"
+                        className="col-span-3 w-2/3"
                         onChange={field.onChange}
                         autoCorrect="off"
                       />
@@ -330,30 +234,9 @@ function ConnectPage() {
           </Form>
         </DialogContent>
       </Dialog>
-    );
-  };
-
-  return (
-    <div className="flex flex-row justify-evenly h-screen">
-      {connectDialog && cardInitialized === false && initializeDialog()}
-      {connectDialog && cardInitialized === true && pairDialog()}
       {mnemonic && mnemonicDialog()}
-      <div className="flex flex-col justify-center items-center w-1/2">
-        <h1 className="text-3xl">Keyring Wallet</h1>
-        <h2 className="mt-4 text-6xl">Welcome!</h2>
-      </div>
-      <div className="flex flex-col bg-gray-300 justify-center items-center w-1/2">
-        <Button className="text-2xl w-auto h-auto" onClick={connect}>
-          Connect your Keyring Card
-        </Button>
-      </div>
-
-      <div className="fixed right-6 bottom-6">
-        <SettingsIcon onClick={() => setShowSettings(true)} />
-      </div>
-      {showSettings && <Settings />}
     </div>
   );
-}
+};
 
-export default ConnectPage;
+export default InitializeDialog;
