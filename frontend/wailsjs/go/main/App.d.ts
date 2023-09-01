@@ -15,7 +15,7 @@ export function CheckCardConnection():Promise<boolean>;
 
 export function CheckCardInitialized():Promise<boolean>;
 
-export function Connect():Promise<main.AccountInfo>;
+export function CurrentAccount():Promise<main.AccountInfo>;
 
 export function GetAddressAndAssets(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
@@ -37,7 +37,7 @@ export function Initialize(arg1:string,arg2:string,arg3:number):Promise<string>;
 
 export function Install():Promise<void>;
 
-export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<string>;
+export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.AccountInfo>;
 
 export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 

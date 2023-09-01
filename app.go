@@ -71,29 +71,29 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
+func (a *App) Pair(pin, puk, code, accountName string) (*AccountInfo, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
 	if pin == "" || accountName == "" {
-		return "", errors.New("pin or card name can not be empty")
+		return nil, errors.New("pin or card name can not be empty")
 	}
 
 	puk, err := utils.Decrypt(pin, puk)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to decrypt PUK")
+		return nil, errors.New("failed to decrypt PUK")
 	}
 	code, err = utils.Decrypt(pin, code)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to decrypt Pairing Code")
+		return nil, errors.New("failed to decrypt Pairing Code")
 	}
 
 	// connect to card
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return nil, errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
 
@@ -101,7 +101,7 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 	pairingInfo, err := keyringCard.Pair(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to pair with card")
+		return nil, errors.New("failed to pair with card")
 	}
 
 	err = a.encryptAndSaveCredential(accountName, pin, puk, code, pairingInfo)
@@ -111,10 +111,10 @@ func (a *App) Pair(pin, puk, code, accountName string) (string, error) {
 		if err != nil {
 			utils.Sugar.Error(err)
 		}
-		return "", err
+		return nil, err
 	}
 
-	return accountName, nil
+	return a.CurrentAccount()
 }
 
 func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingInfo *types.PairingInfo) error {
@@ -510,6 +510,12 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	err = a.encryptAndSaveCredential(accountName, pin, puk, code, res.PairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
+		errUnpair := keyringCard.Unpair(pin, res.PairingInfo)
+		if errUnpair != nil {
+			utils.Sugar.Error(errUnpair)
+		}
+
+		// TODO uninit the card, and remove the key
 		return "", err
 	}
 

@@ -11,7 +11,7 @@ func (a *App) UpdateAccountName(id, name string) error {
 }
 
 // check if there is card paired already
-func (a *App) Connect() (*AccountInfo, error) {
+func (a *App) CurrentAccount() (*AccountInfo, error) {
 	utils.Sugar.Info("Check if there is smart card paired")
 
 	accountId, err := database.QueryCurrentAccount(a.db)

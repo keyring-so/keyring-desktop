@@ -112,7 +112,7 @@ function ConnectPage() {
   const pair = async () => {
     try {
       const res = await Pair(pin, puk, pairingCode, cardName);
-      setAccount({id: res, name: res});
+      setAccount(res);
       toast({
         title: "Success!",
         description: "Card is paired.",

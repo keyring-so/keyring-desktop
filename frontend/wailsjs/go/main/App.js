@@ -22,8 +22,8 @@ export function CheckCardInitialized() {
   return window['go']['main']['App']['CheckCardInitialized']();
 }
 
-export function Connect() {
-  return window['go']['main']['App']['Connect']();
+export function CurrentAccount() {
+  return window['go']['main']['App']['CurrentAccount']();
 }
 
 export function GetAddressAndAssets(arg1, arg2) {

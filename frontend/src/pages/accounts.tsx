@@ -51,7 +51,7 @@ const Accounts = () => {
           description: `Error happens: ${err}`,
         })
       );
-  }, []);
+  }, [showAddCardDialog]);
 
   const updateAccountName = async () => {
     try {
@@ -94,6 +94,10 @@ const Accounts = () => {
         const res = await SwitchAccount(switchToCard);
         setAccount(res);
         setSidebarItem("");
+      } else {
+        toast({
+          description: "Please select a different card.",
+        });
       }
     } catch (err) {
       toast({
@@ -128,25 +132,9 @@ const Accounts = () => {
           </DialogHeader>
 
           <div className="flex flex-col gap-8 mt-6">
-            <div className="flex flex-col gap-2">
-              <Label className="text-2xl">Switch Cards</Label>
-              <div className="flex flex-row gap-2">
-                <Select onValueChange={(v) => setSwitchToCard(v)}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="select a card" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allAccounts.map((account) => (
-                      <SelectItem value={account.id}>{account.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleSwitch}>Confirm</Button>
-              </div>
-            </div>
 
             <div className="flex flex-col gap-2">
-              <Label className="text-2xl">Set Current Card</Label>
+              <Label className="font-bold text-primary">Set Current Card</Label>
               <Label className="mt-1">Card name: {account.name}</Label>
               <div className="flex flex-row gap-2">
                 <Input
@@ -162,12 +150,29 @@ const Accounts = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label className="text-2xl">Add Another Card</Label>
+              <Label className="font-bold text-primary">Add Another Card</Label>
               <div className="flex flex-col gap-3">
                 <Label>Make sure the new card is connected.</Label>
                 <Button className="w-1/3" onClick={addCard}>
                   Add Card
                 </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label className="font-bold text-primary">Switch Cards</Label>
+              <div className="flex flex-row gap-2">
+                <Select onValueChange={(v) => setSwitchToCard(v)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="select a card" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allAccounts.map((account) => (
+                      <SelectItem value={account.id}>{account.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleSwitch}>Confirm</Button>
               </div>
             </div>
           </div>

@@ -51,7 +51,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
         })}
       </div>
 
-      <Divider />
+      {chains.length > 0 && <Divider />}
 
       <SidebarIcon icon={Plus} text="Add a Blockchain" onClick={clickAddButton} />
 

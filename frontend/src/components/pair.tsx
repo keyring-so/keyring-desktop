@@ -36,6 +36,7 @@ const PairDialog = ({ handleClose }: Props) => {
   const pair = async () => {
     try {
       const res = await Pair(pin, puk, pairingCode, cardName);
+      setAccount(res);
       toast({
         title: "Success!",
         description: "Card is paired.",
