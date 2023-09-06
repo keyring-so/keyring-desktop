@@ -74,6 +74,10 @@ export function RemoveAsset(arg1, arg2, arg3) {
   return window['go']['main']['App']['RemoveAsset'](arg1, arg2, arg3);
 }
 
+export function Reset(arg1, arg2) {
+  return window['go']['main']['App']['Reset'](arg1, arg2);
+}
+
 export function SetNetwork(arg1) {
   return window['go']['main']['App']['SetNetwork'](arg1);
 }

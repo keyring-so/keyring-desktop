@@ -23,7 +23,7 @@ type KeyringCard struct {
 	card *scard.Card
 }
 
-// NewKeyringCard returns a new Keyring card that communicates to Transmitter t.
+// NewKeyringCard returns a new KeyringCard that communicates to Transmitter t.
 func NewKeyringCard() (*KeyringCard, error) {
 	// read smart card
 	cardContext, err := scard.EstablishContext()
