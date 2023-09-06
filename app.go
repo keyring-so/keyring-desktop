@@ -522,7 +522,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	return res.Mnemonic, nil
 }
 
-// Now to remove the key from the card, we need to reinstall the applet
+// Remove existing applet, and install the selected applet.
 func (a *App) Install() error {
 	utils.Sugar.Info("Start to install applets on card")
 

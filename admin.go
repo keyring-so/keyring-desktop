@@ -6,7 +6,7 @@ import (
 	"keyring-desktop/utils"
 )
 
-// Now to remove the key from the card, we need to reinstall the applet
+// Reset card will clear keys, PIN, etc.
 func (a *App) Reset(account, pin string) error {
 	utils.Sugar.Info("Start to reset card and wallet")
 
@@ -25,7 +25,7 @@ func (a *App) Reset(account, pin string) error {
 		return errors.New("failed to get pairing info")
 	}
 
-	// install card
+	// reset card
 	err = keyringCard.Reset(pairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
