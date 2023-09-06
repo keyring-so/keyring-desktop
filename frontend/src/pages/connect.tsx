@@ -344,7 +344,7 @@ function ConnectPage() {
       </div>
       <div className="flex flex-col bg-gray-300 justify-center items-center w-1/2">
         <Button className="text-2xl w-auto h-auto" onClick={connect}>
-          Connect your Keyring Card
+          Connect your card
         </Button>
       </div>
 

@@ -4,7 +4,7 @@
     "name": "Bitcoin",
     "path": "m/44'/0'/0'/0/0",
     "priceId": "bitcoin",
-    "disable": true
+    "disable": false
   },
   {
     "symbol": "ETH",
@@ -63,6 +63,6 @@
     "name": "Polygon",
     "path": "m/44'/60'/0'/0/0",
     "priceId": "polygon",
-    "disable": true
+    "disable": false
   }
 ]
