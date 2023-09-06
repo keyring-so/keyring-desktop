@@ -69,6 +69,7 @@ function ConnectPage() {
   const [pairingCode, setPairingCode] = useState("");
   const [cardName, setCardName] = useState("");
   const [mnemonic, setMnemonic] = useState("");
+  const [isEncrypted, setIsEncrypted] = useState(false);
 
   const setAccount = useSetAtom(accountAtom);
   const [showSettings, setShowSettings] = useAtom(showSettingsAtom);
@@ -86,6 +87,7 @@ function ConnectPage() {
     let credentials = JSON.parse(e.target.value);
     setPuk(credentials.puk);
     setPairingCode(credentials.code);
+    setIsEncrypted(true);
   };
 
   const connect = async () => {
@@ -111,7 +113,7 @@ function ConnectPage() {
 
   const pair = async () => {
     try {
-      const res = await Pair(pin, puk, pairingCode, cardName);
+      const res = await Pair(pin, puk, pairingCode, cardName, isEncrypted);
       setAccount(res);
       toast({
         title: "Success!",
@@ -131,7 +133,7 @@ function ConnectPage() {
         open={true}
         onOpenChange={() => {
           setMnemonic("");
-          setAccount({id: cardName, name: cardName});
+          setAccount({ id: cardName, name: cardName });
         }}
       >
         <AlertDialogContent className="sm:max-w-[480px]">
@@ -182,6 +184,7 @@ function ConnectPage() {
               type="password"
               className="col-span-3"
               onChange={(e) => setPin(e.target.value)}
+              placeholder="6 digits"
             />
 
             <Label htmlFor="name" className="text-right">
@@ -192,6 +195,7 @@ function ConnectPage() {
               className="col-span-3"
               onChange={(e) => setCardName(e.target.value)}
               autoCorrect="off"
+              placeholder="name your card"
             />
 
             <Label htmlFor="credential" className="text-right">
@@ -201,6 +205,26 @@ function ConnectPage() {
               id="credential"
               className="col-span-3"
               onChange={setCredentials}
+              placeholder="input credential"
+            />
+
+            <Label htmlFor="puk" className="text-right">
+              PUK
+            </Label>
+            <Input
+              id="puk"
+              className="col-span-3"
+              onChange={(e) => setPuk(e.target.value)}
+              placeholder="input PUK if no credential privoded"
+            />
+            <Label htmlFor="pairingCode" className="text-right">
+              Pairing Code
+            </Label>
+            <Input
+              id="pairingCode"
+              className="col-span-3"
+              onChange={(e) => setPairingCode(e.target.value)}
+              placeholder="input pairing code if no credential"
             />
           </div>
           <DialogFooter>

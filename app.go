@@ -71,22 +71,25 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin, puk, code, accountName string) (*AccountInfo, error) {
+func (a *App) Pair(pin, puk, code, accountName string, isEncrypted bool) (*AccountInfo, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
 	if pin == "" || accountName == "" {
 		return nil, errors.New("pin or card name can not be empty")
 	}
 
-	puk, err := utils.Decrypt(pin, puk)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to decrypt PUK")
-	}
-	code, err = utils.Decrypt(pin, code)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to decrypt Pairing Code")
+	var err error
+	if isEncrypted {
+		puk, err = utils.Decrypt(pin, puk)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return nil, errors.New("failed to decrypt PUK")
+		}
+		code, err = utils.Decrypt(pin, code)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return nil, errors.New("failed to decrypt Pairing Code")
+		}
 	}
 
 	// connect to card

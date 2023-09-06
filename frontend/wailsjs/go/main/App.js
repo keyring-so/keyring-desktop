@@ -66,8 +66,8 @@ export function Install() {
   return window['go']['main']['App']['Install']();
 }
 
-export function Pair(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
+export function Pair(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4, arg5);
 }
 
 export function RemoveAsset(arg1, arg2, arg3) {
