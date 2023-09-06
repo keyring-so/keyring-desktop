@@ -41,6 +41,8 @@ export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<ma
 
 export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 
+export function Reset(arg1:string,arg2:string):Promise<void>;
+
 export function SetNetwork(arg1:string):Promise<void>;
 
 export function SwitchAccount(arg1:string):Promise<main.AccountInfo>;

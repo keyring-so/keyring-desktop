@@ -15,7 +15,7 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
-	github.com/status-im/keycard-go v0.2.0
+	github.com/status-im/keycard-go v0.2.1-0.20230817085858-0d3f4e886cf7
 	github.com/stretchr/testify v1.8.1
 	github.com/wailsapp/wails/v2 v2.5.1
 	go.etcd.io/bbolt v1.3.6
