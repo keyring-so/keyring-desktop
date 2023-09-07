@@ -37,7 +37,7 @@ export function Initialize(arg1:string,arg2:string,arg3:number):Promise<string>;
 
 export function Install():Promise<void>;
 
-export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.AccountInfo>;
+export function Pair(arg1:string,arg2:string,arg3:string,arg4:string,arg5:boolean):Promise<main.AccountInfo>;
 
 export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 
