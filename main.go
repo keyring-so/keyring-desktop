@@ -18,6 +18,9 @@ var assets embed.FS
 //go:embed resources
 var resources embed.FS
 
+//go:embed db/migrations
+var migrations embed.FS
+
 type FileLoader struct {
 	http.Handler
 }

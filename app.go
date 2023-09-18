@@ -13,6 +13,7 @@ import (
 	"keyring-desktop/crosschain/chain/evm"
 	"keyring-desktop/crosschain/factory"
 
+	"github.com/kaichaosun/dbmate/pkg/dbmate"
 	"github.com/spf13/viper"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -25,6 +26,7 @@ type App struct {
 	ctx              context.Context
 	chainConfigs     []utils.ChainConfig
 	db               *bolt.DB
+	sqlite           *dbmate.DB
 	crosschainConfig []byte
 }
 
@@ -40,6 +42,7 @@ func (a *App) startup(ctx context.Context) {
 
 	a.ctx = ctx
 	a.db = utils.InitDb()
+	a.sqlite = DbMigrate()
 
 	network, err := database.QueryNetwork(a.db)
 	if err != nil {
