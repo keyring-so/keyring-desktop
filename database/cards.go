@@ -2,11 +2,8 @@ package database
 
 import (
 	"errors"
-	"keyring-desktop/utils"
-	"strings"
 
 	"github.com/jmoiron/sqlx"
-	bolt "go.etcd.io/bbolt"
 	_ "modernc.org/sqlite"
 )
 
@@ -92,59 +89,4 @@ func QueryCard(db *sqlx.DB, cardId int) (*Card, error) {
 	}
 
 	return &card, nil
-}
-
-func QueryChainAssets(db *bolt.DB, account, chain string) (*AccountChainAssets, error) {
-	var address string
-	var assets string
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		address = string(b.Get([]byte(account + "_" + chain + "_address")))
-		assets = string(b.Get([]byte(account + "_" + chain + "_assets")))
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	assetsArray := []string{}
-	if assets != "" {
-		assetsArray = strings.Split(assets, ",")
-	}
-	res := &AccountChainAssets{
-		Address: address,
-		Assets:  assetsArray,
-	}
-
-	return res, nil
-}
-
-func SaveChainAsset(db *bolt.DB, account, chain, asset string) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		assets := string(b.Get([]byte(account + "_" + chain + "_assets")))
-		if assets == "" {
-			assets = asset
-		} else {
-			if !strings.Contains(assets, asset) {
-				assets = assets + "," + asset
-			}
-		}
-		b.Put([]byte(account+"_"+chain+"_assets"), []byte(assets))
-		return nil
-	})
-}
-
-func RemoveChainAsset(db *bolt.DB, account, chain, asset string) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		assets := string(b.Get([]byte(account + "_" + chain + "_assets")))
-		assets = strings.ReplaceAll(assets, asset, "")
-		assets = strings.ReplaceAll(assets, ",,", ",")
-		assets = strings.TrimSuffix(assets, ",")
-		assets = strings.TrimPrefix(assets, ",")
-
-		b.Put([]byte(account+"_"+chain+"_assets"), []byte(assets))
-		return nil
-	})
 }

@@ -19,6 +19,22 @@ func QeuryAccounts(db *sqlx.DB, cardId int) ([]Account, error) {
 	return accounts, nil
 }
 
+func QuerySelectedAccount(db *sqlx.DB, cardId int, chain string) (*Account, error) {
+	account := Account{}
+
+	err := db.Get(
+		&account,
+		"select * from accounts where card_id = ? and chain_name = ? and selected_account = true",
+		cardId,
+		chain,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &account, nil
+}
+
 func UpdateSelectedAccount(db *sqlx.DB, cardId int, chainName string) error {
 	var oldSelectedId int
 	saErr := db.Get(&oldSelectedId, "select account_id from accounts where selected_account = true limit 1")

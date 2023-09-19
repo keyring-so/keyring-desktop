@@ -180,7 +180,7 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 	var lastSelectedChain string
 
 	for _, account := range accounts {
-		if sc, _ := account.SelectedChain.Value(); sc == true {
+		if sc, _ := account.SelectedAccount.Value(); sc == true {
 			lastSelectedChain = account.ChainName
 		}
 		chains = append(chains, account.ChainName)

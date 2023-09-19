@@ -4,7 +4,7 @@ import {main} from '../models';
 import {utils} from '../models';
 import {crosschain} from '../models';
 
-export function AddAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
+export function AddAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<main.ChainAssets>;
 
 export function AddLedger(arg1:number,arg2:string,arg3:string):Promise<string>;
 
@@ -20,7 +20,7 @@ export function GetAddressAndAssets(arg1:number,arg2:string):Promise<main.ChainA
 
 export function GetAllAccounts():Promise<Array<main.CardInfo>>;
 
-export function GetAssetPrices(arg1:string,arg2:string):Promise<main.ChainAssets>;
+export function GetAssetPrices(arg1:number,arg2:string):Promise<main.ChainAssets>;
 
 export function GetChainConfig(arg1:string):Promise<utils.ChainConfig>;
 
@@ -38,7 +38,7 @@ export function Install():Promise<void>;
 
 export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.CardInfo>;
 
-export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
+export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<main.ChainAssets>;
 
 export function Reset(arg1:number,arg2:string):Promise<void>;
 
