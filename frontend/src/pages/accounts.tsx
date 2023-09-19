@@ -34,7 +34,7 @@ const Accounts = () => {
   const [name, setName] = useState("");
   const [cardInitialized, setCardInitialized] = useState(false);
   const [showAddCardDialog, setShowAddCardDialog] = useState(false);
-  const [allAccounts, setAllAccounts] = useState<main.AccountInfo[]>([]);
+  const [allAccounts, setAllAccounts] = useState<main.CardInfo[]>([]);
   const [switchToCard, setSwitchToCard] = useState("");
 
   const setSidebarItem = useSetAtom(showSidebarItem);
@@ -90,8 +90,8 @@ const Accounts = () => {
 
   const handleSwitch = async () => {
     try {
-      if (switchToCard !== "" && switchToCard !== account.id) {
-        const res = await SwitchAccount(switchToCard);
+      if (switchToCard !== "" && switchToCard !== account.id.toString()) {
+        const res = await SwitchAccount(parseInt(switchToCard));
         setAccount(res);
         setSidebarItem("");
       } else {
@@ -168,7 +168,7 @@ const Accounts = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {allAccounts.map((account) => (
-                      <SelectItem value={account.id}>{account.name}</SelectItem>
+                      <SelectItem value={account.id.toString()}>{account.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

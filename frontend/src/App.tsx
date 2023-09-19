@@ -15,18 +15,11 @@ function App() {
   useEffect(() => {
     CurrentAccount()
       .then((res) => setAccount(res))
-      .catch((err) => {
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        });
-      });
   }, []);
 
   return (
     <div>
-      {!account.id && <ConnectPage />}
-      {account.id && <WelcomePage />}
+      {account.id == -1 ? <ConnectPage /> : <WelcomePage />}
       <Toaster />
     </div>
   );

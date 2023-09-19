@@ -15,11 +15,11 @@ export function CheckCardConnection():Promise<boolean>;
 
 export function CheckCardInitialized():Promise<boolean>;
 
-export function CurrentAccount():Promise<main.AccountInfo>;
+export function CurrentAccount():Promise<main.CardInfo>;
 
 export function GetAddressAndAssets(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
-export function GetAllAccounts():Promise<Array<main.AccountInfo>>;
+export function GetAllAccounts():Promise<Array<main.CardInfo>>;
 
 export function GetAssetPrices(arg1:string,arg2:string):Promise<main.ChainAssets>;
 
@@ -37,7 +37,7 @@ export function Initialize(arg1:string,arg2:string,arg3:number):Promise<string>;
 
 export function Install():Promise<void>;
 
-export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.AccountInfo>;
+export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.CardInfo>;
 
 export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 
@@ -45,10 +45,10 @@ export function Reset(arg1:string,arg2:string):Promise<void>;
 
 export function SetNetwork(arg1:string):Promise<void>;
 
-export function SwitchAccount(arg1:string):Promise<main.AccountInfo>;
+export function SwitchAccount(arg1:number):Promise<main.CardInfo>;
 
 export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string):Promise<crosschain.TxHash>;
 
-export function UpdateAccountName(arg1:string,arg2:string):Promise<void>;
+export function UpdateAccountName(arg1:number,arg2:string):Promise<void>;
 
 export function VerifyAddress(arg1:string,arg2:string,arg3:string):Promise<string>;

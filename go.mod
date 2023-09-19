@@ -12,6 +12,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/hashicorp/vault/api v1.9.2
 	github.com/jinzhu/copier v0.3.5
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/kaichaosun/dbmate v0.0.3
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.0
@@ -25,6 +26,7 @@ require (
 	golang.org/x/crypto v0.6.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v2 v2.4.0
+	modernc.org/sqlite v1.25.0
 )
 
 require (
@@ -106,7 +108,6 @@ require (
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.6.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/sqlite v1.25.0 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
 )

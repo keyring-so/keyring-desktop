@@ -13,7 +13,7 @@ import (
 	"keyring-desktop/crosschain/chain/evm"
 	"keyring-desktop/crosschain/factory"
 
-	"github.com/kaichaosun/dbmate/pkg/dbmate"
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -26,7 +26,7 @@ type App struct {
 	ctx              context.Context
 	chainConfigs     []utils.ChainConfig
 	db               *bolt.DB
-	sqlite           *dbmate.DB
+	sqlite           *sqlx.DB
 	crosschainConfig []byte
 }
 
@@ -42,7 +42,17 @@ func (a *App) startup(ctx context.Context) {
 
 	a.ctx = ctx
 	a.db = utils.InitDb()
-	a.sqlite = DbMigrate()
+	DbMigrate()
+
+	sqlDbPath, err := utils.SQLiteDatabasePath()
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	sqlDb, err := sqlx.Connect("sqlite", sqlDbPath)
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	a.sqlite = sqlDb
 
 	network, err := database.QueryNetwork(a.db)
 	if err != nil {
@@ -74,7 +84,7 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin, puk, code, accountName string) (*AccountInfo, error) {
+func (a *App) Pair(pin, puk, code, accountName string) (*CardInfo, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
 	if pin == "" || accountName == "" {

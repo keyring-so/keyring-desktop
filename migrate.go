@@ -8,7 +8,7 @@ import (
 	_ "github.com/kaichaosun/dbmate/pkg/driver/sqlite"
 )
 
-func DbMigrate() *dbmate.DB {
+func DbMigrate() {
 	dbPath, err := utils.SQLiteDatabasePath()
 	if err != nil {
 		utils.Sugar.Fatal(err)
@@ -31,6 +31,4 @@ func DbMigrate() *dbmate.DB {
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
-
-	return db
 }

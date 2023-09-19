@@ -16,7 +16,7 @@ type ChainAssets struct {
 	Assets  []AssetInfo `json:"assets"`
 }
 
-type AccountInfo struct {
-	Id   string `json:"id"`
+type CardInfo struct {
+	Id   int    `json:"id"`
 	Name string `json:"name"`
 }

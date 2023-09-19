@@ -67,7 +67,7 @@ const Settings = () => {
 
   const resetCardAndWallet = async () => {
     try {
-      const _ = await Reset(account.id, pin);
+      const _ = await Reset(account.id.toString(), pin);
       toast({
         title: "Success!",
         description: "Card and wallet is reset.",

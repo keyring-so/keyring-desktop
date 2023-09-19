@@ -112,7 +112,7 @@ function Wallet() {
     const fn = async () => {
       if (account.id && ledger) {
         try {
-          let assets = await GetAddressAndAssets(account.id, ledger);
+          let assets = await GetAddressAndAssets(account.id.toString(), ledger);
           setFromAddr(assets.address);
           setUserAssets(assets.assets);
           if (!assets.address) {
@@ -121,7 +121,7 @@ function Wallet() {
             });
           }
 
-          let prices = await GetAssetPrices(account.id, ledger);
+          let prices = await GetAssetPrices(account.id.toString(), ledger);
           setUserAssets(prices.assets);
         } catch (err) {
           setGetBalanceErr(true);
@@ -200,7 +200,7 @@ function Wallet() {
 
   const transfer = () => {
     setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account.id)
+    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account.id.toString())
       .then((resp) => {
         setLoadingTx(false);
         setTransferOpen(false);
@@ -231,7 +231,7 @@ function Wallet() {
 
   const verifyAddr = async () => {
     try {
-      let addr = await VerifyAddress(account.id, ledger, pin);
+      let addr = await VerifyAddress(account.id.toString(), ledger, pin);
       if (addr === fromAddr) {
         toast({
           title: "Your receive address is verified.",
@@ -258,7 +258,7 @@ function Wallet() {
   const addAsset = async () => {
     try {
       setLoadingAddAsset(true);
-      let res = await AddAsset(account.id, ledger, selectToken!.symbol);
+      let res = await AddAsset(account.id.toString(), ledger, selectToken!.symbol);
       setLoadingAddAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);
@@ -276,7 +276,7 @@ function Wallet() {
   const removeAsset = async (token: string) => {
     try {
       setLoadingRemoveAsset(true);
-      let res = await RemoveAsset(account.id, ledger, token);
+      let res = await RemoveAsset(account.id.toString(), ledger, token);
       setLoadingRemoveAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);

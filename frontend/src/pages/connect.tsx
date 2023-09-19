@@ -131,7 +131,7 @@ function ConnectPage() {
         open={true}
         onOpenChange={() => {
           setMnemonic("");
-          setAccount({id: cardName, name: cardName});
+          setAccount({id: 0, name: cardName}); // TODO 0 is not good
         }}
       >
         <AlertDialogContent className="sm:max-w-[480px]">

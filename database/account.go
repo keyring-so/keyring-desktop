@@ -1,11 +1,84 @@
 package database
 
 import (
+	"database/sql"
 	"keyring-desktop/utils"
 	"strings"
 
+	"github.com/jmoiron/sqlx"
 	bolt "go.etcd.io/bbolt"
+	_ "modernc.org/sqlite"
 )
+
+// create table if not exists cards (
+//     card_id integer primary key,
+//     name text not null unique,
+//     selected boolean not null,
+//     puk text,
+//     pairing_code text,
+//     pairing_key text,
+//     pairing_index integer
+// );
+
+type Card struct {
+	Id          int `db:"card_id"`
+	Name        string
+	Selected    bool
+	Puk         sql.NullString
+	PairingCode sql.NullString `db:"pairing_code"`
+	PairingKey  sql.NullString `db:"pairing_key"`
+	PairingIdx  sql.NullInt32  `db:"pairing_index"`
+}
+
+func QueryCurrentCard(db *sqlx.DB) (*Card, error) {
+	card := Card{}
+
+	err := db.Get(&card, "select * from cards where selected = true limit 1")
+	if err != nil {
+		return nil, err
+	}
+
+	return &card, nil
+}
+
+func QueryAllCards(db *sqlx.DB) ([]Card, error) {
+	cards := []Card{}
+
+	err := db.Select(&cards, "select * from cards")
+	if err != nil {
+		return nil, err
+	}
+
+	return cards, nil
+}
+
+func UpdateCurrentCard(db *sqlx.DB, cardId int) error {
+	var selectedId int
+	err := db.Get(&selectedId, "select card_id from cards where selected = true limit 1")
+	if err != nil {
+		return err
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	tx.Exec(`UPDATE cards SET selected=true WHERE card_id = ?`, cardId)
+	tx.Exec(`UPDATE cards SET selected=false WHERE card_id = ?`, selectedId)
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateCardName(db *sqlx.DB, cardId int, name string) error {
+	_, err := db.Exec(`UPDATE cards SET name=? WHERE card_id = ?`, name, cardId)
+	return err
+}
 
 func QueryCurrentAccount(db *bolt.DB) (string, error) {
 	var account string
