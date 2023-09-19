@@ -84,10 +84,10 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin, puk, code, accountName string) (*CardInfo, error) {
+func (a *App) Pair(pin, puk, code, cardName string) (*CardInfo, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
-	if pin == "" || accountName == "" {
+	if pin == "" || cardName == "" {
 		return nil, errors.New("pin or card name can not be empty")
 	}
 
@@ -117,7 +117,7 @@ func (a *App) Pair(pin, puk, code, accountName string) (*CardInfo, error) {
 		return nil, errors.New("failed to pair with card")
 	}
 
-	err = a.encryptAndSaveCredential(accountName, pin, puk, code, pairingInfo)
+	err = a.encryptAndSaveCredential(cardName, pin, puk, code, pairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
 		err = keyringCard.Unpair(pin, pairingInfo)
@@ -130,7 +130,7 @@ func (a *App) Pair(pin, puk, code, accountName string) (*CardInfo, error) {
 	return a.CurrentAccount()
 }
 
-func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingInfo *types.PairingInfo) error {
+func (a *App) encryptAndSaveCredential(cardName, pin, puk, code string, pairingInfo *types.PairingInfo) error {
 	encryptedPuk, err := utils.Encrypt(pin, puk)
 	if err != nil {
 		utils.Sugar.Error(err)
@@ -155,7 +155,7 @@ func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingIn
 		return errors.New("failed to encrypt Pairing Index")
 	}
 
-	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, encryptedPairingKey, encryptedPairingIndex, account)
+	err = database.SaveCard(a.sqlite, encryptedPuk, enryptedCode, encryptedPairingKey, encryptedPairingIndex, cardName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return err
@@ -504,10 +504,10 @@ func (a *App) CheckCardInitialized() (bool, error) {
 // 2. pair with credentials
 // 3. generate mnemonic
 // 4. load key with mnemonic and fill the private key on the card
-func (a *App) Initialize(pin string, accountName string, checkSumSize int) (string, error) {
+func (a *App) Initialize(pin string, cardName string, checkSumSize int) (string, error) {
 	utils.Sugar.Info("Initialize card")
 
-	if pin == "" || accountName == "" {
+	if pin == "" || cardName == "" {
 		return "", errors.New("pin or card name can not be empty")
 	}
 
@@ -535,7 +535,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 		return "", errors.New("failed to generate key")
 	}
 
-	err = a.encryptAndSaveCredential(accountName, pin, puk, code, res.PairingInfo)
+	err = a.encryptAndSaveCredential(cardName, pin, puk, code, res.PairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
 		errUnpair := keyringCard.Unpair(pin, res.PairingInfo)

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"keyring-desktop/utils"
 	"strings"
 
@@ -8,6 +9,29 @@ import (
 	bolt "go.etcd.io/bbolt"
 	_ "modernc.org/sqlite"
 )
+
+func SaveCard(db *sqlx.DB, puk, code, pairingKey, pairingIndex, name string) error {
+	cards := []Card{}
+
+	err := db.Select(&cards, "select * from cards where name = ?", name)
+	if err != nil {
+		return err
+	}
+	if len(cards) > 0 {
+		return errors.New("card name is already used")
+	}
+
+	_, err = db.Exec(
+		"insert into cards (name, selected, puk, pairing_code, pairing_key, pairing_index) values (?, true, ?, ?, ?, ?)",
+		name, puk, code, pairingKey, pairingIndex,
+	)
+
+	if err == nil {
+		return err
+	}
+
+	return nil
+}
 
 func QueryCurrentCard(db *sqlx.DB) (*Card, error) {
 	card := Card{}

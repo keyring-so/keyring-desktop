@@ -50,14 +50,18 @@ func (a *App) GetChainConfig(chain string) *utils.ChainConfig {
 	return utils.GetChainConfig(a.chainConfigs, chain)
 }
 
-func (a *App) GetCredentials() (*database.AccountCredential, error) {
-	credential, err := database.QueryCurrentAccountCredential(a.db)
+func (a *App) GetCredentials() (*CardCredential, error) {
+	card, err := database.QueryCurrentCard(a.sqlite)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to query credential")
+		return nil, errors.New("failed to query current card")
 	}
 
-	return credential, nil
+	res := CardCredential{
+		Puk:  card.Puk,
+		Code: card.PairingCode,
+	}
+	return &res, nil
 }
 
 // return the address of the selected account and chain

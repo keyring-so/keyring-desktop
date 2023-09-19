@@ -1,22 +1,3 @@
-export namespace database {
-	
-	export class AccountCredential {
-	    puk: string;
-	    code: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new AccountCredential(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.puk = source["puk"];
-	        this.code = source["code"];
-	    }
-	}
-
-}
-
 export namespace main {
 	
 	export class AssetInfo {
@@ -47,6 +28,20 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.chains = source["chains"];
 	        this.lastSelectedChain = source["lastSelectedChain"];
+	    }
+	}
+	export class CardCredential {
+	    puk: string;
+	    code: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CardCredential(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.puk = source["puk"];
+	        this.code = source["code"];
 	    }
 	}
 	export class CardInfo {
