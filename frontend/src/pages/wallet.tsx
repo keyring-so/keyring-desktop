@@ -112,7 +112,7 @@ function Wallet() {
     const fn = async () => {
       if (account.id && ledger) {
         try {
-          let assets = await GetAddressAndAssets(account.id.toString(), ledger);
+          let assets = await GetAddressAndAssets(account.id, ledger);
           setFromAddr(assets.address);
           setUserAssets(assets.assets);
           if (!assets.address) {
@@ -200,7 +200,7 @@ function Wallet() {
 
   const transfer = () => {
     setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account.id.toString())
+    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account.id)
       .then((resp) => {
         setLoadingTx(false);
         setTransferOpen(false);
@@ -231,7 +231,7 @@ function Wallet() {
 
   const verifyAddr = async () => {
     try {
-      let addr = await VerifyAddress(account.id.toString(), ledger, pin);
+      let addr = await VerifyAddress(account.id, ledger, pin);
       if (addr === fromAddr) {
         toast({
           title: "Your receive address is verified.",

@@ -7,7 +7,7 @@ import (
 )
 
 // Reset card will clear keys, PIN, etc.
-func (a *App) Reset(account, pin string) error {
+func (a *App) Reset(cardId int, pin string) error {
 	utils.Sugar.Info("Start to reset card and wallet")
 
 	// connect to card
@@ -19,7 +19,7 @@ func (a *App) Reset(account, pin string) error {
 	defer keyringCard.Release()
 
 	// get pairing info
-	pairingInfo, err := a.getPairingInfo(pin, account)
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return errors.New("failed to get pairing info")

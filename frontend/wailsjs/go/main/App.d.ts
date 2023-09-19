@@ -7,7 +7,7 @@ import {crosschain} from '../models';
 
 export function AddAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 
-export function AddLedger(arg1:string,arg2:string,arg3:string):Promise<string>;
+export function AddLedger(arg1:number,arg2:string,arg3:string):Promise<string>;
 
 export function CalculateFee(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<main.FeeInfo>;
 
@@ -17,7 +17,7 @@ export function CheckCardInitialized():Promise<boolean>;
 
 export function CurrentAccount():Promise<main.CardInfo>;
 
-export function GetAddressAndAssets(arg1:string,arg2:string):Promise<main.ChainAssets>;
+export function GetAddressAndAssets(arg1:number,arg2:string):Promise<main.ChainAssets>;
 
 export function GetAllAccounts():Promise<Array<main.CardInfo>>;
 
@@ -41,14 +41,14 @@ export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<ma
 
 export function RemoveAsset(arg1:string,arg2:string,arg3:string):Promise<main.ChainAssets>;
 
-export function Reset(arg1:string,arg2:string):Promise<void>;
+export function Reset(arg1:number,arg2:string):Promise<void>;
 
 export function SetNetwork(arg1:string):Promise<void>;
 
 export function SwitchAccount(arg1:number):Promise<main.CardInfo>;
 
-export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string):Promise<crosschain.TxHash>;
+export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:number):Promise<crosschain.TxHash>;
 
 export function UpdateAccountName(arg1:number,arg2:string):Promise<void>;
 
-export function VerifyAddress(arg1:string,arg2:string,arg3:string):Promise<string>;
+export function VerifyAddress(arg1:number,arg2:string,arg3:string):Promise<string>;

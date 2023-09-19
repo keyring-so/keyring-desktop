@@ -2,7 +2,7 @@
 create table if not exists assets (
     asset_id integer primary key,
     account_id integer not null,
-    token_contract text not null
+    token_symbol text not null
 );
 
 

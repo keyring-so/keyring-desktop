@@ -75,25 +75,3 @@ func QueryCurrentAccountCredential(db *bolt.DB) (*AccountCredential, error) {
 
 	return QueryCredential(db, account)
 }
-
-func QueryPairingInfo(db *bolt.DB, account string) (*EncryptedPairingInfo, error) {
-	var key string
-	var index string
-
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		key = string(b.Get([]byte(account + "_pairing_key")))
-		index = string(b.Get([]byte(account + "_pairing_index")))
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	enPairingInfo := &EncryptedPairingInfo{
-		Key:   key,
-		Index: index,
-	}
-
-	return enPairingInfo, nil
-}

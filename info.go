@@ -61,14 +61,14 @@ func (a *App) GetCredentials() (*database.AccountCredential, error) {
 }
 
 // return the address of the selected account and chain
-func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, error) {
-	utils.Sugar.Infof("Get account address, %s", account)
+func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error) {
+	utils.Sugar.Infof("Get account address, %s", cardId)
 
-	if account == "" || chain == "" {
-		return nil, errors.New("invalid account or chain")
+	if cardId < 0 || chain == "" {
+		return nil, errors.New("invalid card or chain")
 	}
 
-	chainData, err := database.QueryChainAssets(a.db, account, chain)
+	chainData, err := database.QueryChainAssets(a.db, string(cardId), chain)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
@@ -88,7 +88,7 @@ func (a *App) GetAddressAndAssets(account string, chain string) (*ChainAssets, e
 		Assets:  assets,
 	}
 
-	err = database.SaveLastSelectedChain(a.db, account, chain)
+	err = database.UpdateSelectedAccount(a.sqlite, cardId, chain)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to update database")

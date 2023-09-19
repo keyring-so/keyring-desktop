@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"keyring-desktop/utils"
 	"strings"
 
@@ -9,43 +8,6 @@ import (
 	bolt "go.etcd.io/bbolt"
 	_ "modernc.org/sqlite"
 )
-
-// create table if not exists cards (
-//     card_id integer primary key,
-//     name text not null unique,
-//     selected boolean not null,
-//     puk text,
-//     pairing_code text,
-//     pairing_key text,
-//     pairing_index integer
-// );
-
-type Card struct {
-	Id          int `db:"card_id"`
-	Name        string
-	Selected    bool
-	Puk         sql.NullString
-	PairingCode sql.NullString `db:"pairing_code"`
-	PairingKey  sql.NullString `db:"pairing_key"`
-	PairingIdx  sql.NullInt32  `db:"pairing_index"`
-}
-
-// create table if not exists accounts (
-//
-//	account_id integer primary key,
-//	card_id integer not null,
-//	chain_name text not null,
-//	addr text not null
-//
-// );
-type Account struct {
-	Id              int          `db:"account_id"`
-	CardId          int          `db:"card_id"`
-	ChainName       string       `db:"chain_name"`
-	Address         string       `db:"addr"`
-	SelectedChain   sql.NullBool `db:"selected_chain"`
-	SelectedAccount sql.NullBool `db:"selected_account"`
-}
 
 func QueryCurrentCard(db *sqlx.DB) (*Card, error) {
 	card := Card{}
@@ -81,8 +43,8 @@ func UpdateCurrentCard(db *sqlx.DB, cardId int) error {
 		return err
 	}
 
-	tx.Exec(`UPDATE cards SET selected=true WHERE card_id = ?`, cardId)
-	tx.Exec(`UPDATE cards SET selected=false WHERE card_id = ?`, selectedId)
+	tx.Exec(`UPDATE cards SET selected = true WHERE card_id = ?`, cardId)
+	tx.Exec(`UPDATE cards SET selected = false WHERE card_id = ?`, selectedId)
 
 	err = tx.Commit()
 	if err != nil {
@@ -95,6 +57,17 @@ func UpdateCurrentCard(db *sqlx.DB, cardId int) error {
 func UpdateCardName(db *sqlx.DB, cardId int, name string) error {
 	_, err := db.Exec(`UPDATE cards SET name=? WHERE card_id = ?`, name, cardId)
 	return err
+}
+
+func QueryCard(db *sqlx.DB, cardId int) (*Card, error) {
+	card := Card{}
+
+	err := db.Get(&card, "select * from cards where cardId = ?", cardId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &card, nil
 }
 
 func QueryChainAssets(db *bolt.DB, account, chain string) (*AccountChainAssets, error) {
@@ -120,33 +93,6 @@ func QueryChainAssets(db *bolt.DB, account, chain string) (*AccountChainAssets, 
 	}
 
 	return res, nil
-}
-
-func SaveLastSelectedChain(db *bolt.DB, account, chain string) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
-		return nil
-	})
-}
-
-func SaveChainAddress(db *bolt.DB, account, chain, address string) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(account+"last_selected_chain"), []byte(chain))
-		b.Put([]byte(account+"_"+chain+"_address"), []byte(address))
-		b.Put([]byte(account+"_"+chain+"_assets"), []byte(chain))
-		chains := string(b.Get([]byte(account + "_chains")))
-		if chains == "" {
-			chains = chain
-		} else {
-			if !strings.Contains(chains, chain) {
-				chains = chains + "," + chain
-			}
-		}
-		b.Put([]byte(account+"_chains"), []byte(chains))
-		return nil
-	})
 }
 
 func SaveChainAsset(db *bolt.DB, account, chain, asset string) error {
@@ -175,14 +121,6 @@ func RemoveChainAsset(db *bolt.DB, account, chain, asset string) error {
 		assets = strings.TrimPrefix(assets, ",")
 
 		b.Put([]byte(account+"_"+chain+"_assets"), []byte(assets))
-		return nil
-	})
-}
-
-func UpdateAccountName(db *bolt.DB, accountId, accountName string) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		b.Put([]byte(accountId+"_name"), []byte(accountName))
 		return nil
 	})
 }

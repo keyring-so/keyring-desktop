@@ -66,7 +66,7 @@ function WelcomePage() {
 
   const addLedger = async () => {
     try {
-      let _ = await AddLedger(account.id.toString(), ledgerCandidate, pin);
+      let _ = await AddLedger(account.id, ledgerCandidate, pin);
       let chains = await GetChains(account.id);
       setChains(chains.chains);
       setLedger(chains.lastSelectedChain);

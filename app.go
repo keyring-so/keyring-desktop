@@ -194,20 +194,20 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 }
 
 // generate a new address for the selected account and chain
-func (a *App) AddLedger(account string, chain string, pin string) (string, error) {
+func (a *App) AddLedger(cardId int, chain string, pin string) (string, error) {
 	utils.Sugar.Infow("Generate account address",
-		"account", account,
+		"card", cardId,
 		"chain", chain,
 	)
 
-	address, err := a.getAddrFromCard(account, chain, pin)
+	address, err := a.getAddrFromCard(cardId, chain, pin)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get address from card")
 	}
 
 	// save slected chain and address
-	err = database.SaveChainAddress(a.db, account, chain, address)
+	err = database.SaveChainAccount(a.sqlite, cardId, chain, address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to update database")
@@ -216,13 +216,13 @@ func (a *App) AddLedger(account string, chain string, pin string) (string, error
 	return address, nil
 }
 
-func (a *App) VerifyAddress(account string, chain string, pin string) (string, error) {
+func (a *App) VerifyAddress(cardId int, chain string, pin string) (string, error) {
 	utils.Sugar.Infow("Verify account address",
-		"account", account,
+		"card", cardId,
 		"chain", chain,
 	)
 
-	address, err := a.getAddrFromCard(account, chain, pin)
+	address, err := a.getAddrFromCard(cardId, chain, pin)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get address from card")
@@ -231,9 +231,9 @@ func (a *App) VerifyAddress(account string, chain string, pin string) (string, e
 	return address, nil
 }
 
-func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
-	if account == "" || chain == "" {
-		return "", errors.New("invalid account or chain")
+func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
+	if cardId < 0 || chain == "" {
+		return "", errors.New("invalid card or chain")
 	}
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
 	if chainConfig == nil {
@@ -249,7 +249,7 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 	defer keyringCard.Release()
 
 	// get pairing info
-	pairingInfo, err := a.getPairingInfo(pin, account)
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get pairing info")
@@ -265,19 +265,19 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 	return address, nil
 }
 
-func (a *App) getPairingInfo(pin, account string) (*types.PairingInfo, error) {
-	enPairingInfo, err := database.QueryPairingInfo(a.db, account)
+func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error) {
+	card, err := database.QueryCard(a.sqlite, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read pairing info")
 	}
-	pairingKey, err := utils.Decrypt(pin, enPairingInfo.Key)
+	pairingKey, err := utils.Decrypt(pin, card.PairingKey)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to decrypt pairing key")
 	}
 
-	pairingIndex, err := utils.Decrypt(pin, enPairingInfo.Index)
+	pairingIndex, err := utils.Decrypt(pin, card.PairingIdx)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to decrypt pairing index")
@@ -352,7 +352,7 @@ func (a *App) Transfer(
 	amount string,
 	tip string,
 	pin string,
-	account string,
+	cardId int,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
 	if from == "" || to == "" || amount == "" || pin == "" {
@@ -438,7 +438,7 @@ func (a *App) Transfer(
 	defer keyringCard.Release()
 
 	// get pairing info
-	pairingInfo, err := a.getPairingInfo(pin, account)
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get pairing info")
