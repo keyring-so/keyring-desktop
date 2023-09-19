@@ -51,7 +51,7 @@ function WelcomePage() {
 
   // get chains of the account
   useEffect(() => {
-    GetChains(account.id.toString())
+    GetChains(account.id)
       .then((chains) => {
         setLedger(chains.lastSelectedChain);
         setChains(chains.chains);
@@ -67,7 +67,7 @@ function WelcomePage() {
   const addLedger = async () => {
     try {
       let _ = await AddLedger(account.id.toString(), ledgerCandidate, pin);
-      let chains = await GetChains(account.id.toString());
+      let chains = await GetChains(account.id);
       setChains(chains.chains);
       setLedger(chains.lastSelectedChain);
     } catch (err) {

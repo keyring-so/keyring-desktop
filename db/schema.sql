@@ -13,7 +13,7 @@ CREATE TABLE accounts (
     card_id integer not null,
     chain_name text not null,
     addr text not null
-);
+, selected_chain boolean, selected_account boolean);
 CREATE TABLE assets (
     asset_id integer primary key,
     account_id integer not null,
@@ -23,4 +23,5 @@ CREATE TABLE assets (
 INSERT INTO "schema_migrations" (version) VALUES
   ('20230908080559'),
   ('20230908101337'),
-  ('20230908101344');
+  ('20230908101344'),
+  ('20230919073205');

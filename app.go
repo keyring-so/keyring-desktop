@@ -165,17 +165,32 @@ func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingIn
 }
 
 // add a new chain if not exist
-func (a *App) GetChains(account string) (*database.AccountChainInfo, error) {
+func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 	utils.Sugar.Info("Check if there is chain added already")
 
-	chains, err := database.QueryChains(a.db, account)
+	accounts, err := database.QeuryAccounts(a.sqlite, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to query current account")
+		return nil, errors.New("failed to query accounts")
 	}
 
-	utils.Sugar.Infof("The chains are: %s", chains)
-	return chains, nil
+	utils.Sugar.Infof("The chains are: %s", accounts)
+
+	var chains []string
+	var lastSelectedChain string
+
+	for _, account := range accounts {
+		if sc, _ := account.SelectedChain.Value(); sc == true {
+			lastSelectedChain = account.ChainName
+		}
+		chains = append(chains, account.ChainName)
+	}
+
+	res := CardChainInfo{
+		Chains:            chains,
+		LastSelectedChain: lastSelectedChain,
+	}
+	return &res, nil
 }
 
 // generate a new address for the selected account and chain

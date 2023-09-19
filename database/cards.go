@@ -30,6 +30,23 @@ type Card struct {
 	PairingIdx  sql.NullInt32  `db:"pairing_index"`
 }
 
+// create table if not exists accounts (
+//
+//	account_id integer primary key,
+//	card_id integer not null,
+//	chain_name text not null,
+//	addr text not null
+//
+// );
+type Account struct {
+	Id              int          `db:"account_id"`
+	CardId          int          `db:"card_id"`
+	ChainName       string       `db:"chain_name"`
+	Address         string       `db:"addr"`
+	SelectedChain   sql.NullBool `db:"selected_chain"`
+	SelectedAccount sql.NullBool `db:"selected_account"`
+}
+
 func QueryCurrentCard(db *sqlx.DB) (*Card, error) {
 	card := Card{}
 
@@ -78,73 +95,6 @@ func UpdateCurrentCard(db *sqlx.DB, cardId int) error {
 func UpdateCardName(db *sqlx.DB, cardId int, name string) error {
 	_, err := db.Exec(`UPDATE cards SET name=? WHERE card_id = ?`, name, cardId)
 	return err
-}
-
-func QueryCurrentAccount(db *bolt.DB) (string, error) {
-	var account string
-
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		account = string(b.Get([]byte(utils.DbCurrentAccountKey)))
-		return nil
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return account, nil
-}
-
-func SaveCurrentAccount(db *bolt.DB, accountId string) error {
-	err := db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		return b.Put([]byte(utils.DbCurrentAccountKey), []byte(accountId))
-	})
-
-	return err
-}
-
-func QueryAllAccounts(db *bolt.DB) ([]string, error) {
-	var accounts string
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		accounts = string(b.Get([]byte(utils.DbAllAccountsKey)))
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	arr := []string{}
-	if accounts != "" {
-		arr = strings.Split(accounts, ",")
-	}
-	return arr, nil
-}
-
-func QueryChains(db *bolt.DB, account string) (*AccountChainInfo, error) {
-	var chains string
-	var lastSelectedChain string
-
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		lastSelectedChain = string(b.Get([]byte(account + "last_selected_chain")))
-		chains = string(b.Get([]byte(account + "_chains")))
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	chainArray := []string{}
-	if chains != "" {
-		chainArray = strings.Split(chains, ",")
-	}
-	res := &AccountChainInfo{
-		Chains:            chainArray,
-		LastSelectedChain: lastSelectedChain,
-	}
-	return res, nil
 }
 
 func QueryChainAssets(db *bolt.DB, account, chain string) (*AccountChainAssets, error) {
@@ -235,19 +185,4 @@ func UpdateAccountName(db *bolt.DB, accountId, accountName string) error {
 		b.Put([]byte(accountId+"_name"), []byte(accountName))
 		return nil
 	})
-}
-
-func QueryAccountName(db *bolt.DB, accountId string) (string, error) {
-	var name string
-
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(utils.BucketName))
-		name = string(b.Get([]byte(accountId + "_name")))
-		return nil
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return name, nil
 }

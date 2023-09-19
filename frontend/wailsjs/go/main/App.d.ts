@@ -27,7 +27,7 @@ export function GetChainConfig(arg1:string):Promise<utils.ChainConfig>;
 
 export function GetChainConfigs():Promise<Array<utils.ChainConfig>>;
 
-export function GetChains(arg1:string):Promise<database.AccountChainInfo>;
+export function GetChains(arg1:number):Promise<main.CardChainInfo>;
 
 export function GetCredentials():Promise<database.AccountCredential>;
 

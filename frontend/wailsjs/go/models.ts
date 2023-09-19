@@ -1,19 +1,5 @@
 export namespace database {
 	
-	export class AccountChainInfo {
-	    chains: string[];
-	    lastSelectedChain: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new AccountChainInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.chains = source["chains"];
-	        this.lastSelectedChain = source["lastSelectedChain"];
-	    }
-	}
 	export class AccountCredential {
 	    puk: string;
 	    code: string;
@@ -47,6 +33,20 @@ export namespace main {
 	        this.name = source["name"];
 	        this.balance = source["balance"];
 	        this.price = source["price"];
+	    }
+	}
+	export class CardChainInfo {
+	    chains: string[];
+	    lastSelectedChain: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CardChainInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.chains = source["chains"];
+	        this.lastSelectedChain = source["lastSelectedChain"];
 	    }
 	}
 	export class CardInfo {

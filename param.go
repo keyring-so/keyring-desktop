@@ -20,3 +20,8 @@ type CardInfo struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
+
+type CardChainInfo struct {
+	Chains            []string `json:"chains"`
+	LastSelectedChain string   `json:"lastSelectedChain"`
+}
