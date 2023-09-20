@@ -1,21 +1,27 @@
 package database
 
-type AccountChainInfo struct {
-	Chains            []string `json:"chains"`
-	LastSelectedChain string   `json:"lastSelectedChain"`
+import "database/sql"
+
+type Card struct {
+	Id          int `db:"card_id"`
+	Name        string
+	Selected    bool
+	Puk         string
+	PairingCode string `db:"pairing_code"`
+	PairingKey  string `db:"pairing_key"`
+	PairingIdx  string `db:"pairing_index"`
 }
 
-type AccountCredential struct {
-	Puk  string `json:"puk"`
-	Code string `json:"code"`
+type Account struct {
+	Id              int          `db:"account_id"`
+	CardId          int          `db:"card_id"`
+	ChainName       string       `db:"chain_name"`
+	Address         string       `db:"address"`
+	SelectedAccount sql.NullBool `db:"selected_account"`
 }
 
-type EncryptedPairingInfo struct {
-	Key   string
-	Index string
-}
-
-type AccountChainAssets struct {
-	Address string   `json:"address"`
-	Assets  []string `json:"assets"`
+type Asset struct {
+	Id          int    `db:"asset_id"`
+	AccountId   int    `db:"account_id"`
+	TokenSymbol string `db:"token_symbol"`
 }

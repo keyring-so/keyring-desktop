@@ -84,12 +84,12 @@ const InitializeDialog = ({ handleClose }: Props) => {
 
   const initCard = async (data: z.infer<typeof InitCardSchema>) => {
     try {
-      const words = await Initialize(
+      const res = await Initialize(
         data.pin,
         data.name,
         parseInt(data.checksum)
       );
-      setMnemonic(words);
+      setMnemonic(res.mnemonic);
       toast({
         title: "Success!",
         description: "Card is initialized.",

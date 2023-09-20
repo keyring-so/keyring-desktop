@@ -3,3 +3,4 @@ node_modules
 frontend/dist
 *.db
 **/.DS_Store
+**/*.sqlite3

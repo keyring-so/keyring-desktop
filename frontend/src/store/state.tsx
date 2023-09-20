@@ -3,7 +3,7 @@ import { main, utils } from "../../wailsjs/go/models";
 
 export const ledgerAtom = atom("");
 
-export const accountAtom = atom<main.AccountInfo>({id: "", name: ""});
+export const accountAtom = atom<main.CardInfo>({id: -1, name: ""});
 
 export const showNewLedgerAtom = atom(false);
 

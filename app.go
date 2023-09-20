@@ -13,6 +13,7 @@ import (
 	"keyring-desktop/crosschain/chain/evm"
 	"keyring-desktop/crosschain/factory"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -25,6 +26,7 @@ type App struct {
 	ctx              context.Context
 	chainConfigs     []utils.ChainConfig
 	db               *bolt.DB
+	sqlite           *sqlx.DB
 	crosschainConfig []byte
 }
 
@@ -37,9 +39,21 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	utils.SetupLog()
+	utils.Sugar.Info("starting app...")
 
 	a.ctx = ctx
 	a.db = utils.InitDb()
+	DbMigrate()
+
+	sqlDbPath, err := utils.SQLiteDatabasePath()
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	sqlDb, err := sqlx.Connect("sqlite", sqlDbPath)
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	a.sqlite = sqlDb
 
 	network, err := database.QueryNetwork(a.db)
 	if err != nil {
@@ -71,10 +85,10 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 // start to pair a new card
-func (a *App) Pair(pin, puk, code, accountName string) (*AccountInfo, error) {
+func (a *App) Pair(pin, puk, code, cardName string) (*CardInfo, error) {
 	utils.Sugar.Info("Pairing with smart card")
 
-	if pin == "" || accountName == "" {
+	if pin == "" || cardName == "" {
 		return nil, errors.New("pin or card name can not be empty")
 	}
 
@@ -104,7 +118,7 @@ func (a *App) Pair(pin, puk, code, accountName string) (*AccountInfo, error) {
 		return nil, errors.New("failed to pair with card")
 	}
 
-	err = a.encryptAndSaveCredential(accountName, pin, puk, code, pairingInfo)
+	err = a.encryptAndSaveCredential(cardName, pin, puk, code, pairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
 		err = keyringCard.Unpair(pin, pairingInfo)
@@ -117,7 +131,7 @@ func (a *App) Pair(pin, puk, code, accountName string) (*AccountInfo, error) {
 	return a.CurrentAccount()
 }
 
-func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingInfo *types.PairingInfo) error {
+func (a *App) encryptAndSaveCredential(cardName, pin, puk, code string, pairingInfo *types.PairingInfo) error {
 	encryptedPuk, err := utils.Encrypt(pin, puk)
 	if err != nil {
 		utils.Sugar.Error(err)
@@ -142,7 +156,7 @@ func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingIn
 		return errors.New("failed to encrypt Pairing Index")
 	}
 
-	err = database.SaveCredential(a.db, encryptedPuk, enryptedCode, encryptedPairingKey, encryptedPairingIndex, account)
+	err = database.SaveCard(a.sqlite, encryptedPuk, enryptedCode, encryptedPairingKey, encryptedPairingIndex, cardName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return err
@@ -152,49 +166,64 @@ func (a *App) encryptAndSaveCredential(account, pin, puk, code string, pairingIn
 }
 
 // add a new chain if not exist
-func (a *App) GetChains(account string) (*database.AccountChainInfo, error) {
+func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 	utils.Sugar.Info("Check if there is chain added already")
 
-	chains, err := database.QueryChains(a.db, account)
+	accounts, err := database.QeuryAccounts(a.sqlite, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to query current account")
+		return nil, errors.New("failed to query accounts")
 	}
 
-	utils.Sugar.Infof("The chains are: %s", chains)
-	return chains, nil
+	utils.Sugar.Infof("The chains are: %v", accounts)
+
+	chains := []string{}
+	var lastSelectedChain string
+
+	for _, account := range accounts {
+		if sc, _ := account.SelectedAccount.Value(); sc == true {
+			lastSelectedChain = account.ChainName
+		}
+		chains = append(chains, account.ChainName)
+	}
+
+	res := CardChainInfo{
+		Chains:            chains,
+		LastSelectedChain: lastSelectedChain,
+	}
+	return &res, nil
 }
 
 // generate a new address for the selected account and chain
-func (a *App) AddLedger(account string, chain string, pin string) (string, error) {
+func (a *App) AddLedger(cardId int, chain string, pin string) (string, error) {
 	utils.Sugar.Infow("Generate account address",
-		"account", account,
+		"card", cardId,
 		"chain", chain,
 	)
 
-	address, err := a.getAddrFromCard(account, chain, pin)
+	address, err := a.getAddrFromCard(cardId, chain, pin)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get address from card")
 	}
 
 	// save slected chain and address
-	err = database.SaveChainAddress(a.db, account, chain, address)
+	err = database.SaveChainAccount(a.sqlite, cardId, chain, address)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to update database")
+		return "", errors.New("failed to save chain to database")
 	}
 
 	return address, nil
 }
 
-func (a *App) VerifyAddress(account string, chain string, pin string) (string, error) {
+func (a *App) VerifyAddress(cardId int, chain string, pin string) (string, error) {
 	utils.Sugar.Infow("Verify account address",
-		"account", account,
+		"card", cardId,
 		"chain", chain,
 	)
 
-	address, err := a.getAddrFromCard(account, chain, pin)
+	address, err := a.getAddrFromCard(cardId, chain, pin)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get address from card")
@@ -203,9 +232,9 @@ func (a *App) VerifyAddress(account string, chain string, pin string) (string, e
 	return address, nil
 }
 
-func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
-	if account == "" || chain == "" {
-		return "", errors.New("invalid account or chain")
+func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
+	if cardId < 0 || chain == "" {
+		return "", errors.New("invalid card or chain")
 	}
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
 	if chainConfig == nil {
@@ -221,10 +250,10 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 	defer keyringCard.Release()
 
 	// get pairing info
-	pairingInfo, err := a.getPairingInfo(pin, account)
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to get pairing info")
+		return "", err
 	}
 
 	address, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
@@ -237,19 +266,19 @@ func (a *App) getAddrFromCard(account, chain, pin string) (string, error) {
 	return address, nil
 }
 
-func (a *App) getPairingInfo(pin, account string) (*types.PairingInfo, error) {
-	enPairingInfo, err := database.QueryPairingInfo(a.db, account)
+func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error) {
+	card, err := database.QueryCard(a.sqlite, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read pairing info")
 	}
-	pairingKey, err := utils.Decrypt(pin, enPairingInfo.Key)
+	pairingKey, err := utils.Decrypt(pin, card.PairingKey)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to decrypt pairing key")
 	}
 
-	pairingIndex, err := utils.Decrypt(pin, enPairingInfo.Index)
+	pairingIndex, err := utils.Decrypt(pin, card.PairingIdx)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to decrypt pairing index")
@@ -324,7 +353,7 @@ func (a *App) Transfer(
 	amount string,
 	tip string,
 	pin string,
-	account string,
+	cardId int,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
 	if from == "" || to == "" || amount == "" || pin == "" {
@@ -410,7 +439,7 @@ func (a *App) Transfer(
 	defer keyringCard.Release()
 
 	// get pairing info
-	pairingInfo, err := a.getPairingInfo(pin, account)
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get pairing info")
@@ -476,11 +505,11 @@ func (a *App) CheckCardInitialized() (bool, error) {
 // 2. pair with credentials
 // 3. generate mnemonic
 // 4. load key with mnemonic and fill the private key on the card
-func (a *App) Initialize(pin string, accountName string, checkSumSize int) (string, error) {
+func (a *App) Initialize(pin string, cardName string, checkSumSize int) (*InitCardResponse, error) {
 	utils.Sugar.Info("Initialize card")
 
-	if pin == "" || accountName == "" {
-		return "", errors.New("pin or card name can not be empty")
+	if pin == "" || cardName == "" {
+		return nil, errors.New("pin or card name can not be empty")
 	}
 
 	puk := utils.GenPuk()
@@ -490,7 +519,7 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return nil, errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
 
@@ -498,16 +527,16 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 	err = keyringCard.Init(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to init card")
+		return nil, errors.New("failed to init card")
 	}
 
 	res, err := keyringCard.GenerateKey(pin, puk, code, checkSumSize)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to generate key")
+		return nil, errors.New("failed to generate key")
 	}
 
-	err = a.encryptAndSaveCredential(accountName, pin, puk, code, res.PairingInfo)
+	err = a.encryptAndSaveCredential(cardName, pin, puk, code, res.PairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
 		errUnpair := keyringCard.Unpair(pin, res.PairingInfo)
@@ -516,10 +545,21 @@ func (a *App) Initialize(pin string, accountName string, checkSumSize int) (stri
 		}
 
 		// TODO uninit the card, and remove the key
-		return "", err
+		return nil, err
 	}
 
-	return res.Mnemonic, nil
+	currentCard, err := a.CurrentAccount()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, err
+	}
+
+	initCardRes := InitCardResponse{
+		Mnemonic: res.Mnemonic,
+		CardInfo: *currentCard,
+	}
+
+	return &initCardRes, nil
 }
 
 // Remove existing applet, and install the selected applet.

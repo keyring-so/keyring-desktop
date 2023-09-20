@@ -1,52 +1,5 @@
-export namespace database {
-	
-	export class AccountChainInfo {
-	    chains: string[];
-	    lastSelectedChain: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new AccountChainInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.chains = source["chains"];
-	        this.lastSelectedChain = source["lastSelectedChain"];
-	    }
-	}
-	export class AccountCredential {
-	    puk: string;
-	    code: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new AccountCredential(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.puk = source["puk"];
-	        this.code = source["code"];
-	    }
-	}
-
-}
-
 export namespace main {
 	
-	export class AccountInfo {
-	    id: string;
-	    name: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new AccountInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
-	        this.name = source["name"];
-	    }
-	}
 	export class AssetInfo {
 	    name: string;
 	    balance?: string;
@@ -61,6 +14,48 @@ export namespace main {
 	        this.name = source["name"];
 	        this.balance = source["balance"];
 	        this.price = source["price"];
+	    }
+	}
+	export class CardChainInfo {
+	    chains: string[];
+	    lastSelectedChain: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CardChainInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.chains = source["chains"];
+	        this.lastSelectedChain = source["lastSelectedChain"];
+	    }
+	}
+	export class CardCredential {
+	    puk: string;
+	    code: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CardCredential(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.puk = source["puk"];
+	        this.code = source["code"];
+	    }
+	}
+	export class CardInfo {
+	    id: number;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CardInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
 	    }
 	}
 	export class ChainAssets {
@@ -108,6 +103,38 @@ export namespace main {
 	        this.base = source["base"];
 	        this.tip = source["tip"];
 	    }
+	}
+	export class InitCardResponse {
+	    mnemonic: string;
+	    cardInfo: CardInfo;
+	
+	    static createFrom(source: any = {}) {
+	        return new InitCardResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.mnemonic = source["mnemonic"];
+	        this.cardInfo = this.convertValues(source["cardInfo"], CardInfo);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

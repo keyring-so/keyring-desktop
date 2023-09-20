@@ -17,3 +17,24 @@ to this in your browser, and you can call your Go code from devtools.
 ## Building
 
 To build a redistributable, production mode package, use `wails build`.
+
+## Database Migrations
+
+Create a new migration file in `db/migrations`
+
+```
+dbmate new create_accounts_table
+```
+
+## Integration Test
+
+- Connect your card
+  - initialize
+    - input your pin (input)
+    - name the card (input)
+    - submit
+    - success, card is initialized (toast)
+    - keep your secret words safe (dialog)
+    - I have written it down (button)
+    - welcome page
+  - pair

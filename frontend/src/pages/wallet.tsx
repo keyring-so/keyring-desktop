@@ -258,7 +258,7 @@ function Wallet() {
   const addAsset = async () => {
     try {
       setLoadingAddAsset(true);
-      let res = await AddAsset(account.id, ledger, selectToken!.symbol);
+      let res = await AddAsset(account.id, ledger, fromAddr, selectToken!.symbol);
       setLoadingAddAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);
@@ -276,7 +276,7 @@ function Wallet() {
   const removeAsset = async (token: string) => {
     try {
       setLoadingRemoveAsset(true);
-      let res = await RemoveAsset(account.id, ledger, token);
+      let res = await RemoveAsset(account.id, ledger, fromAddr, token);
       setLoadingRemoveAsset(false);
       setFromAddr(res.address);
       setUserAssets(res.assets);

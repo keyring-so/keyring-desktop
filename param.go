@@ -16,7 +16,22 @@ type ChainAssets struct {
 	Assets  []AssetInfo `json:"assets"`
 }
 
-type AccountInfo struct {
-	Id   string `json:"id"`
+type CardInfo struct {
+	Id   int    `json:"id"`
 	Name string `json:"name"`
+}
+
+type CardChainInfo struct {
+	Chains            []string `json:"chains"`
+	LastSelectedChain string   `json:"lastSelectedChain"`
+}
+
+type CardCredential struct {
+	Puk  string `json:"puk"`
+	Code string `json:"code"`
+}
+
+type InitCardResponse struct {
+	Mnemonic string   `json:"mnemonic"`
+	CardInfo CardInfo `json:"cardInfo"`
 }

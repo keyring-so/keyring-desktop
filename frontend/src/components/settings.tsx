@@ -6,7 +6,7 @@ import {
   Reset,
   SetNetwork,
 } from "@/../wailsjs/go/main/App";
-import { database } from "@/../wailsjs/go/models";
+import { main } from "@/../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +30,7 @@ import { Input } from "./ui/input";
 
 const Settings = () => {
   const [credentials, setCredentials] = useState<
-    database.AccountCredential | undefined
+    main.CardCredential | undefined
   >(undefined);
   const [pin, setPin] = useState("");
 

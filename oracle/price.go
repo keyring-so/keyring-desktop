@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"keyring-desktop/database"
 	"keyring-desktop/utils"
 	"net/http"
 	"strings"
@@ -14,24 +15,24 @@ type Price struct {
 	Usd float32 `json:"usd"`
 }
 
-func GetPrice(assets []string, config []utils.ChainConfig) (map[string]Price, error) {
+func GetPrice(assets []database.Asset, config []utils.ChainConfig) (map[string]Price, error) {
 	ids := make([]string, len(assets))
 	priceIdsMap := map[string]string{}
 	for i, asset := range assets {
 		var id string
 		for _, c := range config {
-			if c.Symbol == asset {
+			if c.Symbol == asset.TokenSymbol {
 				id = c.PriceId
 				ids[i] = id
-				priceIdsMap[id] = asset
+				priceIdsMap[id] = asset.TokenSymbol
 				break
 			}
 
 			for _, t := range c.Tokens {
-				if t.Symbol == asset {
+				if t.Symbol == asset.TokenSymbol {
 					id = t.PriceId
 					ids[i] = id
-					priceIdsMap[id] = asset
+					priceIdsMap[id] = asset.TokenSymbol
 					break
 				}
 			}
