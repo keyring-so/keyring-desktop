@@ -39,6 +39,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	utils.SetupLog()
+	utils.Sugar.Info("starting app...")
 
 	a.ctx = ctx
 	a.db = utils.InitDb()
@@ -174,9 +175,9 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 		return nil, errors.New("failed to query accounts")
 	}
 
-	utils.Sugar.Infof("The chains are: %s", accounts)
+	utils.Sugar.Infof("The chains are: %v", accounts)
 
-	var chains []string
+	chains := []string{}
 	var lastSelectedChain string
 
 	for _, account := range accounts {
@@ -210,7 +211,7 @@ func (a *App) AddLedger(cardId int, chain string, pin string) (string, error) {
 	err = database.SaveChainAccount(a.sqlite, cardId, chain, address)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to update database")
+		return "", errors.New("failed to save chain to database")
 	}
 
 	return address, nil
@@ -252,7 +253,7 @@ func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
 	pairingInfo, err := a.getPairingInfo(pin, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to get pairing info")
+		return "", err
 	}
 
 	address, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
@@ -504,11 +505,11 @@ func (a *App) CheckCardInitialized() (bool, error) {
 // 2. pair with credentials
 // 3. generate mnemonic
 // 4. load key with mnemonic and fill the private key on the card
-func (a *App) Initialize(pin string, cardName string, checkSumSize int) (string, error) {
+func (a *App) Initialize(pin string, cardName string, checkSumSize int) (*InitCardResponse, error) {
 	utils.Sugar.Info("Initialize card")
 
 	if pin == "" || cardName == "" {
-		return "", errors.New("pin or card name can not be empty")
+		return nil, errors.New("pin or card name can not be empty")
 	}
 
 	puk := utils.GenPuk()
@@ -518,7 +519,7 @@ func (a *App) Initialize(pin string, cardName string, checkSumSize int) (string,
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return nil, errors.New("failed to connect to card")
 	}
 	defer keyringCard.Release()
 
@@ -526,13 +527,13 @@ func (a *App) Initialize(pin string, cardName string, checkSumSize int) (string,
 	err = keyringCard.Init(pin, puk, code)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to init card")
+		return nil, errors.New("failed to init card")
 	}
 
 	res, err := keyringCard.GenerateKey(pin, puk, code, checkSumSize)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to generate key")
+		return nil, errors.New("failed to generate key")
 	}
 
 	err = a.encryptAndSaveCredential(cardName, pin, puk, code, res.PairingInfo)
@@ -544,10 +545,21 @@ func (a *App) Initialize(pin string, cardName string, checkSumSize int) (string,
 		}
 
 		// TODO uninit the card, and remove the key
-		return "", err
+		return nil, err
 	}
 
-	return res.Mnemonic, nil
+	currentCard, err := a.CurrentAccount()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, err
+	}
+
+	initCardRes := InitCardResponse{
+		Mnemonic: res.Mnemonic,
+		CardInfo: *currentCard,
+	}
+
+	return &initCardRes, nil
 }
 
 // Remove existing applet, and install the selected applet.

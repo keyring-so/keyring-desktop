@@ -7,7 +7,7 @@ import (
 
 func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset string) error {
 	var accountId int
-	err := db.Get(&accountId, "select account_id from accounts where cardId = ? and chain_name = ? and addr = ?", cardId, chain, address)
+	err := db.Get(&accountId, "select account_id from accounts where card_id = ? and chain_name = ? and address = ?", cardId, chain, address)
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset string) error {
 
 func QueryAssets(db *sqlx.DB, cardId int, chain, address string) ([]Asset, error) {
 	var accountId int
-	err := db.Get(&accountId, "select account_id from accounts where cardId = ? and chain_name = ? and addr = ?", cardId, chain, address)
+	err := db.Get(&accountId, "select account_id from accounts where card_id = ? and chain_name = ? and address = ?", cardId, chain, address)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func QueryAssets(db *sqlx.DB, cardId int, chain, address string) ([]Asset, error
 
 func RemoveAsset(db *sqlx.DB, cardId int, chain, address, asset string) error {
 	var accountId int
-	err := db.Get(&accountId, "select account_id from accounts where cardId = ? and chain_name = ? and addr = ?", cardId, chain, address)
+	err := db.Get(&accountId, "select account_id from accounts where card_id = ? and chain_name = ? and address = ?", cardId, chain, address)
 	if err != nil {
 		return err
 	}

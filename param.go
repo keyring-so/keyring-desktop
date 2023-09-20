@@ -30,3 +30,8 @@ type CardCredential struct {
 	Puk  string `json:"puk"`
 	Code string `json:"code"`
 }
+
+type InitCardResponse struct {
+	Mnemonic string   `json:"mnemonic"`
+	CardInfo CardInfo `json:"cardInfo"`
+}

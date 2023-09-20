@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"errors"
 
 	"github.com/jmoiron/sqlx"
@@ -19,12 +18,12 @@ func QeuryAccounts(db *sqlx.DB, cardId int) ([]Account, error) {
 	return accounts, nil
 }
 
-func QuerySelectedAccount(db *sqlx.DB, cardId int, chain string) (*Account, error) {
+func QueryChainAccount(db *sqlx.DB, cardId int, chain string) (*Account, error) {
 	account := Account{}
 
 	err := db.Get(
 		&account,
-		"select * from accounts where card_id = ? and chain_name = ? and selected_account = true",
+		"select * from accounts where card_id = ? and chain_name = ? limit 1",
 		cardId,
 		chain,
 	)
@@ -37,17 +36,18 @@ func QuerySelectedAccount(db *sqlx.DB, cardId int, chain string) (*Account, erro
 
 func UpdateSelectedAccount(db *sqlx.DB, cardId int, chainName string) error {
 	var oldSelectedId int
-	saErr := db.Get(&oldSelectedId, "select account_id from accounts where selected_account = true limit 1")
+	err := db.Get(&oldSelectedId, "select account_id from accounts where selected_account = true and card_id = ? limit 1", cardId)
+	if err != nil {
+		return err
+	}
 
 	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
+	tx.Exec(`UPDATE accounts SET selected_account = false WHERE account_id = ?`, oldSelectedId)
 	tx.Exec(`UPDATE accounts SET selected_account = true WHERE card_id = ? and chain_name = ?`, cardId, chainName)
-	if saErr == nil {
-		tx.Exec(`UPDATE accounts SET selected_account = false WHERE account_id = ?`, oldSelectedId)
-	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -58,31 +58,28 @@ func UpdateSelectedAccount(db *sqlx.DB, cardId int, chainName string) error {
 }
 
 func SaveChainAccount(db *sqlx.DB, cardId int, chainName string, address string) error {
-	account := Account{}
-	err := db.Get(
-		&account,
+	accounts := []Account{}
+
+	err := db.Select(
+		&accounts,
 		"select * from accounts where card_id = ? and chain_name = ? and address = ? limit 1",
 		cardId, chainName, address,
 	)
-
-	if err == nil {
+	if err != nil {
+		return err
+	}
+	if len(accounts) > 0 {
 		return errors.New("account already exist")
 	}
 
-	// errors other than ErrNoRows
-	if err != sql.ErrNoRows {
-		return err
-	}
-
-	// account is not exist, insert it
 	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
 	res, _ := tx.Exec(
-		"insert into accounts (card_id, chain_name, addr, selected_account) values (?, ?, ?, true)",
-		cardId, chainName, address,
+		"insert into accounts (card_id, chain_name, address, selected_account) values (?, ?, ?, ?)",
+		cardId, chainName, address, true,
 	)
 	accountId, _ := res.LastInsertId()
 	tx.Exec(

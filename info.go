@@ -72,16 +72,25 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 		return nil, errors.New("invalid card or chain")
 	}
 
-	selectedAccount, err := database.QuerySelectedAccount(a.sqlite, cardId, chain)
+	chainAccount, err := database.QueryChainAccount(a.sqlite, cardId, chain)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read query current account")
+		return nil, errors.New("failed to query current account")
 	}
+	utils.Sugar.Infof("chain account: %v", chainAccount)
 
-	assets, err := database.QueryAssets(a.sqlite, cardId, chain, selectedAccount.Address)
+	assets, err := database.QueryAssets(a.sqlite, cardId, chain, chainAccount.Address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
+	}
+
+	if sa, _ := chainAccount.SelectedAccount.Value(); sa == false {
+		err = database.UpdateSelectedAccount(a.sqlite, cardId, chain)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return nil, errors.New("failed to update selected account")
+		}
 	}
 
 	var assetInfos []AssetInfo
@@ -94,14 +103,8 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 		assetInfos = append(assetInfos, info)
 	}
 	chainDataRes := ChainAssets{
-		Address: selectedAccount.Address,
+		Address: chainAccount.Address,
 		Assets:  assetInfos,
-	}
-
-	err = database.UpdateSelectedAccount(a.sqlite, cardId, chain)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to update database")
 	}
 
 	return &chainDataRes, nil
@@ -125,7 +128,7 @@ func (a *App) AddAsset(cardId int, chain, address, asset string) (*ChainAssets, 
 	err := database.SaveAsset(a.sqlite, cardId, chain, address, asset)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to update database")
+		return nil, errors.New("failed to save asset to database")
 	}
 
 	return a.getChainAssets(cardId, chain)
@@ -147,10 +150,10 @@ func (a *App) RemoveAsset(cardId int, chain, address, asset string) (*ChainAsset
 }
 
 func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
-	selectedAccount, err := database.QuerySelectedAccount(a.sqlite, cardId, chain)
+	selectedAccount, err := database.QueryChainAccount(a.sqlite, cardId, chain)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read query current account")
+		return nil, errors.New("failed to query current account")
 	}
 	assets, err := database.QueryAssets(a.sqlite, cardId, chain, selectedAccount.Address)
 	if err != nil {

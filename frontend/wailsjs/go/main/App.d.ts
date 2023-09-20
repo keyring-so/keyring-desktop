@@ -32,7 +32,7 @@ export function GetCredentials():Promise<main.CardCredential>;
 
 export function GetNetwork():Promise<string>;
 
-export function Initialize(arg1:string,arg2:string,arg3:number):Promise<string>;
+export function Initialize(arg1:string,arg2:string,arg3:number):Promise<main.InitCardResponse>;
 
 export function Install():Promise<void>;
 

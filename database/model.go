@@ -16,7 +16,7 @@ type Account struct {
 	Id              int          `db:"account_id"`
 	CardId          int          `db:"card_id"`
 	ChainName       string       `db:"chain_name"`
-	Address         string       `db:"addr"`
+	Address         string       `db:"address"`
 	SelectedAccount sql.NullBool `db:"selected_account"`
 }
 

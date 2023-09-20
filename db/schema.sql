@@ -12,7 +12,7 @@ CREATE TABLE accounts (
     account_id integer primary key,
     card_id integer not null,
     chain_name text not null,
-    addr text not null,
+    address text not null,
     selected_account boolean
 );
 CREATE TABLE assets (

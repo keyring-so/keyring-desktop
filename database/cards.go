@@ -83,7 +83,7 @@ func UpdateCardName(db *sqlx.DB, cardId int, name string) error {
 func QueryCard(db *sqlx.DB, cardId int) (*Card, error) {
 	card := Card{}
 
-	err := db.Get(&card, "select * from cards where cardId = ?", cardId)
+	err := db.Get(&card, "select * from cards where card_id = ?", cardId)
 	if err != nil {
 		return nil, err
 	}
