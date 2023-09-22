@@ -44,6 +44,8 @@ export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Pro
 
 export function ResetCard(arg1:number,arg2:string):Promise<void>;
 
+export function ResetWallet():Promise<void>;
+
 export function SetNetwork(arg1:string):Promise<void>;
 
 export function SwitchAccount(arg1:number):Promise<main.CardInfo>;

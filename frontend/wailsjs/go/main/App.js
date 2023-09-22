@@ -82,6 +82,10 @@ export function ResetCard(arg1, arg2) {
   return window['go']['main']['App']['ResetCard'](arg1, arg2);
 }
 
+export function ResetWallet() {
+  return window['go']['main']['App']['ResetWallet']();
+}
+
 export function SetNetwork(arg1) {
   return window['go']['main']['App']['SetNetwork'](arg1);
 }

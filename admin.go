@@ -5,6 +5,8 @@ import (
 	"keyring-desktop/database"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // Reset card will clear keys, PIN, etc on card, and app data in database
@@ -73,6 +75,38 @@ func (a *App) ClearData(cardId int, pin string) error {
 		utils.Sugar.Error(err)
 		return errors.New("failed to clear accounts")
 	}
+
+	return nil
+}
+
+func (a *App) ResetWallet() error {
+	utils.Sugar.Info("Start to reset wallet")
+
+	err := a.sqlite.Close()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("close database failed")
+	}
+
+	err = DeleteDb()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("delete database failed")
+	}
+
+	DbMigrate()
+
+	sqlDbPath, err := utils.SQLiteDatabasePath()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("reopen database failed")
+	}
+	sqlDb, err := sqlx.Connect("sqlite", sqlDbPath)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("reopen database failed")
+	}
+	a.sqlite = sqlDb
 
 	return nil
 }

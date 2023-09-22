@@ -3,6 +3,7 @@ package main
 import (
 	"keyring-desktop/utils"
 	"net/url"
+	"os"
 
 	"github.com/kaichaosun/dbmate/pkg/dbmate"
 	_ "github.com/kaichaosun/dbmate/pkg/driver/sqlite"
@@ -31,4 +32,18 @@ func DbMigrate() {
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
+}
+
+func DeleteDb() error {
+	dbPath, err := utils.SQLiteDatabasePath()
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(dbPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

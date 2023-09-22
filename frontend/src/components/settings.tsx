@@ -5,6 +5,7 @@ import {
   GetNetwork,
   Install,
   ResetCard,
+  ResetWallet,
   SetNetwork
 } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
@@ -74,6 +75,7 @@ const Settings = () => {
         description: "Card and wallet is reset.",
       });
       setShowSettings(false);
+      window.location.reload();
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
@@ -90,6 +92,24 @@ const Settings = () => {
         description: "Card is unpaired.",
       });
       setShowSettings(false);
+      window.location.reload();
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
+  const walletReset = async () => {
+    try {
+      const _ = await ResetWallet();
+      toast({
+        title: "Success!",
+        description: "Wallet is reset.",
+      });
+      setShowSettings(false);
+      window.location.reload();
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
@@ -218,6 +238,13 @@ const Settings = () => {
               <Label>Install applets on your card</Label>
               <Button className="w-fit" onClick={installApplets}>
                 Install Applets
+              </Button>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Wallet Factory Reset</Label>
+              <Button className="w-fit" onClick={walletReset}>
+                Wallet Factory Reset
               </Button>
             </div>
 
