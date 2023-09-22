@@ -539,13 +539,12 @@ func (a *App) Initialize(pin string, cardName string, checkSumSize int) (*InitCa
 	err = a.encryptAndSaveCredential(cardName, pin, puk, code, res.PairingInfo)
 	if err != nil {
 		utils.Sugar.Error(err)
-		errUnpair := keyringCard.Unpair(pin, res.PairingInfo)
-		if errUnpair != nil {
-			utils.Sugar.Error(errUnpair)
+		err = keyringCard.Reset(res.PairingInfo)
+		if err != nil {
+			utils.Sugar.Error(err)
 		}
 
-		// TODO uninit the card, and remove the key
-		return nil, err
+		return nil, errors.New("failed to save credential")
 	}
 
 	currentCard, err := a.CurrentAccount()

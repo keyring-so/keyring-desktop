@@ -14,6 +14,8 @@ export function CheckCardConnection():Promise<boolean>;
 
 export function CheckCardInitialized():Promise<boolean>;
 
+export function ClearData(arg1:number,arg2:string):Promise<void>;
+
 export function CurrentAccount():Promise<main.CardInfo>;
 
 export function GetAddressAndAssets(arg1:number,arg2:string):Promise<main.ChainAssets>;
@@ -40,7 +42,7 @@ export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<ma
 
 export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<main.ChainAssets>;
 
-export function Reset(arg1:number,arg2:string):Promise<void>;
+export function ResetCard(arg1:number,arg2:string):Promise<void>;
 
 export function SetNetwork(arg1:string):Promise<void>;
 

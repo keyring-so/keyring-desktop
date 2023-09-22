@@ -22,6 +22,10 @@ export function CheckCardInitialized() {
   return window['go']['main']['App']['CheckCardInitialized']();
 }
 
+export function ClearData(arg1, arg2) {
+  return window['go']['main']['App']['ClearData'](arg1, arg2);
+}
+
 export function CurrentAccount() {
   return window['go']['main']['App']['CurrentAccount']();
 }
@@ -74,8 +78,8 @@ export function RemoveAsset(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['RemoveAsset'](arg1, arg2, arg3, arg4);
 }
 
-export function Reset(arg1, arg2) {
-  return window['go']['main']['App']['Reset'](arg1, arg2);
+export function ResetCard(arg1, arg2) {
+  return window['go']['main']['App']['ResetCard'](arg1, arg2);
 }
 
 export function SetNetwork(arg1) {

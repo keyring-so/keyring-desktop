@@ -1,10 +1,11 @@
 import packageJson from "@/../package.json";
 import {
+  ClearData,
   GetCredentials,
   GetNetwork,
   Install,
-  Reset,
-  SetNetwork,
+  ResetCard,
+  SetNetwork
 } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
@@ -67,10 +68,26 @@ const Settings = () => {
 
   const resetCardAndWallet = async () => {
     try {
-      const _ = await Reset(account.id, pin);
+      const _ = await ResetCard(account.id, pin);
       toast({
         title: "Success!",
         description: "Card and wallet is reset.",
+      });
+      setShowSettings(false);
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
+  const unpairAndClearData = async () => {
+    try {
+      const _ = await ClearData(account.id, pin);
+      toast({
+        title: "Success!",
+        description: "Card is unpaired.",
       });
       setShowSettings(false);
     } catch (err) {
@@ -164,7 +181,7 @@ const Settings = () => {
               </Button>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Reset card and wallet</Label>
+              <Label>Reset card and clear wallet</Label>
               <div className="flex flex-row gap-2 items-center justify-start">
                 <Label htmlFor="pin" className="text-right">
                   PIN
@@ -178,6 +195,23 @@ const Settings = () => {
               </div>
               <Button className="w-fit" onClick={resetCardAndWallet}>
                 Reset
+              </Button>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Unpair card and clear wallet</Label>
+              <div className="flex flex-row gap-2 items-center justify-start">
+                <Label htmlFor="pin" className="text-right">
+                  PIN
+                </Label>
+                <Input
+                  id="pin"
+                  type="password"
+                  className="w-fit"
+                  onChange={(e) => setPin(e.target.value)}
+                />
+              </div>
+              <Button className="w-fit" onClick={unpairAndClearData}>
+                Unpair
               </Button>
             </div>
             <div className="flex flex-col gap-2">

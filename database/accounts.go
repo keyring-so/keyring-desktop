@@ -94,3 +94,40 @@ func SaveChainAccount(db *sqlx.DB, cardId int, chainName string, address string)
 
 	return nil
 }
+
+func ClearAccounts(db *sqlx.DB, cardId int) error {
+	accountIds := []int{}
+	err := db.Select(&accountIds, "select account_id from accounts where card_id = ?", cardId)
+	if err != nil {
+		return err
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, accountId := range accountIds {
+		_, err = tx.Exec(`delete from assets where account_id = ?`, accountId)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = tx.Exec(`delete from accounts where card_id = ?`, cardId)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`delete from cards where card_id = ?`, cardId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return err
+}
