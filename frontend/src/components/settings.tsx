@@ -6,7 +6,7 @@ import {
   Install,
   ResetCard,
   ResetWallet,
-  SetNetwork
+  SetNetwork,
 } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,14 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
 import { errToast } from "@/lib/utils";
-import { accountAtom, isTestnetAtom, showSettingsAtom } from "@/store/state";
+import { accountAtom, isTestnetAtom, showSidebarItem } from "@/store/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { LogoImageSrc } from "./logo";
 import { Input } from "./ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const Settings = () => {
   const [credentials, setCredentials] = useState<
@@ -36,7 +37,7 @@ const Settings = () => {
   >(undefined);
   const [pin, setPin] = useState("");
 
-  const setShowSettings = useSetAtom(showSettingsAtom);
+  const setShowSidebarItem = useSetAtom(showSidebarItem);
   const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
   const account = useAtomValue(accountAtom);
 
@@ -58,7 +59,7 @@ const Settings = () => {
         title: "Success!",
         description: "Applets are installed.",
       });
-      setShowSettings(false);
+      setShowSidebarItem("");
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
@@ -74,7 +75,7 @@ const Settings = () => {
         title: "Success!",
         description: "Card and wallet is reset.",
       });
-      setShowSettings(false);
+      setShowSidebarItem("");
       window.location.reload();
     } catch (err) {
       toast({
@@ -91,7 +92,7 @@ const Settings = () => {
         title: "Success!",
         description: "Card is unpaired.",
       });
-      setShowSettings(false);
+      setShowSidebarItem("");
       window.location.reload();
     } catch (err) {
       toast({
@@ -108,7 +109,7 @@ const Settings = () => {
         title: "Success!",
         description: "Wallet is reset.",
       });
-      setShowSettings(false);
+      setShowSidebarItem("");
       window.location.reload();
     } catch (err) {
       toast({
@@ -177,89 +178,118 @@ const Settings = () => {
   );
 
   return (
-    <div>
-      <Dialog open={true} onOpenChange={setShowSettings}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogDescription>
-              Please only change the settings when needed.
-            </DialogDescription>
-          </DialogHeader>
+    <div className="flex flex-col mt-6 ml-20 mr-20 gap-8 items-start flex-grow">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-semibold">Settings</h1>
+        <p className="text-lg">Please only change the settings when needed.</p>
+      </div>
 
-          <div className="flex flex-col gap-8 mt-6">
-            <Label>
-              App Version:{" "}
-              <span className="font-bold text-primary">
-                {packageJson.version}
-              </span>
+      <div className="flex flex-col gap-2 w-full">
+        <h2 className="text-xl font-semibold">App Info</h2>
+        <div className="flex flex-col gap-3 border-solid border-2 p-4">
+          <Label className="font-semibold">
+            Version:{" "}
+            <span className="font-bold text-primary">
+              {packageJson.version}
+            </span>
+          </Label>
+          <div className="flex items-center space-x-2">
+            <Label className="font-semibold mr-2" htmlFor="testnet-mode">
+              Enable Test Networks
             </Label>
-            <div className="flex flex-col gap-2">
-              <Label>Connect card to a new device</Label>
-              <Button className="w-fit" onClick={getCredentials}>
-                Get credentials
-              </Button>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label>Reset card and clear wallet</Label>
-              <div className="flex flex-row gap-2 items-center justify-start">
-                <Label htmlFor="pin" className="text-right">
-                  PIN
-                </Label>
-                <Input
-                  id="pin"
-                  type="password"
-                  className="w-fit"
-                  onChange={(e) => setPin(e.target.value)}
-                />
-              </div>
-              <Button className="w-fit" onClick={resetCardAndWallet}>
-                Reset
-              </Button>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label>Unpair card and clear wallet</Label>
-              <div className="flex flex-row gap-2 items-center justify-start">
-                <Label htmlFor="pin" className="text-right">
-                  PIN
-                </Label>
-                <Input
-                  id="pin"
-                  type="password"
-                  className="w-fit"
-                  onChange={(e) => setPin(e.target.value)}
-                />
-              </div>
-              <Button className="w-fit" onClick={unpairAndClearData}>
-                Unpair
-              </Button>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label>Install applets on your card</Label>
-              <Button className="w-fit" onClick={installApplets}>
-                Install Applets
-              </Button>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label>Wallet Factory Reset</Label>
-              <Button className="w-fit" onClick={walletReset}>
-                Wallet Factory Reset
-              </Button>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="testnet-mode"
-                onCheckedChange={setNetwork}
-                checked={isTestnet}
-              />
-              <Label htmlFor="testnet-mode">Switch to Testnet</Label>
-            </div>
+            <Switch
+              id="testnet-mode"
+              onCheckedChange={setNetwork}
+              checked={isTestnet}
+            />
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
 
+      <div className="flex flex-col gap-2 w-full">
+        <h2 className="text-xl font-semibold">Wallet Data</h2>
+        <div className="flex flex-col gap-3 border-solid border-2 p-4">
+          <div className="flex flex-row gap-4 items-center justify-between">
+            <Label>Connect card to a new device</Label>
+            <Button className="w-[150px]" onClick={getCredentials}>
+              Get credentials
+            </Button>
+          </div>
+          <div className="flex flex-row gap-4 items-center justify-between">
+            <Label>Clear database</Label>
+            <Button className="w-[150px]" onClick={walletReset}>
+              Clear
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2 w-full">
+        <h2 className="text-xl font-semibold">Manage Card</h2>
+        <div className="border-solid border-2 p-4">
+          <div className="flex flex-col gap-2">
+            <Tabs defaultValue="unpair" className="w-[400px]">
+              <TabsList className="grid h-auto p-1 grid-cols-3 bg-gray-200 rounded-lg">
+                <TabsTrigger className="text-md rounded-lg" value="unpair">
+                  Unpair
+                </TabsTrigger>
+                <TabsTrigger className="text-md rounded-lg" value="reset">
+                  Reset
+                </TabsTrigger>
+                <TabsTrigger className="text-md rounded-lg" value="install">
+                  Install
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="unpair">
+                <div className="flex flex-col gap-4">
+                  <Label className="mt-2">Unpair card and clear app data</Label>
+                  <div className="flex flex-row gap-2 items-center justify-start">
+                    <Label htmlFor="pin" className="text-right">
+                      PIN
+                    </Label>
+                    <Input
+                      id="pin"
+                      type="password"
+                      className="w-fit"
+                      onChange={(e) => setPin(e.target.value)}
+                    />
+                  </div>
+                  <Button className="w-fit" onClick={unpairAndClearData}>
+                    Unpair
+                  </Button>
+                </div>
+              </TabsContent>
+              <TabsContent value="reset">
+                <div className="flex flex-col gap-4">
+                  <Label className="mt-2">Reset card and clear app data</Label>
+                  <div className="flex flex-row gap-2 items-center justify-start">
+                    <Label htmlFor="pin" className="text-right">
+                      PIN
+                    </Label>
+                    <Input
+                      id="pin"
+                      type="password"
+                      className="w-fit"
+                      onChange={(e) => setPin(e.target.value)}
+                    />
+                  </div>
+                  <Button className="w-fit" onClick={resetCardAndWallet}>
+                    Reset
+                  </Button>
+                </div>
+              </TabsContent>
+              <TabsContent value="install">
+                <div className="flex flex-col gap-4">
+                  <Label className="mt-2">Install applets on your card</Label>
+                  <Button className="w-fit" onClick={installApplets}>
+                    Install Applets
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
       {credentials && showCredentialsQRcode()}
     </div>
   );

@@ -127,13 +127,22 @@ function WelcomePage() {
     );
   };
 
+  const mainScreen = () => {
+    switch (sidebarItem) {
+      case "settings":
+        return <Settings />;
+      case "accounts":
+        return <Accounts />;
+      default:
+        return chains.length === 0 ? <Guide /> : <Wallet />
+    }
+  }
+
   return (
     <div className="flex flex-row">
       {showNewLedger && newLedgerDialog()}
       <Sidebar chains={chains} lastSelectedChain={ledger} />
-      {chains.length === 0 ? <Guide /> : <Wallet />}
-      {showSettings && <Settings />}
-      {sidebarItem === "accounts" && <Accounts />}
+      {mainScreen()}
     </div>
   );
 }
