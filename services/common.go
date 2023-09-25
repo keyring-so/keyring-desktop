@@ -8,7 +8,11 @@ import (
 )
 
 func selectAndOpen(cmdSet *keycard.CommandSet, pairingInfo *types.PairingInfo) error {
-	selectAndCheck(cmdSet)
+	err := selectAndCheck(cmdSet)
+	if err != nil {
+		utils.Sugar.Infof("select and check failed, error: %s", err)
+		return err
+	}
 
 	utils.Sugar.Info("set pairing info")
 	cmdSet.PairingInfo = pairingInfo

@@ -73,12 +73,15 @@ func (i *KeyringCard) Init(pin string, puk string, code string) error {
 func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumSize int) (*GenerateKeyResponse, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
-	selectAndCheck(cmdSet)
+	err := selectAndCheck(cmdSet)
+	if err != nil {
+		return nil, err
+	}
 
 	secrets := keycard.NewSecrets(pin, puk, code)
 
 	utils.Sugar.Info("pairing")
-	err := cmdSet.Pair(secrets.PairingPass())
+	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
 		return nil, err
 	}
@@ -118,12 +121,15 @@ func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumS
 func (i *KeyringCard) LoadMnemonic(pin string, puk string, code string, mnemonic string) (*GenerateKeyResponse, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
-	selectAndCheck(cmdSet)
+	err := selectAndCheck(cmdSet)
+	if err != nil {
+		return nil, err
+	}
 
 	secrets := keycard.NewSecrets(pin, puk, code)
 
 	utils.Sugar.Info("pairing")
-	err := cmdSet.Pair(secrets.PairingPass())
+	err = cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
 		return nil, err
 	}
