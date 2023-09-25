@@ -34,7 +34,7 @@ dbmate new create_accounts_table
     - name the card (input)
     - submit
     - success, card is initialized (toast)
-    - keep your secret words safe (dialog)
+    - keep your secret phrase safe (dialog)
     - I have written it down (button)
     - welcome page
   - pair

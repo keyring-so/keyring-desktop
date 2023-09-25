@@ -73,25 +73,12 @@ func (i *KeyringCard) Init(pin string, puk string, code string) error {
 func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumSize int) (*GenerateKeyResponse, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
-	utils.Sugar.Info("select keycard applet")
-	err := cmdSet.Select()
-	if err != nil {
-		return nil, err
-	}
-	utils.Sugar.Infow("is initialized", "Initialized", cmdSet.ApplicationInfo.Initialized)
-
-	if !cmdSet.ApplicationInfo.Installed {
-		return nil, errCardNotInstalled
-	}
-
-	if !cmdSet.ApplicationInfo.Initialized {
-		return nil, errCardNotInitialized
-	}
+	selectAndCheck(cmdSet)
 
 	secrets := keycard.NewSecrets(pin, puk, code)
 
 	utils.Sugar.Info("pairing")
-	err = cmdSet.Pair(secrets.PairingPass())
+	err := cmdSet.Pair(secrets.PairingPass())
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +100,49 @@ func (i *KeyringCard) GenerateKey(pin string, puk string, code string, checksumS
 	utils.Sugar.Info("load key from seed")
 	entropy, _ := bip39.NewEntropy(32 * checksumSize)
 	mnemonic, _ := bip39.NewMnemonic(entropy)
+	seed := bip39.NewSeed(mnemonic, "")
+
+	_, err = cmdSet.LoadSeed(seed)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GenerateKeyResponse{
+		Mnemonic:    mnemonic,
+		PairingInfo: cmdSet.PairingInfo,
+	}
+
+	return response, nil
+}
+
+func (i *KeyringCard) LoadMnemonic(pin string, puk string, code string, mnemonic string) (*GenerateKeyResponse, error) {
+	cmdSet := keycard.NewCommandSet(i.c)
+
+	selectAndCheck(cmdSet)
+
+	secrets := keycard.NewSecrets(pin, puk, code)
+
+	utils.Sugar.Info("pairing")
+	err := cmdSet.Pair(secrets.PairingPass())
+	if err != nil {
+		return nil, err
+	}
+
+	if cmdSet.PairingInfo == nil {
+		return nil, errNoPairingInfo
+	}
+
+	utils.Sugar.Infof("open keycard secure channel")
+	if err := cmdSet.OpenSecureChannel(); err != nil {
+		return nil, err
+	}
+
+	utils.Sugar.Infof("verify PIN")
+	if err := cmdSet.VerifyPIN(pin); err != nil {
+		return nil, err
+	}
+
+	utils.Sugar.Info("load key from seed")
 	seed := bip39.NewSeed(mnemonic, "")
 
 	_, err = cmdSet.LoadSeed(seed)

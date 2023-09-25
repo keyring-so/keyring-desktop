@@ -38,6 +38,8 @@ export function Initialize(arg1:string,arg2:string,arg3:number):Promise<main.Ini
 
 export function Install():Promise<void>;
 
+export function LoadSecrePhrase(arg1:string,arg2:string,arg3:string):Promise<main.InitCardResponse>;
+
 export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.CardInfo>;
 
 export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<main.ChainAssets>;
