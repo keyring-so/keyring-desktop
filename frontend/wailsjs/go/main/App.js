@@ -70,6 +70,10 @@ export function Install() {
   return window['go']['main']['App']['Install']();
 }
 
+export function LoadSecrePhrase(arg1, arg2, arg3) {
+  return window['go']['main']['App']['LoadSecrePhrase'](arg1, arg2, arg3);
+}
+
 export function Pair(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['Pair'](arg1, arg2, arg3, arg4);
 }

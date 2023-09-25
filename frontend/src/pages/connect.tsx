@@ -47,8 +47,8 @@ function ConnectPage() {
       {connectDialog && cardInitialized === false && <InitializeDialog handleClose={setConnectDialog} />}
       {connectDialog && cardInitialized === true && <PairDialog handleClose={setConnectDialog} />}
       <div className="flex flex-col justify-center items-center w-1/2">
-        <h1 className="text-3xl">Keyring Wallet</h1>
-        <h2 className="mt-4 text-6xl">Welcome!</h2>
+        <h1 className="text-3xl font-semibold text-primary">Keyring Wallet</h1>
+        <h2 className="mt-4 text-6xl font-medium text-primary">Welcome!</h2>
       </div>
       <div className="flex flex-col bg-gray-300 justify-center items-center w-1/2">
         <Button className="text-2xl w-auto h-auto" onClick={connect}>
