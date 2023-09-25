@@ -15,6 +15,7 @@ function App() {
   useEffect(() => {
     CurrentAccount()
       .then((res) => setAccount(res))
+      .catch((err) => console.log(err));
   }, []);
 
   return (
