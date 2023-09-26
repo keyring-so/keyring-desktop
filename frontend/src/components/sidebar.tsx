@@ -17,7 +17,6 @@ type Props = {
 const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setShowNewLedger = useSetAtom(showNewLedgerAtom);
   const setChainConfigs = useSetAtom(chainConfigsAtom);
-  const setShowSettings = useSetAtom(showSettingsAtom);
   const setShowSidebarItem = useSetAtom(showSidebarItem);
 
   const clickAddButton = async () => {
@@ -57,7 +56,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <div className="flex flex-col fixed bottom-2">
         <SidebarIcon icon={UserCircle} text="Accounts" onClick={() => setShowSidebarItem("accounts")} />
-        <SidebarIcon icon={Settings} text="Settings" onClick={() => setShowSettings(true)} />
+        <SidebarIcon icon={Settings} text="Settings" onClick={() => setShowSidebarItem("settings")} />
       </div>
     </div>
   );

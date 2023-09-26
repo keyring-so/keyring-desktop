@@ -4,7 +4,7 @@ import {
 } from "@/../wailsjs/go/main/App";
 import InitializeDialog from "@/components/initialize";
 import PairDialog from "@/components/pair";
-import Settings from "@/components/settings";
+import Settings from "@/pages/settings";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { accountAtom, showSettingsAtom } from "@/store/state";

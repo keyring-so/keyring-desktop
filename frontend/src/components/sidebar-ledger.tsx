@@ -1,4 +1,4 @@
-import { ledgerAtom } from "@/store/state";
+import { ledgerAtom, showSidebarItem } from "@/store/state";
 import { useSetAtom } from "jotai";
 import { LucideIcon } from "lucide-react";
 import React from "react";
@@ -12,6 +12,7 @@ type Props = {
 
 const SidebarLedger = ({ img, icon, text, ledger }: Props) => {
   const setLedger = useSetAtom(ledgerAtom);
+  const setShowSidebarItem = useSetAtom(showSidebarItem);
 
   return (
     <div
@@ -25,9 +26,12 @@ const SidebarLedger = ({ img, icon, text, ledger }: Props) => {
             cursor-pointer shadow-lg
             group
             "
-      onClick={() => setLedger((oldLedger) => ledger ? ledger : oldLedger)}
+      onClick={() => {
+        setLedger((oldLedger) => (ledger ? ledger : oldLedger));
+        setShowSidebarItem("ledger");
+      }}
     >
-      { icon ? React.createElement(icon) : <img src={img} />}
+      {icon ? React.createElement(icon) : <img src={img} />}
       <span
         className="
             absolute w-auto p-2 m-2 min-w-max left-16 rounded-md shadow-md
