@@ -1,7 +1,7 @@
 import {
   LEDGERS
 } from "@/constants";
-import { chainConfigsAtom, showNewLedgerAtom, showSettingsAtom, showSidebarItem } from "@/store/state";
+import { chainConfigsAtom, showNewLedgerAtom, showSidebarItem } from "@/store/state";
 import { useSetAtom } from "jotai";
 import { Plus, Settings, UserCircle } from "lucide-react";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";

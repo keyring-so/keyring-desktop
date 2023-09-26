@@ -24,7 +24,6 @@ import {
   chainConfigsAtom,
   ledgerAtom,
   showNewLedgerAtom,
-  showSettingsAtom,
   showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue } from "jotai";
@@ -44,7 +43,6 @@ function WelcomePage() {
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const account = useAtomValue(accountAtom);
   const chainConfigs = useAtomValue(chainConfigsAtom);
-  const showSettings = useAtomValue(showSettingsAtom);
   const sidebarItem = useAtomValue(showSidebarItem);
 
   const { toast } = useToast();
