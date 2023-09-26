@@ -186,7 +186,7 @@ const Settings = () => {
 
       <div className="flex flex-col gap-2 w-full">
         <h2 className="text-xl font-semibold">App Info</h2>
-        <div className="flex flex-col gap-3 border-solid border-2 p-4">
+        <div className="flex flex-col gap-3 border-solid border-2 p-4 rounded-xl">
           <Label className="font-semibold">
             Version:{" "}
             <span className="font-bold text-primary">
@@ -208,7 +208,7 @@ const Settings = () => {
 
       <div className="flex flex-col gap-2 w-full">
         <h2 className="text-xl font-semibold">Wallet Data</h2>
-        <div className="flex flex-col gap-3 border-solid border-2 p-4">
+        <div className="flex flex-col gap-3 border-solid border-2 p-4 rounded-xl">
           <div className="flex flex-row gap-4 items-center justify-between">
             <Label>Connect card to a new device</Label>
             <Button className="w-[150px]" onClick={getCredentials}>
@@ -226,7 +226,7 @@ const Settings = () => {
 
       <div className="flex flex-col gap-2 w-full">
         <h2 className="text-xl font-semibold">Manage Card</h2>
-        <div className="border-solid border-2 p-4">
+        <div className="border-solid border-2 p-4 rounded-xl">
           <div className="flex flex-col gap-2">
             <Tabs defaultValue="unpair" className="w-[400px]">
               <TabsList className="grid h-auto p-1 grid-cols-3 bg-gray-200 rounded-lg">

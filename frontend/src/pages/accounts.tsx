@@ -126,7 +126,7 @@ const Accounts = () => {
 
       <div className="flex flex-col gap-2 w-full">
         <h2 className="text-xl font-semibold">Your Cards</h2>
-        <div className="flex flex-col gap-6 border-solid border-2 p-6">
+        <div className="flex flex-col gap-6 border-solid border-2 p-6 rounded-xl">
           <div className="flex flex-col gap-3">
             <Label className="font-semibold">
               Current card name:{" "}
@@ -166,7 +166,7 @@ const Accounts = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <Label className="font-semibold">Add a new card</Label>
             <div className="flex flex-row gap-2 items-center justify-between">
               <Label>Make sure the new card is connected.</Label>
