@@ -1,11 +1,10 @@
-# README
+# Keyring Desktop
 
-## About
+Secure, handy and cost-effective hardware wallet for crypto holders.
 
-This is the official Wails React-TS template.
+## Installation
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+Install Wails and its dependencies: https://wails.io/docs/gettingstarted/installation
 
 ## Live Development
 
@@ -25,16 +24,3 @@ Create a new migration file in `db/migrations`
 ```
 dbmate new create_accounts_table
 ```
-
-## Integration Test
-
-- Connect your card
-  - initialize
-    - input your pin (input)
-    - name the card (input)
-    - submit
-    - success, card is initialized (toast)
-    - keep your secret phrase safe (dialog)
-    - I have written it down (button)
-    - welcome page
-  - pair
