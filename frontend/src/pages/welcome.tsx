@@ -1,4 +1,3 @@
-import Settings from "@/components/settings";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,9 +30,10 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AddLedger, GetChains } from "../../wailsjs/go/main/App";
+import { AddLedger, GetChains } from "@/../wailsjs/go/main/App";
 import Accounts from "./accounts";
 import Wallet from "./wallet";
+import Settings from "./settings";
 
 function WelcomePage() {
   const [chains, setChains] = useState<string[]>([]);

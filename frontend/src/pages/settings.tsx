@@ -27,9 +27,9 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
-import { LogoImageSrc } from "./logo";
-import { Input } from "./ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { LogoImageSrc } from "@/components/logo";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Settings = () => {
   const [credentials, setCredentials] = useState<
@@ -195,7 +195,7 @@ const Settings = () => {
           </Label>
           <div className="flex items-center space-x-2">
             <Label className="font-semibold mr-2" htmlFor="testnet-mode">
-              Enable Test Networks
+              Enable test networks
             </Label>
             <Switch
               id="testnet-mode"
@@ -218,7 +218,7 @@ const Settings = () => {
           <div className="flex flex-row gap-4 items-center justify-between">
             <Label>Clear database</Label>
             <Button className="w-[150px]" onClick={walletReset}>
-              Clear
+              Clear Data
             </Button>
           </div>
         </div>
