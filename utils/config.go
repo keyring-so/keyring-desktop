@@ -5,17 +5,26 @@ import (
 )
 
 type ChainConfig struct {
-	Symbol  string        `json:"symbol"`
-	Name    string        `json:"name"`
-	Path    string        `json:"path"`
-	PriceId string        `json:"priceId"`
-	Disable bool          `json:"disable"`
-	Tokens  []TokenConfig `json:"tokens"`
+	Symbol   string        `json:"symbol"`
+	Name     string        `json:"name"`
+	Path     string        `json:"path"`
+	PriceId  string        `json:"priceId"`
+	Driver   string        `json:"driver"`
+	RpcUrl   string        `json:"rpcUrl"`
+	RpcAuth  string        `json:"rpcAuth"`
+	ChainId  int           `json:"chainId"`
+	Explore  string        `json:"explore"`
+	Decimals int           `json:"decimals"`
+	Testnet  bool          `json:"testnet"`
+	Disable  bool          `json:"disable"`
+	Tokens   []TokenConfig `json:"tokens"`
 }
 
 type TokenConfig struct {
-	Symbol  string `json:"symbol"`
-	PriceId string `json:"priceId"`
+	Symbol   string `json:"symbol"`
+	PriceId  string `json:"priceId"`
+	Decimals int    `json:"decimals"`
+	Address  string `json:"address"`
 }
 
 func GetChainConfigs(bytes []byte) []ChainConfig {

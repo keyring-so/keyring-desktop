@@ -69,11 +69,6 @@ crosschain:
     net: mainnet
     decimals: 18
     contract: 0x3883f5e181fccaF8410FA61e12b59BAd963fb645
-  - asset: TRX
-    chain: ETH
-    net: mainnet
-    decimals: 6
-    contract: 0x50327c6c5a14DCaDE707ABad2E27eB517df87AB5
   - asset: WETH
     chain: ETH
     net: mainnet
