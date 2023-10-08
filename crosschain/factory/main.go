@@ -278,7 +278,7 @@ func (f *Factory) cfgFromAssetByContract(contract string, nativeAsset string) (I
 
 // NewClient creates a new Client
 func (f *Factory) NewClient(cfg ITask) (Client, error) {
-	return newClient(cfg)
+	return NewClient(cfg)
 }
 
 // NewTxBuilder creates a new TxBuilder
@@ -322,7 +322,7 @@ func (f *Factory) GetAllPossibleAddressesFromPublicKey(cfg ITask, publicKey []by
 
 // ConvertAmountToHuman converts an AmountBlockchain into AmountHumanReadable, dividing by the appropriate number of decimals
 func (f *Factory) ConvertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
-	return convertAmountToHuman(cfg, blockchainAmount)
+	return ConvertAmountToHuman(cfg, blockchainAmount)
 }
 
 // ConvertAmountToBlockchain converts an AmountHumanReadable into AmountBlockchain, multiplying by the appropriate number of decimals
@@ -506,7 +506,7 @@ func AssetsToMap(assetsList []ITask) sync.Map {
 	return assetsMap
 }
 
-func newClient(cfg ITask) (Client, error) {
+func NewClient(cfg ITask) (Client, error) {
 	switch Driver(cfg.GetDriver()) {
 	case DriverEVM:
 		return evm.NewClient(cfg)
@@ -629,7 +629,7 @@ func convertAmountExponent(cfgI ITask) (int32, error) {
 	return 0, errors.New("unsupported asset")
 }
 
-func convertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
+func ConvertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
 	exponent, err := convertAmountExponent(cfg)
 	if err != nil {
 		return AmountHumanReadable(decimal.NewFromInt(0)), err

@@ -1,16 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"keyring-desktop/database"
 	"keyring-desktop/oracle"
 	"keyring-desktop/utils"
-
-	"keyring-desktop/crosschain/factory"
-
-	"github.com/spf13/viper"
 )
 
 func (a *App) SetNetwork(network string) error {
@@ -166,18 +161,10 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 		utils.Sugar.Error(err)
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err = v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read crosschain configurate")
-	}
-	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 	var assetsInfo []AssetInfo
 	for _, asset := range assets {
-		balance, err := utils.GetAssetBalance(ctx, xc, asset.TokenSymbol, chain, selectedAccount.Address)
+		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.TokenSymbol, chain, selectedAccount.Address)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset: " + asset.TokenSymbol)

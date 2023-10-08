@@ -144,6 +144,8 @@ export namespace utils {
 	export class TokenConfig {
 	    symbol: string;
 	    priceId: string;
+	    decimals: number;
+	    address: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TokenConfig(source);
@@ -153,6 +155,8 @@ export namespace utils {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.symbol = source["symbol"];
 	        this.priceId = source["priceId"];
+	        this.decimals = source["decimals"];
+	        this.address = source["address"];
 	    }
 	}
 	export class ChainConfig {
@@ -160,6 +164,13 @@ export namespace utils {
 	    name: string;
 	    path: string;
 	    priceId: string;
+	    driver: string;
+	    rpcUrl: string;
+	    rpcAuth: string;
+	    chainId: number;
+	    explore: string;
+	    decimals: number;
+	    testnet: boolean;
 	    disable: boolean;
 	    tokens: TokenConfig[];
 	
@@ -173,6 +184,13 @@ export namespace utils {
 	        this.name = source["name"];
 	        this.path = source["path"];
 	        this.priceId = source["priceId"];
+	        this.driver = source["driver"];
+	        this.rpcUrl = source["rpcUrl"];
+	        this.rpcAuth = source["rpcAuth"];
+	        this.chainId = source["chainId"];
+	        this.explore = source["explore"];
+	        this.decimals = source["decimals"];
+	        this.testnet = source["testnet"];
 	        this.disable = source["disable"];
 	        this.tokens = this.convertValues(source["tokens"], TokenConfig);
 	    }

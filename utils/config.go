@@ -2,6 +2,8 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
+	"keyring-desktop/crosschain"
 )
 
 type ChainConfig struct {
@@ -11,10 +13,10 @@ type ChainConfig struct {
 	PriceId  string        `json:"priceId"`
 	Driver   string        `json:"driver"`
 	RpcUrl   string        `json:"rpcUrl"`
-	RpcAuth  string        `json:"rpcAuth"`
-	ChainId  int           `json:"chainId"`
+	RpcAuth  string        `json:"rpcAuth"` // TODO do not expose auth info
+	ChainId  int64         `json:"chainId"`
 	Explore  string        `json:"explore"`
-	Decimals int           `json:"decimals"`
+	Decimals int32         `json:"decimals"`
 	Testnet  bool          `json:"testnet"`
 	Disable  bool          `json:"disable"`
 	Tokens   []TokenConfig `json:"tokens"`
@@ -23,7 +25,7 @@ type ChainConfig struct {
 type TokenConfig struct {
 	Symbol   string `json:"symbol"`
 	PriceId  string `json:"priceId"`
-	Decimals int    `json:"decimals"`
+	Decimals int32  `json:"decimals"`
 	Address  string `json:"address"`
 }
 
@@ -47,4 +49,52 @@ func GetChainConfig(config []ChainConfig, chain string) *ChainConfig {
 	}
 
 	return chainConfig
+}
+
+func GetTokenConfig(configs []TokenConfig, token string) *TokenConfig {
+	var tokenConfig *TokenConfig
+	for _, c := range configs {
+		if c.Symbol == token {
+			tokenConfig = &c
+			break
+		}
+	}
+
+	return tokenConfig
+}
+
+func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (crosschain.ITask, error) {
+	chainConfig := GetChainConfig(configs, chainName)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
+	nativeConfig := crosschain.NativeAssetConfig{
+		Asset:       chainName,
+		Driver:      chainConfig.Driver,
+		URL:         chainConfig.RpcUrl,
+		Auth:        chainConfig.RpcAuth,
+		Provider:    "infura", // TODO
+		ExplorerURL: chainConfig.Explore,
+		Decimals:    chainConfig.Decimals,
+		ChainID:     chainConfig.ChainId,
+		Type:        crosschain.AssetTypeNative,
+	}
+
+	// TODO now it use chain symbol, if use chain name, it will cause error since ETH != Ethereum
+	if asset == chainName {
+		return &nativeConfig, nil
+	}
+
+	tokenConfig := GetTokenConfig(chainConfig.Tokens, asset)
+
+	res := crosschain.TokenAssetConfig{
+		Asset:             tokenConfig.Symbol,
+		Chain:             chainName,
+		Decimals:          tokenConfig.Decimals,
+		Contract:          tokenConfig.Address,
+		NativeAssetConfig: &nativeConfig,
+	}
+
+	return &res, nil
 }
