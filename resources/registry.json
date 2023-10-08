@@ -1,15 +1,8 @@
 [
   {
-    "symbol": "BTC",
-    "name": "Bitcoin",
-    "path": "m/44'/0'/0'/0/0",
-    "priceId": "bitcoin",
-    "driver": "bitcoin",
-    "disable": true
-  },
-  {
-    "symbol": "ETH",
     "name": "Ethereum",
+    "symbol": "ETH",
+    "img": "/tokens/ETH_logo.png",
     "path": "m/44'/60'/0'/0/0",
     "priceId": "ethereum",
     "driver": "evm",
@@ -82,8 +75,9 @@
     ]
   },
   {
-    "symbol": "ETH",
     "name": "Ethereum Goerli",
+    "symbol": "ETH",
+    "img": "/tokens/ETH_logo.png",
     "path": "m/44'/60'/0'/0/0",
     "priceId": "ethereum",
     "driver": "evm",
@@ -103,8 +97,16 @@
     ]
   },
   {
-    "symbol": "MATIC",
+    "name": "Bitcoin",
+    "symbol": "BTC",
+    "path": "m/44'/0'/0'/0/0",
+    "priceId": "bitcoin",
+    "driver": "bitcoin",
+    "disable": true
+  },
+  {
     "name": "Polygon",
+    "symbol": "MATIC",
     "path": "m/44'/60'/0'/0/0",
     "priceId": "polygon",
     "driver": "evm",

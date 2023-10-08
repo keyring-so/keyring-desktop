@@ -4,3 +4,4 @@ frontend/dist
 *.db
 **/.DS_Store
 **/*.sqlite3
+.env

@@ -7,8 +7,9 @@ import (
 )
 
 type ChainConfig struct {
-	Symbol   string        `json:"symbol"`
 	Name     string        `json:"name"`
+	Symbol   string        `json:"symbol"`
+	Img      string        `json:"img"`
 	Path     string        `json:"path"`
 	PriceId  string        `json:"priceId"`
 	Driver   string        `json:"driver"`
@@ -24,6 +25,7 @@ type ChainConfig struct {
 
 type TokenConfig struct {
 	Symbol   string `json:"symbol"`
+	Img      string `json:"img"`
 	PriceId  string `json:"priceId"`
 	Decimals int32  `json:"decimals"`
 	Address  string `json:"address"`
@@ -82,11 +84,14 @@ func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (
 	}
 
 	// TODO now it use chain symbol, if use chain name, it will cause error since ETH != Ethereum
-	if asset == chainName {
+	if asset == chainConfig.Symbol {
 		return &nativeConfig, nil
 	}
 
 	tokenConfig := GetTokenConfig(chainConfig.Tokens, asset)
+	if tokenConfig == nil {
+		return nil, errors.New("token not found")
+	}
 
 	res := crosschain.TokenAssetConfig{
 		Asset:             tokenConfig.Symbol,

@@ -1,9 +1,8 @@
+import { main, utils } from "@/../wailsjs/go/models";
+import Asset from "@/components/asset";
 import { LogoImageSrc } from "@/components/logo";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+  Accordion
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,16 +26,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToastAction } from "@/components/ui/toast";
 import {
   Tooltip,
   TooltipContent,
@@ -44,7 +34,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { GWEI, LEDGERS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
 import { cn, shortenAddress } from "@/lib/utils";
 import { accountAtom, isTestnetAtom, ledgerAtom } from "@/store/state";
@@ -55,22 +44,17 @@ import {
   Clipboard,
   ClipboardCheck,
   Loader2,
-  RotateCw,
-  Trash2,
+  RotateCw
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
-  CalculateFee,
   GetAddressAndAssets,
   GetAssetPrices,
   GetChainConfig,
-  RemoveAsset,
-  Transfer,
-  VerifyAddress,
+  VerifyAddress
 } from "../../wailsjs/go/main/App";
-import { main, utils } from "../../wailsjs/go/models";
 
 type SelectToken = {
   value: string;
@@ -98,6 +82,9 @@ function Wallet() {
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
   const [getBalanceErr, setGetBalanceErr] = useState(false);
+  const [nativeSymbol, setNativeSymbol] = useState("");
+  const [nativeBalance, setNativeBalance] = useState("");
+  const [chainAssets, setChainAssets] = useState<main.ChainAssets>();
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -115,6 +102,7 @@ function Wallet() {
           let assets = await GetAddressAndAssets(account.id, ledger);
           setFromAddr(assets.address);
           setUserAssets(assets.assets);
+          setChainAssets(assets);
           if (!assets.address) {
             toast({
               description: `You are ready to add a new blockchain`,
@@ -123,6 +111,7 @@ function Wallet() {
 
           let prices = await GetAssetPrices(account.id, ledger);
           setUserAssets(prices.assets);
+          setChainAssets(prices);
         } catch (err) {
           setGetBalanceErr(true);
           toast({
@@ -167,68 +156,6 @@ function Wallet() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const updateToAddr = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setToAddr(event.target.value);
-  };
-
-  const updateAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(event.target.value);
-  };
-
-  const updateTip = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const tipFee = Number(event.target.value) * GWEI;
-    setTip(tipFee.toString());
-  };
-
-  const calculateFee = async (checked: boolean) => {
-    if (checked) {
-      try {
-        setLoadingTx(true);
-        let fee = await CalculateFee(asset, ledger, fromAddr, toAddr, amount);
-        setLoadingTx(false);
-        setFee(fee);
-      } catch (err) {
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        });
-      }
-    } else {
-      setFee(undefined);
-    }
-  };
-
-  const transfer = () => {
-    setLoadingTx(true);
-    Transfer(asset, ledger, fromAddr, toAddr, amount, tip, pin, account.id)
-      .then((resp) => {
-        setLoadingTx(false);
-        setTransferOpen(false);
-        setPin("");
-        toast({
-          title: "Send transaction successfully.",
-          description: `${resp}`,
-          action: (
-            <Button onClick={() => onCopy(resp)}>
-              Copy
-            </Button>
-          ),
-        });
-      })
-      .catch((err) => {
-        setLoadingTx(false);
-        setPin("");
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        });
-      });
-  };
-
-  const receive = () => {
-    setReceiveOpen(true);
-  };
-
   const verifyAddr = async () => {
     try {
       let addr = await VerifyAddress(account.id, ledger, pin);
@@ -271,28 +198,6 @@ function Wallet() {
         description: `Error happens: ${err}`,
       });
     }
-  };
-
-  const removeAsset = async (token: string) => {
-    try {
-      setLoadingRemoveAsset(true);
-      let res = await RemoveAsset(account.id, ledger, fromAddr, token);
-      setLoadingRemoveAsset(false);
-      setFromAddr(res.address);
-      setUserAssets(res.assets);
-    } catch (err) {
-      setLoadingRemoveAsset(false);
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    }
-  };
-
-  const ledgerName = () => {
-    let ledgerInfo = LEDGERS.get(ledger);
-    let name = ledgerInfo ? ledgerInfo.name : "";
-    return name;
   };
 
   const showReceiveAddrQRcode = () => {
@@ -355,16 +260,6 @@ function Wallet() {
     );
   };
 
-  const showBalance = (balance: string | undefined) => {
-    if (balance) {
-      return parseFloat(parseFloat(balance).toFixed(3));
-    }
-    if (getBalanceErr) {
-      return "n/a";
-    }
-    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-  };
-
   return (
     <div className="flex flex-col mt-20 gap-20 flex-grow items-center">
       <Tabs defaultValue="assets" className="w-[400px]">
@@ -411,130 +306,10 @@ function Wallet() {
             </div>
 
             <Accordion type="single" collapsible>
-              {userAssets.map((userAsset) => {
+              {chainAssets && <Asset symbol={chainAssets?.symbol} balance={chainAssets.balance} />}
+              {chainAssets?.assets.map((userAsset) => {
                 return (
-                  <AccordionItem value={userAsset.name}>
-                    <AccordionTrigger>
-                      <div
-                        className={`flex flex-row items-center justify-between grow
-                        bg-secondary rounded-xl shadow-md p-2 pr-6
-                        hover:bg-primary hover:text-white`}
-                        onClick={() => setAsset(userAsset.name)}
-                      >
-                        <div className="flex flex-row items-center gap-2">
-                          <img
-                            className="h-12 rounded-full"
-                            src={`/tokens/${userAsset.name}_logo.png`}
-                          />
-
-                          <Label className="text-lg">{userAsset.name}</Label>
-                        </div>
-
-                        <Label className="text-lg">
-                          {showBalance(userAsset.balance)}
-                        </Label>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="flex gap-2 items-center">
-                        <Sheet
-                          open={transferOpen}
-                          onOpenChange={setTransferOpen}
-                        >
-                          <SheetTrigger>
-                            <Button
-                              onClick={() => {
-                                setTransferOpen(true);
-                                setFee(undefined);
-                              }}
-                            >
-                              Transfer
-                            </Button>
-                          </SheetTrigger>
-                          <SheetContent>
-                            <SheetHeader>
-                              <SheetTitle>
-                                Sending {asset} on {ledgerName()} blockchain
-                              </SheetTitle>
-                            </SheetHeader>
-                            <div className="flex flex-col gap-6 mt-10">
-                              <div>
-                                <Label>To</Label>
-                                <Input onChange={updateToAddr} />
-                              </div>
-                              <div>
-                                <Label>Amount</Label>
-                                <Input onChange={updateAmount} />
-                              </div>
-
-                              <div>
-                                <Label>PIN</Label>
-                                <Input
-                                  type="password"
-                                  value={pin}
-                                  onChange={(event) =>
-                                    setPin(event.target.value)
-                                  }
-                                />
-                              </div>
-
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="advance-fee-mode"
-                                  onCheckedChange={calculateFee}
-                                />
-                                <Label htmlFor="advance-fee-mode">
-                                  Fee Options
-                                </Label>
-                              </div>
-                              {fee ? (
-                                <div>
-                                  <div>
-                                    <Label>Base Fee (GWEI)</Label>
-                                    <Input
-                                      disabled
-                                      value={(Number(fee.base) / GWEI).toFixed(
-                                        2
-                                      )}
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label>Tip Fee (GWEI)</Label>
-                                    <Input
-                                      defaultValue={(
-                                        Number(fee.tip) / GWEI
-                                      ).toFixed(2)}
-                                      onChange={updateTip}
-                                    />
-                                  </div>
-                                </div>
-                              ) : null}
-                              {loadingTx ? (
-                                <Button className="w-1/2" disabled>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  Please wait
-                                </Button>
-                              ) : (
-                                <Button className="w-1/2" onClick={transfer}>
-                                  Send
-                                </Button>
-                              )}
-                            </div>
-                          </SheetContent>
-                        </Sheet>
-                        <Button onClick={receive}>Receive</Button>
-                        {ledger !== userAsset.name &&
-                          (loadingRemoveAsset ? (
-                            <Loader2 className="ml-2 animate-spin" />
-                          ) : (
-                            <Trash2
-                              className="ml-2"
-                              onClick={() => removeAsset(userAsset.name)}
-                            />
-                          ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                  <Asset symbol={userAsset.symbol} balance={userAsset.balance} />
                 );
               })}
             </Accordion>

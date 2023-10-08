@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { main, utils } from "../../wailsjs/go/models";
+import { main, utils } from "@/../wailsjs/go/models";
 
 export const ledgerAtom = atom("");
 

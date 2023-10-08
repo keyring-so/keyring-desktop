@@ -88,18 +88,33 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 		}
 	}
 
-	var assetInfos []AssetInfo
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
+	assetsInfo := []AssetInfo{}
 	for _, asset := range assets {
+		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.TokenSymbol)
+		if tokenConfig == nil {
+			return nil, errors.New("token not found")
+		}
 		info := AssetInfo{
-			Name:    asset.TokenSymbol,
+			Address: tokenConfig.Address,
+			Symbol:  tokenConfig.Symbol,
+			Img:     tokenConfig.Img,
 			Balance: nil,
 			Price:   nil,
 		}
-		assetInfos = append(assetInfos, info)
+		assetsInfo = append(assetsInfo, info)
 	}
 	chainDataRes := ChainAssets{
 		Address: chainAccount.Address,
-		Assets:  assetInfos,
+		Symbol:  chainConfig.Symbol,
+		Img:     chainConfig.Img,
+		Balance: nil,
+		Price:   nil,
+		Assets:  assetsInfo,
 	}
 
 	return &chainDataRes, nil
@@ -161,9 +176,16 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 		utils.Sugar.Error(err)
 	}
 
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
 	ctx := context.Background()
-	var assetsInfo []AssetInfo
+	assetsInfo := []AssetInfo{}
 	for _, asset := range assets {
+		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.TokenSymbol)
+
 		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.TokenSymbol, chain, selectedAccount.Address)
 		if err != nil {
 			utils.Sugar.Error(err)
@@ -174,14 +196,31 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 
 		bals := balance.String()
 		info := AssetInfo{
-			Name:    asset.TokenSymbol,
+			Address: tokenConfig.Address,
+			Symbol:  tokenConfig.Symbol,
+			Img:     tokenConfig.Img,
 			Balance: &bals,
 			Price:   &price,
 		}
 		assetsInfo = append(assetsInfo, info)
 	}
+
+	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, chainConfig.Symbol, chain, selectedAccount.Address)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)
+	}
+
+	price := prices[chainConfig.Symbol].Usd
+
+	bals := balance.String()
+
 	chainDataRes := ChainAssets{
 		Address: selectedAccount.Address,
+		Symbol:  chainConfig.Symbol,
+		Img:     chainConfig.Img,
+		Balance: &bals,
+		Price:   &price,
 		Assets:  assetsInfo,
 	}
 

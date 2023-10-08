@@ -1,6 +1,4 @@
-import {
-  LEDGERS
-} from "@/constants";
+import { main } from "@/../wailsjs/go/models";
 import { chainConfigsAtom, showNewLedgerAtom, showSidebarItem } from "@/store/state";
 import { useSetAtom } from "jotai";
 import { Plus, Settings, UserCircle } from "lucide-react";
@@ -10,7 +8,7 @@ import SidebarIcon from "./sidebar-icon";
 import SidebarLedger from "./sidebar-ledger";
 
 type Props = {
-  chains: string[];
+  chains: main.ChainDetail[];
   lastSelectedChain: string;
 };
 
@@ -39,12 +37,11 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <div className="flex flex-col">
         {chains.map((chain) => {
-          const ledger = LEDGERS.get(chain);
           return (
             <SidebarLedger
-            img={ledger?.img}
-            text={chain}
-            ledger={chain}
+            img={chain.img}
+            text={chain.name}
+            ledger={chain.name}
             />
           );
         })}

@@ -33,9 +33,10 @@ import { AddLedger, GetChains } from "@/../wailsjs/go/main/App";
 import Accounts from "./accounts";
 import Wallet from "./wallet";
 import Settings from "./settings";
+import { main } from "@/../wailsjs/go/models";
 
 function WelcomePage() {
-  const [chains, setChains] = useState<string[]>([]);
+  const [chains, setChains] = useState<main.ChainDetail[]>([]);
   const [ledgerCandidate, setLedgerCandidate] = useState("");
   const [pin, setPin] = useState("");
 

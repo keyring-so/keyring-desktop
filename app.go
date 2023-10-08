@@ -177,14 +177,20 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 
 	utils.Sugar.Infof("The chains are: %v", accounts)
 
-	chains := []string{}
+	chains := []ChainDetail{}
 	var lastSelectedChain string
 
 	for _, account := range accounts {
 		if sc, _ := account.SelectedAccount.Value(); sc == true {
 			lastSelectedChain = account.ChainName
 		}
-		chains = append(chains, account.ChainName)
+		chainConfig := utils.GetChainConfig(a.chainConfigs, account.ChainName)
+		chainDetail := ChainDetail{
+			Name:   chainConfig.Name,
+			Symbol: chainConfig.Symbol,
+			Img:    chainConfig.Img,
+		}
+		chains = append(chains, chainDetail)
 	}
 
 	res := CardChainInfo{
