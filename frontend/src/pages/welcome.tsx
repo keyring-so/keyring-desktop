@@ -97,7 +97,7 @@ function WelcomePage() {
                   {chainConfigs.map((chainConfig) => {
                     return (
                       !chainConfig.disable && (
-                        <SelectItem value={chainConfig.symbol}>
+                        <SelectItem value={chainConfig.name}>
                           {chainConfig.name}
                         </SelectItem>
                       )

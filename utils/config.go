@@ -42,7 +42,7 @@ func GetChainConfigs(bytes []byte) []ChainConfig {
 func GetChainConfig(config []ChainConfig, chain string) *ChainConfig {
 	var chainConfig *ChainConfig
 	for _, c := range config {
-		if c.Symbol == chain {
+		if c.Name == chain {
 			chainConfig = &c
 			break
 		}

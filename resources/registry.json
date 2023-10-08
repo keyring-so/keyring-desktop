@@ -82,6 +82,27 @@
     ]
   },
   {
+    "symbol": "ETH",
+    "name": "Ethereum Goerli",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://goerli.infura.io/v3",
+    "rpcAuth": "env:INFURA_API_TOKEN",
+    "chainId": 5,
+    "explorer": "https://goerli.etherscan.io",
+    "decimals": 18,
+    "testnet": true,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "address": "0x07865c6e87b9f70255377e024ace6630c1eaa37f"
+      }
+    ]
+  },
+  {
     "symbol": "MATIC",
     "name": "Polygon",
     "path": "m/44'/60'/0'/0/0",

@@ -42,8 +42,8 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
           const ledger = LEDGERS.get(chain);
           return (
             <SidebarLedger
-            img={ledger!.img}
-            text={ledger!.name}
+            img={ledger?.img}
+            text={chain}
             ledger={chain}
             />
           );
