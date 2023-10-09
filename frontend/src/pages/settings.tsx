@@ -1,14 +1,15 @@
 import packageJson from "@/../package.json";
 import {
   ClearData,
+  EnableTestnet,
   GetCredentials,
-  GetNetwork,
   Install,
+  IsTestnetEnabled,
   ResetCard,
   ResetWallet,
-  SetNetwork,
 } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
+import { LogoImageSrc } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,8 +18,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
 import { errToast } from "@/lib/utils";
@@ -27,9 +30,6 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
-import { LogoImageSrc } from "@/components/logo";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Settings = () => {
   const [credentials, setCredentials] = useState<
@@ -47,8 +47,8 @@ const Settings = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await GetNetwork();
-      setIsTestnet(res === "testnet");
+      const res = await IsTestnetEnabled();
+      setIsTestnet(res);
     })();
   }, []);
 
@@ -130,13 +130,8 @@ const Settings = () => {
 
   const setNetwork = async (checked: boolean) => {
     try {
-      if (checked) {
-        await SetNetwork("testnet");
-        setIsTestnet(true);
-      } else {
-        await SetNetwork("mainnet");
-        setIsTestnet(false);
-      }
+      await EnableTestnet(checked);
+      setIsTestnet(checked);
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",

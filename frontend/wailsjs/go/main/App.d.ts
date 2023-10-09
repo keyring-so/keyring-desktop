@@ -18,6 +18,8 @@ export function ClearData(arg1:number,arg2:string):Promise<void>;
 
 export function CurrentAccount():Promise<main.CardInfo>;
 
+export function EnableTestnet(arg1:boolean):Promise<void>;
+
 export function GetAddressAndAssets(arg1:number,arg2:string):Promise<main.ChainAssets>;
 
 export function GetAllAccounts():Promise<Array<main.CardInfo>>;
@@ -32,11 +34,11 @@ export function GetChains(arg1:number):Promise<main.CardChainInfo>;
 
 export function GetCredentials():Promise<main.CardCredential>;
 
-export function GetNetwork():Promise<string>;
-
 export function Initialize(arg1:string,arg2:string,arg3:number):Promise<main.InitCardResponse>;
 
 export function Install():Promise<void>;
+
+export function IsTestnetEnabled():Promise<boolean>;
 
 export function LoadSecrePhrase(arg1:string,arg2:string,arg3:string):Promise<main.InitCardResponse>;
 
@@ -47,8 +49,6 @@ export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Pro
 export function ResetCard(arg1:number,arg2:string):Promise<void>;
 
 export function ResetWallet():Promise<void>;
-
-export function SetNetwork(arg1:string):Promise<void>;
 
 export function SwitchAccount(arg1:number):Promise<main.CardInfo>;
 

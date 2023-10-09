@@ -19,6 +19,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -37,16 +44,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck, Loader2, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
 
 type Props = {
   symbol: string;
@@ -73,9 +73,6 @@ const AssetTransferSchema = z.object({
 });
 
 const Asset = ({ symbol, balance, address, onError }: Props) => {
-  const [asset, setAsset] = useState("");
-  const [toAddr, setToAddr] = useState("");
-  const [amount, setAmount] = useState("");
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [fee, setFee] = useState<main.FeeInfo>();
@@ -102,14 +99,6 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
   const transferForm = useForm<z.infer<typeof AssetTransferSchema>>({
     resolver: zodResolver(AssetTransferSchema),
   });
-
-  const updateToAddr = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setToAddr(event.target.value);
-  };
-
-  const updateAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(event.target.value);
-  };
 
   const updateTip = (event: React.ChangeEvent<HTMLInputElement>) => {
     const tipFee = Number(event.target.value) * GWEI;
@@ -300,7 +289,6 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
             className={`flex flex-row items-center justify-between grow
                         bg-secondary rounded-xl shadow-md p-2 pr-6
                         hover:bg-primary hover:text-white`}
-            onClick={() => setAsset(symbol)}
           >
             <div className="flex flex-row items-center gap-2">
               <img
@@ -330,7 +318,7 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
               <SheetContent>
                 <SheetHeader>
                   <SheetTitle>
-                    Sending {asset} on {ledgerName()} blockchain
+                    Sending {symbol} on {ledgerName()} blockchain
                   </SheetTitle>
                 </SheetHeader>
                 <Form {...transferForm}>

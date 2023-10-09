@@ -8,33 +8,13 @@ import (
 	"keyring-desktop/utils"
 )
 
-func (a *App) SetNetwork(network string) error {
-	var config string
-	if network == utils.Testnet {
-		database.SaveNetwork(a.db, utils.Testnet)
-		config = "crosschain-testnet.yaml"
-	} else {
-		database.SaveNetwork(a.db, utils.Mainnet)
-		config = "crosschain-mainnet.yaml"
-	}
-
-	crosschainConfig, err := resources.ReadFile("resources/" + config)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return err
-	}
-	a.crosschainConfig = crosschainConfig
+func (a *App) EnableTestnet(flag bool) error {
 
 	return nil
 }
 
-func (a *App) GetNetwork() (string, error) {
-	network, err := database.QueryNetwork(a.db)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to read database")
-	}
-	return network, nil
+func (a *App) IsTestnetEnabled() (bool, error) {
+	return true, nil
 }
 
 func (a *App) GetChainConfigs() []utils.ChainConfig {

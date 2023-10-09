@@ -21,11 +21,10 @@ import (
 
 // App struct
 type App struct {
-	ctx              context.Context
-	chainConfigs     []utils.ChainConfig
-	db               *bolt.DB
-	sqlite           *sqlx.DB
-	crosschainConfig []byte
+	ctx          context.Context
+	chainConfigs []utils.ChainConfig
+	db           *bolt.DB
+	sqlite       *sqlx.DB
 }
 
 // NewApp creates a new App application struct
@@ -52,22 +51,6 @@ func (a *App) startup(ctx context.Context) {
 		utils.Sugar.Fatal(err)
 	}
 	a.sqlite = sqlDb
-
-	network, err := database.QueryNetwork(a.db)
-	if err != nil {
-		utils.Sugar.Fatal(err)
-	}
-	var crosschainConfigPath string
-	if network == utils.Testnet {
-		crosschainConfigPath = "resources/crosschain-testnet.yaml"
-	} else {
-		crosschainConfigPath = "resources/crosschain-mainnet.yaml"
-	}
-	crosschainConfig, err := resources.ReadFile(crosschainConfigPath)
-	if err != nil {
-		utils.Sugar.Fatal(err)
-	}
-	a.crosschainConfig = crosschainConfig
 
 	registryConfig, err := resources.ReadFile("resources/registry.json")
 	if err != nil {

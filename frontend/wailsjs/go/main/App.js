@@ -30,6 +30,10 @@ export function CurrentAccount() {
   return window['go']['main']['App']['CurrentAccount']();
 }
 
+export function EnableTestnet(arg1) {
+  return window['go']['main']['App']['EnableTestnet'](arg1);
+}
+
 export function GetAddressAndAssets(arg1, arg2) {
   return window['go']['main']['App']['GetAddressAndAssets'](arg1, arg2);
 }
@@ -58,16 +62,16 @@ export function GetCredentials() {
   return window['go']['main']['App']['GetCredentials']();
 }
 
-export function GetNetwork() {
-  return window['go']['main']['App']['GetNetwork']();
-}
-
 export function Initialize(arg1, arg2, arg3) {
   return window['go']['main']['App']['Initialize'](arg1, arg2, arg3);
 }
 
 export function Install() {
   return window['go']['main']['App']['Install']();
+}
+
+export function IsTestnetEnabled() {
+  return window['go']['main']['App']['IsTestnetEnabled']();
 }
 
 export function LoadSecrePhrase(arg1, arg2, arg3) {
@@ -88,10 +92,6 @@ export function ResetCard(arg1, arg2) {
 
 export function ResetWallet() {
   return window['go']['main']['App']['ResetWallet']();
-}
-
-export function SetNetwork(arg1) {
-  return window['go']['main']['App']['SetNetwork'](arg1);
 }
 
 export function SwitchAccount(arg1) {
