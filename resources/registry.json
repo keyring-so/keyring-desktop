@@ -16,61 +16,61 @@
         "symbol": "USDC",
         "priceId": "usd-coin",
         "decimals": 6,
-        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        "contract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
       },
       {
         "symbol": "USDT",
         "priceId": "tether",
         "decimals": 6,
-        "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        "contract": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
       },
       {
         "symbol": "DAI",
         "priceId": "dai",
         "decimals": 18,
-        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+        "contract": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
       },
       {
         "symbol": "WBTC",
         "priceId": "wrapped-bitcoin",
         "decimals": 8,
-        "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+        "contract": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
       },
       {
         "symbol": "LINK",
         "priceId": "chainlink",
         "decimals": 18,
-        "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+        "contract": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
       },
       {
         "symbol": "UNI",
         "priceId": "uniswap",
         "decimals": 18,
-        "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+        "contract": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
       },
       {
         "symbol": "stETH",
         "priceId": "lido-staked-ether",
         "decimals": 18,
-        "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+        "contract": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
       },
       {
         "symbol": "BNB",
         "priceId": "bnb",
         "decimals": 18,
-        "address": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
+        "contract": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
       },
       {
         "symbol": "THETA",
         "priceId": "theta-network",
         "decimals": 18,
-        "address": "0x3883f5e181fccaF8410FA61e12b59BAd963fb645"
+        "contract": "0x3883f5e181fccaF8410FA61e12b59BAd963fb645"
       },
       {
         "symbol": "HOT",
         "priceId": "holo",
         "decimals": 18,
-        "address": "0x6c6EE5e31d828De241282B9606C8e98Ea48526E2"
+        "contract": "0x6c6EE5e31d828De241282B9606C8e98Ea48526E2"
       }
     ]
   },
@@ -92,7 +92,7 @@
         "symbol": "USDC",
         "priceId": "usd-coin",
         "decimals": 6,
-        "address": "0x07865c6e87b9f70255377e024ace6630c1eaa37f"
+        "contract": "0x07865c6e87b9f70255377e024ace6630c1eaa37f"
       }
     ]
   },

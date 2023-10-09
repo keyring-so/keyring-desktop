@@ -100,11 +100,11 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 			return nil, errors.New("token not found")
 		}
 		info := AssetInfo{
-			Address: tokenConfig.Address,
-			Symbol:  tokenConfig.Symbol,
-			Img:     tokenConfig.Img,
-			Balance: nil,
-			Price:   nil,
+			ContractAddress: tokenConfig.Contract,
+			Symbol:          tokenConfig.Symbol,
+			Img:             tokenConfig.Img,
+			Balance:         nil,
+			Price:           nil,
 		}
 		assetsInfo = append(assetsInfo, info)
 	}
@@ -196,11 +196,11 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 
 		bals := balance.String()
 		info := AssetInfo{
-			Address: tokenConfig.Address,
-			Symbol:  tokenConfig.Symbol,
-			Img:     tokenConfig.Img,
-			Balance: &bals,
-			Price:   &price,
+			ContractAddress: tokenConfig.Contract,
+			Symbol:          tokenConfig.Symbol,
+			Img:             tokenConfig.Img,
+			Balance:         &bals,
+			Price:           &price,
 		}
 		assetsInfo = append(assetsInfo, info)
 	}

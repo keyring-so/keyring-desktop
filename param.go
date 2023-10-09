@@ -6,11 +6,11 @@ type FeeInfo struct {
 }
 
 type AssetInfo struct {
-	Address string   `json:"address"`
-	Symbol  string   `json:"symbol"`
-	Img     string   `json:"img"`
-	Balance *string  `json:"balance"`
-	Price   *float32 `json:"price"`
+	ContractAddress string   `json:"contractAddress"`
+	Symbol          string   `json:"symbol"`
+	Img             string   `json:"img"`
+	Balance         *string  `json:"balance"`
+	Price           *float32 `json:"price"`
 }
 
 type ChainAssets struct {

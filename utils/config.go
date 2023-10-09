@@ -28,7 +28,7 @@ type TokenConfig struct {
 	Img      string `json:"img"`
 	PriceId  string `json:"priceId"`
 	Decimals int32  `json:"decimals"`
-	Address  string `json:"address"`
+	Contract string `json:"contract"`
 }
 
 func GetChainConfigs(bytes []byte) []ChainConfig {
@@ -97,7 +97,7 @@ func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (
 		Asset:             tokenConfig.Symbol,
 		Chain:             chainName,
 		Decimals:          tokenConfig.Decimals,
-		Contract:          tokenConfig.Address,
+		Contract:          tokenConfig.Contract,
 		NativeAssetConfig: &nativeConfig,
 	}
 

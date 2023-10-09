@@ -1,7 +1,7 @@
 export namespace main {
 	
 	export class AssetInfo {
-	    address: string;
+	    contractAddress: string;
 	    symbol: string;
 	    img: string;
 	    balance?: string;
@@ -13,7 +13,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.address = source["address"];
+	        this.contractAddress = source["contractAddress"];
 	        this.symbol = source["symbol"];
 	        this.img = source["img"];
 	        this.balance = source["balance"];
@@ -193,7 +193,7 @@ export namespace utils {
 	    img: string;
 	    priceId: string;
 	    decimals: number;
-	    address: string;
+	    contract: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TokenConfig(source);
@@ -205,7 +205,7 @@ export namespace utils {
 	        this.img = source["img"];
 	        this.priceId = source["priceId"];
 	        this.decimals = source["decimals"];
-	        this.address = source["address"];
+	        this.contract = source["contract"];
 	    }
 	}
 	export class ChainConfig {

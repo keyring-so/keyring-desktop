@@ -1,9 +1,6 @@
 import { main, utils } from "@/../wailsjs/go/models";
 import Asset from "@/components/asset";
-import { LogoImageSrc } from "@/components/logo";
-import {
-  Accordion
-} from "@/components/ui/accordion";
+import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -12,14 +9,6 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -44,16 +33,14 @@ import {
   Clipboard,
   ClipboardCheck,
   Loader2,
-  RotateCw
+  RotateCw,
 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
   GetAddressAndAssets,
   GetAssetPrices,
   GetChainConfig,
-  VerifyAddress
 } from "../../wailsjs/go/main/App";
 
 type SelectToken = {
@@ -62,28 +49,13 @@ type SelectToken = {
 };
 
 function Wallet() {
-  const [asset, setAsset] = useState("");
-  const [fromAddr, setFromAddr] = useState("");
-  const [toAddr, setToAddr] = useState("");
-  const [amount, setAmount] = useState("");
   const [chainConfig, setChainConfig] = useState<utils.ChainConfig>();
-  const [userAssets, setUserAssets] = useState<main.AssetInfo[]>([]);
   const [openSelectAssets, setOpenSelectAssets] = useState(false);
   const [selectToken, setSelectToken] = useState<SelectToken | undefined>(
     undefined
   );
-  const [loadingTx, setLoadingTx] = useState(false);
-  const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [loadingAddAsset, setLoadingAddAsset] = useState(false);
-  const [fee, setFee] = useState<main.FeeInfo>();
-  const [tip, setTip] = useState("");
-  const [pin, setPin] = useState("");
-  const [transferOpen, setTransferOpen] = useState(false);
-  const [receiveOpen, setReceiveOpen] = useState(false);
-  const [verified, setVerified] = useState(false);
   const [getBalanceErr, setGetBalanceErr] = useState(false);
-  const [nativeSymbol, setNativeSymbol] = useState("");
-  const [nativeBalance, setNativeBalance] = useState("");
   const [chainAssets, setChainAssets] = useState<main.ChainAssets>();
 
   const ledger = useAtomValue(ledgerAtom);
@@ -100,8 +72,6 @@ function Wallet() {
       if (account.id && ledger) {
         try {
           let assets = await GetAddressAndAssets(account.id, ledger);
-          setFromAddr(assets.address);
-          setUserAssets(assets.assets);
           setChainAssets(assets);
           if (!assets.address) {
             toast({
@@ -110,7 +80,6 @@ function Wallet() {
           }
 
           let prices = await GetAssetPrices(account.id, ledger);
-          setUserAssets(prices.assets);
           setChainAssets(prices);
         } catch (err) {
           setGetBalanceErr(true);
@@ -156,39 +125,17 @@ function Wallet() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const verifyAddr = async () => {
-    try {
-      let addr = await VerifyAddress(account.id, ledger, pin);
-      if (addr === fromAddr) {
-        toast({
-          title: "Your receive address is verified.",
-          description: `${addr}`,
-        });
-        setVerified(true);
-        setPin("");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Your receive address is hacked.",
-          description:
-            "Please remove the malicious software, then reset the app and connect with your card again.",
-        });
-      }
-    } catch (err) {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    }
-  };
-
   const addAsset = async () => {
     try {
       setLoadingAddAsset(true);
-      let res = await AddAsset(account.id, ledger, fromAddr, selectToken!.symbol);
+      let res = await AddAsset(
+        account.id,
+        ledger,
+        chainAssets!.address,
+        selectToken!.symbol
+      );
       setLoadingAddAsset(false);
-      setFromAddr(res.address);
-      setUserAssets(res.assets);
+      setChainAssets(res);
       setSelectToken(undefined);
     } catch (err) {
       setGetBalanceErr(true);
@@ -198,66 +145,6 @@ function Wallet() {
         description: `Error happens: ${err}`,
       });
     }
-  };
-
-  const showReceiveAddrQRcode = () => {
-    return (
-      <Dialog
-        open={true}
-        onOpenChange={() => {
-          setReceiveOpen(false);
-          setVerified(false);
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Receive Address</DialogTitle>
-            <DialogDescription>
-              You can verify the address by connecting the card.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 items-start">
-            <div className="flex flex-col gap-1">
-              <Label>PIN:</Label>
-              <Input
-                type="password"
-                onChange={(event) => setPin(event.target.value)}
-                value={pin}
-              />
-            </div>
-            <Button className="w-1/3" onClick={verifyAddr}>
-              Verify Address
-            </Button>
-          </div>
-          {verified && (
-            <div className="flex flex-col gap-4 mt-6">
-              <div>
-                <Label>Address:</Label>
-                <div className="flex flex-row gap-0">
-                  <Input disabled value={fromAddr} />
-                  <Button
-                    className="rounded-full"
-                    onClick={() => onCopy(fromAddr)}
-                  >
-                    {hasCopied ? <ClipboardCheck /> : <Clipboard />}
-                  </Button>
-                </div>
-              </div>
-              <QRCodeSVG
-                value={fromAddr}
-                size={128}
-                imageSettings={{
-                  src: LogoImageSrc,
-                  height: 24,
-                  width: 24,
-                  excavate: true,
-                }}
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    );
   };
 
   return (
@@ -293,23 +180,36 @@ function Wallet() {
               <Label className="text-lg">
                 $
                 {parseFloat(
-                  userAssets
-                    .reduce(
-                      (temp, asset) =>
-                        temp +
-                        parseFloat(asset.balance || "0") * (asset.price || 0),
-                      0
-                    )
-                    .toFixed(2)
+                  (chainAssets
+                    ? chainAssets.assets.reduce(
+                        (temp, asset) =>
+                          temp +
+                          parseFloat(asset.balance || "0") * (asset.price || 0),
+                        0
+                      )
+                    : 0
+                  ).toFixed(2)
                 )}
               </Label>
             </div>
 
             <Accordion type="single" collapsible>
-              {chainAssets && <Asset symbol={chainAssets?.symbol} balance={chainAssets.balance} />}
+              {chainAssets && (
+                <Asset
+                  symbol={chainAssets?.symbol}
+                  balance={chainAssets.balance}
+                  address={chainAssets.address}
+                  onError={getBalanceErr}
+                />
+              )}
               {chainAssets?.assets.map((userAsset) => {
                 return (
-                  <Asset symbol={userAsset.symbol} balance={userAsset.balance} />
+                  <Asset
+                    symbol={userAsset.symbol}
+                    balance={userAsset.balance}
+                    address={chainAssets.address}
+                    onError={getBalanceErr}
+                  />
                 );
               })}
             </Accordion>
@@ -398,8 +298,13 @@ function Wallet() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={() => onCopy(fromAddr)} className="rounded-3xl">
-                <Label className="mr-2">{shortenAddress(fromAddr)}</Label>
+              <Button
+                onClick={() => onCopy(chainAssets!.address)}
+                className="rounded-3xl"
+              >
+                <Label className="mr-2">
+                  {shortenAddress(chainAssets ? chainAssets.address : "")}
+                </Label>
                 {hasCopied ? <ClipboardCheck /> : <Clipboard />}
               </Button>
             </TooltipTrigger>
@@ -409,8 +314,6 @@ function Wallet() {
           </Tooltip>
         </TooltipProvider>
       </div>
-
-      {receiveOpen && showReceiveAddrQRcode()}
     </div>
   );
 }
