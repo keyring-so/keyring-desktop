@@ -41,10 +41,10 @@ func GetChainConfigs(bytes []byte) []ChainConfig {
 	return chainConfigs
 }
 
-func GetChainConfig(config []ChainConfig, chain string) *ChainConfig {
+func GetChainConfig(config []ChainConfig, chainName string) *ChainConfig {
 	var chainConfig *ChainConfig
 	for _, c := range config {
-		if c.Name == chain {
+		if c.Name == chainName {
 			chainConfig = &c
 			break
 		}
@@ -72,7 +72,7 @@ func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (
 	}
 
 	nativeConfig := crosschain.NativeAssetConfig{
-		Asset:       chainName,
+		Asset:       chainConfig.Symbol,
 		Driver:      chainConfig.Driver,
 		URL:         chainConfig.RpcUrl,
 		Auth:        chainConfig.RpcAuth,
@@ -93,11 +93,26 @@ func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (
 		return nil, errors.New("token not found")
 	}
 
+	tokenAsset := crosschain.AssetConfig{
+		Asset:       tokenConfig.Symbol,
+		Driver:      chainConfig.Driver,
+		URL:         chainConfig.RpcUrl,
+		Auth:        chainConfig.RpcAuth,
+		Provider:    "infura", // TODO
+		ExplorerURL: chainConfig.Explore,
+		Decimals:    tokenConfig.Decimals,
+		ChainID:     chainConfig.ChainId,
+		Type:        crosschain.AssetTypeToken,
+		Contract:    tokenConfig.Contract,
+	}
+
 	res := crosschain.TokenAssetConfig{
 		Asset:             tokenConfig.Symbol,
 		Chain:             chainName,
 		Decimals:          tokenConfig.Decimals,
 		Contract:          tokenConfig.Contract,
+		Type:              crosschain.AssetTypeToken,
+		AssetConfig:       tokenAsset,
 		NativeAssetConfig: &nativeConfig,
 	}
 

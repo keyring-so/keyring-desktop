@@ -25,7 +25,12 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
 import { cn, shortenAddress } from "@/lib/utils";
-import { accountAtom, isTestnetAtom, ledgerAtom } from "@/store/state";
+import {
+  accountAtom,
+  isTestnetAtom,
+  ledgerAtom,
+  refreshAtom,
+} from "@/store/state";
 import { useAtomValue } from "jotai";
 import {
   Check,
@@ -61,6 +66,7 @@ function Wallet() {
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
   const isTestnet = useAtomValue(isTestnetAtom);
+  const refresh = useAtomValue(refreshAtom);
 
   const { toast } = useToast();
 
@@ -81,6 +87,7 @@ function Wallet() {
 
           let prices = await GetAssetPrices(account.id, ledger);
           setChainAssets(prices);
+          console.log("prices:", prices);
         } catch (err) {
           setGetBalanceErr(true);
           toast({
@@ -125,6 +132,12 @@ function Wallet() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  useEffect(() => {
+    if (refresh) {
+      window.location.reload();
+    }
+  }, [refresh]);
+
   const addAsset = async () => {
     try {
       setLoadingAddAsset(true);
@@ -145,6 +158,22 @@ function Wallet() {
         description: `Error happens: ${err}`,
       });
     }
+  };
+
+  const showAssetValue = () => {
+    if (!chainAssets) return 0;
+
+    const tokensValue = chainAssets.assets.reduce(
+      (temp, asset) =>
+        temp + parseFloat(asset.balance || "0") * (asset.price || 0),
+      0
+    );
+    const nativeValue =
+      parseFloat(chainAssets.balance || "0") * (chainAssets.price || 0);
+
+    const total = tokensValue + nativeValue;
+
+    return parseFloat(total.toFixed(2));
   };
 
   return (
@@ -177,20 +206,7 @@ function Wallet() {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <Label className="text-lg">
-                $
-                {parseFloat(
-                  (chainAssets
-                    ? chainAssets.assets.reduce(
-                        (temp, asset) =>
-                          temp +
-                          parseFloat(asset.balance || "0") * (asset.price || 0),
-                        0
-                      )
-                    : 0
-                  ).toFixed(2)
-                )}
-              </Label>
+              <Label className="text-lg">${showAssetValue()}</Label>
             </div>
 
             <Accordion type="single" collapsible>

@@ -12,3 +12,5 @@ export const chainConfigsAtom = atom<utils.ChainConfig[]>([]);
 export const isTestnetAtom = atom(false);
 
 export const showSidebarItem = atom("");
+
+export const refreshAtom = atom(false);

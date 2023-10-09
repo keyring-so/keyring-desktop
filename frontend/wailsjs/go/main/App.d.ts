@@ -42,7 +42,7 @@ export function LoadSecrePhrase(arg1:string,arg2:string,arg3:string):Promise<mai
 
 export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.CardInfo>;
 
-export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<main.ChainAssets>;
+export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<void>;
 
 export function ResetCard(arg1:number,arg2:string):Promise<void>;
 

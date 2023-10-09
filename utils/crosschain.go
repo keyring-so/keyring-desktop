@@ -8,8 +8,8 @@ import (
 	"keyring-desktop/crosschain/factory"
 )
 
-func GetAssetBalance(ctx context.Context, configs []ChainConfig, asset string, chain string, address string) (*crosschain.AmountHumanReadable, error) {
-	token, err := ConvertAssetConfig(configs, asset, chain)
+func GetAssetBalance(ctx context.Context, configs []ChainConfig, contract string, chain string, address string) (*crosschain.AmountHumanReadable, error) {
+	token, err := ConvertAssetConfig(configs, contract, chain)
 	if err != nil {
 		return nil, err
 	}

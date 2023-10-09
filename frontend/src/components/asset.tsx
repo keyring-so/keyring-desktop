@@ -32,8 +32,8 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { GWEI, LEDGERS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
-import { accountAtom, ledgerAtom } from "@/store/state";
-import { useAtomValue } from "jotai";
+import { accountAtom, ledgerAtom, refreshAtom } from "@/store/state";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck, Loader2, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
@@ -49,7 +49,6 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
   const [asset, setAsset] = useState("");
   const [toAddr, setToAddr] = useState("");
   const [amount, setAmount] = useState("");
-  const [userAssets, setUserAssets] = useState<main.AssetInfo[]>([]);
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [fee, setFee] = useState<main.FeeInfo>();
@@ -61,6 +60,7 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
+  const setRefresh = useSetAtom(refreshAtom);
 
   const { toast } = useToast();
 
@@ -231,9 +231,9 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
   const removeAsset = async (token: string) => {
     try {
       setLoadingRemoveAsset(true);
-      let res = await RemoveAsset(account.id, ledger, address, token);
+      await RemoveAsset(account.id, ledger, address, token);
       setLoadingRemoveAsset(false);
-      setUserAssets(res.assets);
+      setRefresh(true);
     } catch (err) {
       setLoadingRemoveAsset(false);
       toast({

@@ -144,41 +144,41 @@ func (a *App) AddAsset(cardId int, chain, address, asset string) (*ChainAssets, 
 	return a.getChainAssets(cardId, chain)
 }
 
-func (a *App) RemoveAsset(cardId int, chain, address, asset string) (*ChainAssets, error) {
+func (a *App) RemoveAsset(cardId int, chain, address, asset string) error {
 	if cardId < 0 || chain == "" || address == "" || asset == "" || chain == asset {
-		return nil, errors.New("invalid card, chain or asset")
+		return errors.New("invalid card, chain or asset")
 	}
 
 	err := database.RemoveAsset(a.sqlite, cardId, chain, address, asset)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to remove asset from database")
+		return errors.New("failed to remove asset from database")
 	}
 
-	return a.getChainAssets(cardId, chain)
+	return nil
 
 }
 
-func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
-	selectedAccount, err := database.QueryChainAccount(a.sqlite, cardId, chain)
+func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error) {
+	selectedAccount, err := database.QueryChainAccount(a.sqlite, cardId, chainName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to query current account")
 	}
-	assets, err := database.QueryAssets(a.sqlite, cardId, chain, selectedAccount.Address)
+	assets, err := database.QueryAssets(a.sqlite, cardId, chainName, selectedAccount.Address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
 	}
 
-	prices, err := oracle.GetPrice(assets, a.chainConfigs)
-	if err != nil {
-		utils.Sugar.Error(err)
-	}
-
-	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
 	if chainConfig == nil {
 		return nil, errors.New("chain not found")
+	}
+
+	prices, err := oracle.GetPrice(assets, *chainConfig)
+	if err != nil {
+		utils.Sugar.Error(err)
 	}
 
 	ctx := context.Background()
@@ -186,7 +186,8 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 	for _, asset := range assets {
 		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.TokenSymbol)
 
-		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.TokenSymbol, chain, selectedAccount.Address)
+		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.TokenSymbol, chainName, selectedAccount.Address)
+		utils.Sugar.Info("balacne: ", balance)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset: " + asset.TokenSymbol)
@@ -205,7 +206,7 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 		assetsInfo = append(assetsInfo, info)
 	}
 
-	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, chainConfig.Symbol, chain, selectedAccount.Address)
+	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, chainConfig.Symbol, chainName, selectedAccount.Address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)

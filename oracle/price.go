@@ -15,33 +15,28 @@ type Price struct {
 	Usd float32 `json:"usd"`
 }
 
-func GetPrice(assets []database.Asset, config []utils.ChainConfig) (map[string]Price, error) {
-	ids := make([]string, len(assets))
+func GetPrice(assets []database.Asset, config utils.ChainConfig) (map[string]Price, error) {
+	ids := make([]string, len(assets)+1)
 	priceIdsMap := map[string]string{}
+
 	for i, asset := range assets {
 		var id string
-		for _, c := range config {
-			if c.Symbol == asset.TokenSymbol {
-				id = c.PriceId
+		for _, t := range config.Tokens {
+			if t.Symbol == asset.TokenSymbol {
+				id = t.PriceId
 				ids[i] = id
 				priceIdsMap[id] = asset.TokenSymbol
 				break
 			}
+		}
 
-			for _, t := range c.Tokens {
-				if t.Symbol == asset.TokenSymbol {
-					id = t.PriceId
-					ids[i] = id
-					priceIdsMap[id] = asset.TokenSymbol
-					break
-				}
-			}
-
-			if id != "" {
-				break
-			}
+		if id != "" {
+			break
 		}
 	}
+
+	ids[len(assets)] = config.PriceId
+	priceIdsMap[config.PriceId] = config.Symbol
 
 	url := fmt.Sprintf("https://api.coingecko.com/api/v3/simple/price?ids=%s&vs_currencies=%s", strings.Join(ids, ","), "usd")
 
