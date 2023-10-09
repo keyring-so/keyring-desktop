@@ -33,10 +33,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { GWEI, LEDGERS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
 import { accountAtom, ledgerAtom, refreshAtom } from "@/store/state";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck, Loader2, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 
 type Props = {
   symbol: string;
@@ -44,6 +54,23 @@ type Props = {
   address: string;
   onError?: boolean;
 };
+
+const AssetTransferSchema = z.object({
+  toAddr: z.string().trim().min(1),
+  amount: z.string().trim().min(1),
+  tip: z.string().trim().min(1),
+  pin: z.string().transform((val, ctx) => {
+    if (val.length !== 6 || isNaN(Number(val))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "PIN must have 6 digits",
+      });
+
+      return z.NEVER;
+    }
+    return val;
+  }),
+});
 
 const Asset = ({ symbol, balance, address, onError }: Props) => {
   const [asset, setAsset] = useState("");
@@ -66,6 +93,16 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
 
   const { hasCopied, onCopy } = useClipboard();
 
+  useEffect(() => {
+    if (hasCopied) {
+      toast({ description: "Copied to clipboard!" });
+    }
+  }, [hasCopied]);
+
+  const transferForm = useForm<z.infer<typeof AssetTransferSchema>>({
+    resolver: zodResolver(AssetTransferSchema),
+  });
+
   const updateToAddr = (event: React.ChangeEvent<HTMLInputElement>) => {
     setToAddr(event.target.value);
   };
@@ -79,21 +116,24 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
     setTip(tipFee.toString());
   };
 
-  const calculateFee = async (checked: boolean) => {
-    if (checked) {
-      try {
-        setLoadingTx(true);
-        let fee = await CalculateFee(asset, ledger, address, toAddr, amount);
-        setLoadingTx(false);
-        setFee(fee);
-      } catch (err) {
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        });
-      }
-    } else {
-      setFee(undefined);
+  const queryFee = async (data: z.infer<typeof AssetTransferSchema>) => {
+    try {
+      setLoadingTx(true);
+      let fee = await CalculateFee(
+        symbol,
+        ledger,
+        address,
+        data.toAddr,
+        data.amount
+      );
+      setLoadingTx(false);
+      setFee(fee);
+    } catch (err) {
+      setLoadingTx(false);
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
     }
   };
 
@@ -117,9 +157,18 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
     setReceiveOpen(true);
   };
 
-  const transfer = () => {
+  const transfer = (data: z.infer<typeof AssetTransferSchema>) => {
     setLoadingTx(true);
-    Transfer(asset, ledger, address, toAddr, amount, tip, pin, account.id)
+    Transfer(
+      symbol,
+      ledger,
+      address,
+      data.toAddr,
+      data.amount,
+      tip,
+      data.pin,
+      account.id
+    )
       .then((resp) => {
         setLoadingTx(false);
         setTransferOpen(false);
@@ -284,61 +333,96 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
                     Sending {asset} on {ledgerName()} blockchain
                   </SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-6 mt-10">
-                  <div>
-                    <Label>To</Label>
-                    <Input onChange={updateToAddr} />
-                  </div>
-                  <div>
-                    <Label>Amount</Label>
-                    <Input onChange={updateAmount} />
-                  </div>
-
-                  <div>
-                    <Label>PIN</Label>
-                    <Input
-                      type="password"
-                      value={pin}
-                      onChange={(event) => setPin(event.target.value)}
+                <Form {...transferForm}>
+                  <form
+                    className="space-y-6 mt-4"
+                    onSubmit={transferForm.handleSubmit(transfer)}
+                  >
+                    <FormField
+                      control={transferForm.control}
+                      name="toAddr"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>To</FormLabel>
+                          <FormControl>
+                            <Input onChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="advance-fee-mode"
-                      onCheckedChange={calculateFee}
+                    <FormField
+                      control={transferForm.control}
+                      name="amount"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>Amount</FormLabel>
+                          <FormControl>
+                            <Input onChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
-                    <Label htmlFor="advance-fee-mode">Fee Options</Label>
-                  </div>
-                  {fee ? (
-                    <div>
-                      <div>
-                        <Label>Base Fee (GWEI)</Label>
-                        <Input
-                          disabled
-                          value={(Number(fee.base) / GWEI).toFixed(2)}
-                        />
-                      </div>
-                      <div>
-                        <Label>Tip Fee (GWEI)</Label>
-                        <Input
-                          defaultValue={(Number(fee.tip) / GWEI).toFixed(2)}
-                          onChange={updateTip}
-                        />
-                      </div>
+                    <FormField
+                      control={transferForm.control}
+                      name="pin"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>PIN</FormLabel>
+                          <FormControl>
+                            <Input type="password" onChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="advance-fee-mode"
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            queryFee(transferForm.getValues());
+                          } else {
+                            setFee(undefined);
+                          }
+                        }}
+                      />
+                      <Label htmlFor="advance-fee-mode">Fee Options</Label>
                     </div>
-                  ) : null}
-                  {loadingTx ? (
-                    <Button className="w-1/2" disabled>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Please wait
-                    </Button>
-                  ) : (
-                    <Button className="w-1/2" onClick={transfer}>
-                      Send
-                    </Button>
-                  )}
-                </div>
+                    {fee ? (
+                      <div>
+                        <div>
+                          <Label>Base Fee (GWEI)</Label>
+                          <Input
+                            disabled
+                            value={(Number(fee.base) / GWEI).toFixed(2)}
+                          />
+                        </div>
+                        <div>
+                          <Label>Tip Fee (GWEI)</Label>
+                          <Input
+                            defaultValue={(Number(fee.tip) / GWEI).toFixed(2)}
+                            onChange={updateTip}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {loadingTx ? (
+                      <Button className="w-1/2" disabled>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Please wait
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-1/2"
+                        onClick={() => transfer(transferForm.getValues())}
+                      >
+                        Send
+                      </Button>
+                    )}
+                  </form>
+                </Form>
+                <div className="flex flex-col gap-6 mt-10"></div>
               </SheetContent>
             </Sheet>
             <Button onClick={receive}>Receive</Button>

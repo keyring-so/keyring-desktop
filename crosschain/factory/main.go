@@ -283,7 +283,7 @@ func (f *Factory) NewClient(cfg ITask) (Client, error) {
 
 // NewTxBuilder creates a new TxBuilder
 func (f *Factory) NewTxBuilder(cfg ITask) (TxBuilder, error) {
-	return newTxBuilder(cfg)
+	return NewTxBuilder(cfg)
 }
 
 // NewSigner creates a new Signer
@@ -332,7 +332,7 @@ func (f *Factory) ConvertAmountToBlockchain(cfg ITask, humanAmount AmountHumanRe
 
 // ConvertAmountStrToBlockchain converts a string representing an AmountHumanReadable into AmountBlockchain, multiplying by the appropriate number of decimals
 func (f *Factory) ConvertAmountStrToBlockchain(cfg ITask, humanAmountStr string) (AmountBlockchain, error) {
-	return convertAmountStrToBlockchain(cfg, humanAmountStr)
+	return ConvertAmountStrToBlockchain(cfg, humanAmountStr)
 }
 
 // EnrichAssetConfig augments a partial AssetConfig, for example if some info is stored in a db and other in a config file
@@ -524,7 +524,7 @@ func NewClient(cfg ITask) (Client, error) {
 	return nil, errors.New("unsupported asset")
 }
 
-func newTxBuilder(cfg ITask) (TxBuilder, error) {
+func NewTxBuilder(cfg ITask) (TxBuilder, error) {
 	switch Driver(cfg.GetDriver()) {
 	case DriverEVM:
 		return evm.NewTxBuilder(cfg)
@@ -648,7 +648,7 @@ func convertAmountToBlockchain(cfg ITask, humanAmount AmountHumanReadable) (Amou
 	return AmountBlockchain(*result), nil
 }
 
-func convertAmountStrToBlockchain(cfg ITask, humanAmountStr string) (AmountBlockchain, error) {
+func ConvertAmountStrToBlockchain(cfg ITask, humanAmountStr string) (AmountBlockchain, error) {
 	humanAmount, err := decimal.NewFromString(humanAmountStr)
 	if err != nil {
 		return AmountBlockchain(*big.NewInt(0)), err

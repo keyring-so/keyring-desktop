@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"keyring-desktop/database"
@@ -14,7 +13,6 @@ import (
 	"keyring-desktop/crosschain/factory"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/spf13/viper"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -312,26 +310,18 @@ func (a *App) CalculateFee(
 		return nil, errors.New("chain configuration not found")
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err := v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read crosschain configurate")
-	}
-	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 
-	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, asset, nativeAsset)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("unsupported asset")
 	}
 
-	fromAddress := xc.MustAddress(assetConfig, from)
-	toAddress := xc.MustAddress(assetConfig, to)
+	fromAddress := crosschain.Address(from)
+	toAddress := crosschain.Address(to)
 
-	client, _ := xc.NewClient(assetConfig)
+	client, _ := factory.NewClient(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to create a client")
@@ -371,31 +361,23 @@ func (a *App) Transfer(
 		return "", errors.New("chain configuration not found")
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err := v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to read crosschain configurate")
-	}
-	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 
-	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, asset, nativeAsset)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")
 	}
 
-	fromAddress := xc.MustAddress(assetConfig, from)
-	toAddress := xc.MustAddress(assetConfig, to)
-	amountInteger, err := xc.ConvertAmountStrToBlockchain(assetConfig, amount)
+	fromAddress := crosschain.Address(from)
+	toAddress := crosschain.Address(to)
+	amountInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, amount)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to convert the input amount")
 	}
 
-	client, _ := xc.NewClient(assetConfig)
+	client, _ := factory.NewClient(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to create a client")
@@ -417,7 +399,7 @@ func (a *App) Transfer(
 	utils.Sugar.Infof("input: %+v", input)
 
 	// build tx
-	builder, err := xc.NewTxBuilder(assetConfig)
+	builder, err := factory.NewTxBuilder(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to create transaction builder")
