@@ -4,7 +4,7 @@ import {main} from '../models';
 import {utils} from '../models';
 import {crosschain} from '../models';
 
-export function AddAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<main.ChainAssets>;
+export function AddAsset(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string):Promise<main.ChainAssets>;
 
 export function AddLedger(arg1:number,arg2:string,arg3:string):Promise<string>;
 
@@ -17,6 +17,8 @@ export function CheckCardInitialized():Promise<boolean>;
 export function ClearData(arg1:number,arg2:string):Promise<void>;
 
 export function CurrentAccount():Promise<main.CardInfo>;
+
+export function DataMigrate():Promise<void>;
 
 export function EnableTestnet(arg1:boolean):Promise<void>;
 
@@ -44,7 +46,7 @@ export function LoadSecrePhrase(arg1:string,arg2:string,arg3:string):Promise<mai
 
 export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.CardInfo>;
 
-export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string):Promise<void>;
+export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string):Promise<void>;
 
 export function ResetCard(arg1:number,arg2:string):Promise<void>;
 

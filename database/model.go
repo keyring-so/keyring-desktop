@@ -21,7 +21,8 @@ type Account struct {
 }
 
 type Asset struct {
-	Id          int    `db:"asset_id"`
-	AccountId   int    `db:"account_id"`
-	TokenSymbol string `db:"token_symbol"`
+	Id              int    `db:"asset_id"`
+	AccountId       int    `db:"account_id"`
+	TokenSymbol     string `db:"token_symbol"`
+	ContractAddress string `db:"contract_address"`
 }

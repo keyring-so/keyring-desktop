@@ -1,6 +1,7 @@
 package main
 
 import (
+	"keyring-desktop/database"
 	"keyring-desktop/utils"
 	"net/url"
 	"os"
@@ -31,6 +32,16 @@ func DbMigrate() {
 	err = db.CreateAndMigrate()
 	if err != nil {
 		utils.Sugar.Fatal(err)
+	}
+}
+
+func (a *App) DataMigrate() {
+	// TODO read it from database, so skip unused data migration
+	if true {
+		err := database.AddContractAddressColumn(a.sqlite, a.chainConfigs)
+		if err != nil {
+			utils.Sugar.Fatal(err)
+		}
 	}
 }
 

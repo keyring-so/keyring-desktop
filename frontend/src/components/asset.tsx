@@ -52,6 +52,7 @@ type Props = {
   symbol: string;
   balance?: string;
   address: string;
+  contract?: string;
   onError?: boolean;
 };
 
@@ -72,7 +73,7 @@ const AssetTransferSchema = z.object({
   }),
 });
 
-const Asset = ({ symbol, balance, address, onError }: Props) => {
+const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [fee, setFee] = useState<main.FeeInfo>();
@@ -266,10 +267,10 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
     );
   };
 
-  const removeAsset = async (token: string) => {
+  const removeAsset = async () => {
     try {
       setLoadingRemoveAsset(true);
-      await RemoveAsset(account.id, ledger, address, token);
+      await RemoveAsset(account.id, ledger, address, symbol, contract!);
       setLoadingRemoveAsset(false);
       setRefresh(true);
     } catch (err) {
@@ -414,11 +415,11 @@ const Asset = ({ symbol, balance, address, onError }: Props) => {
               </SheetContent>
             </Sheet>
             <Button onClick={receive}>Receive</Button>
-            {ledger !== symbol &&
+            {contract &&
               (loadingRemoveAsset ? (
                 <Loader2 className="ml-2 animate-spin" />
               ) : (
-                <Trash2 className="ml-2" onClick={() => removeAsset(symbol)} />
+                <Trash2 className="ml-2" onClick={() => removeAsset()} />
               ))}
           </div>
         </AccordionContent>

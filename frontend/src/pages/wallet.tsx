@@ -51,6 +51,7 @@ import {
 type SelectToken = {
   value: string;
   symbol: string;
+  contract: string;
 };
 
 function Wallet() {
@@ -145,7 +146,8 @@ function Wallet() {
         account.id,
         ledger,
         chainAssets!.address,
-        selectToken!.symbol
+        selectToken!.symbol,
+        selectToken!.contract
       );
       setLoadingAddAsset(false);
       setChainAssets(res);
@@ -224,6 +226,7 @@ function Wallet() {
                     symbol={userAsset.symbol}
                     balance={userAsset.balance}
                     address={chainAssets.address}
+                    contract={userAsset.contractAddress}
                     onError={getBalanceErr}
                   />
                 );
@@ -264,6 +267,7 @@ function Wallet() {
                               setSelectToken({
                                 value: currentValue,
                                 symbol: token.symbol,
+                                contract: token.contract,
                               });
                             }
                             setOpenSelectAssets(false);

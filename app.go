@@ -54,6 +54,8 @@ func (a *App) startup(ctx context.Context) {
 		utils.Sugar.Fatal(err)
 	}
 	a.chainConfigs = utils.GetChainConfigs(registryConfig)
+
+	a.DataMigrate()
 }
 
 // shutdown is called when app quits

@@ -128,12 +128,12 @@ func (a *App) GetAssetPrices(cardId int, chain string) (*ChainAssets, error) {
 	return a.getChainAssets(cardId, chain)
 }
 
-func (a *App) AddAsset(cardId int, chain, address, asset string) (*ChainAssets, error) {
+func (a *App) AddAsset(cardId int, chain, address, asset, contract string) (*ChainAssets, error) {
 	if cardId < 0 || chain == "" || address == "" || asset == "" {
 		return nil, errors.New("invalid card, chain or asset")
 	}
 
-	err := database.SaveAsset(a.sqlite, cardId, chain, address, asset)
+	err := database.SaveAsset(a.sqlite, cardId, chain, address, asset, contract)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to save asset to database")
@@ -142,12 +142,12 @@ func (a *App) AddAsset(cardId int, chain, address, asset string) (*ChainAssets, 
 	return a.getChainAssets(cardId, chain)
 }
 
-func (a *App) RemoveAsset(cardId int, chain, address, asset string) error {
+func (a *App) RemoveAsset(cardId int, chain, address, asset, contract string) error {
 	if cardId < 0 || chain == "" || address == "" || asset == "" || chain == asset {
 		return errors.New("invalid card, chain or asset")
 	}
 
-	err := database.RemoveAsset(a.sqlite, cardId, chain, address, asset)
+	err := database.RemoveAsset(a.sqlite, cardId, chain, address, asset, contract)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return errors.New("failed to remove asset from database")
