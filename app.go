@@ -280,12 +280,13 @@ func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error)
 
 func (a *App) CalculateFee(
 	asset string,
+	contract string,
 	nativeAsset string,
 	from string,
 	to string,
 	amount string,
 ) (*FeeInfo, error) {
-	utils.Sugar.Infof("Calculate fee for %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
+	utils.Sugar.Infof("Calculate fee for %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, nativeAsset)
 
 	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
 	if chainConfig == nil {
@@ -294,7 +295,7 @@ func (a *App) CalculateFee(
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, asset, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, nativeAsset)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("unsupported asset")
@@ -325,6 +326,7 @@ func (a *App) CalculateFee(
 
 func (a *App) Transfer(
 	asset string,
+	contract string,
 	nativeAsset string,
 	from string,
 	to string,
@@ -333,7 +335,7 @@ func (a *App) Transfer(
 	pin string,
 	cardId int,
 ) (crosschain.TxHash, error) {
-	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
+	utils.Sugar.Infof("Transfer %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, nativeAsset)
 	if from == "" || to == "" || amount == "" || pin == "" {
 		return "", errors.New("input can not be empty")
 	}
@@ -345,7 +347,7 @@ func (a *App) Transfer(
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, asset, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, nativeAsset)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")

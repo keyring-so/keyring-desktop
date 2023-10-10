@@ -93,7 +93,7 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 
 	assetsInfo := []AssetInfo{}
 	for _, asset := range assets {
-		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.TokenSymbol)
+		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.ContractAddress)
 		if tokenConfig == nil {
 			return nil, errors.New("token not found")
 		}
@@ -182,9 +182,9 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 	ctx := context.Background()
 	assetsInfo := []AssetInfo{}
 	for _, asset := range assets {
-		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.TokenSymbol)
+		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.ContractAddress)
 
-		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.TokenSymbol, chainName, selectedAccount.Address)
+		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.ContractAddress, chainName, selectedAccount.Address)
 		utils.Sugar.Info("balacne: ", balance)
 		if err != nil {
 			utils.Sugar.Error(err)
@@ -204,7 +204,7 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 		assetsInfo = append(assetsInfo, info)
 	}
 
-	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, chainConfig.Symbol, chainName, selectedAccount.Address)
+	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, "", chainName, selectedAccount.Address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)

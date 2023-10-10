@@ -8,7 +8,7 @@ export function AddAsset(arg1:number,arg2:string,arg3:string,arg4:string,arg5:st
 
 export function AddLedger(arg1:number,arg2:string,arg3:string):Promise<string>;
 
-export function CalculateFee(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<main.FeeInfo>;
+export function CalculateFee(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string):Promise<main.FeeInfo>;
 
 export function CheckCardConnection():Promise<boolean>;
 
@@ -54,7 +54,7 @@ export function ResetWallet():Promise<void>;
 
 export function SwitchAccount(arg1:number):Promise<main.CardInfo>;
 
-export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:number):Promise<crosschain.TxHash>;
+export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string,arg9:number):Promise<crosschain.TxHash>;
 
 export function UpdateAccountName(arg1:number,arg2:string):Promise<void>;
 

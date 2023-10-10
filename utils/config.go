@@ -110,10 +110,10 @@ func GetChainConfig(config []ChainConfig, chainName string) *ChainConfig {
 	return chainConfig
 }
 
-func GetTokenConfig(configs []TokenConfig, token string) *TokenConfig {
+func GetTokenConfig(configs []TokenConfig, contract string) *TokenConfig {
 	var tokenConfig *TokenConfig
 	for _, c := range configs {
-		if c.Symbol == token {
+		if c.Contract == contract {
 			tokenConfig = &c
 			break
 		}
@@ -122,7 +122,7 @@ func GetTokenConfig(configs []TokenConfig, token string) *TokenConfig {
 	return tokenConfig
 }
 
-func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (crosschain.ITask, error) {
+func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string) (crosschain.ITask, error) {
 	chainConfig := GetChainConfig(configs, chainName)
 	if chainConfig == nil {
 		return nil, errors.New("chain not found")
@@ -141,11 +141,11 @@ func ConvertAssetConfig(configs []ChainConfig, asset string, chainName string) (
 	}
 
 	// TODO now it use chain symbol, if use chain name, it will cause error since ETH != Ethereum
-	if asset == chainConfig.Symbol {
+	if contract == "" {
 		return &nativeConfig, nil
 	}
 
-	tokenConfig := GetTokenConfig(chainConfig.Tokens, asset)
+	tokenConfig := GetTokenConfig(chainConfig.Tokens, contract)
 	if tokenConfig == nil {
 		return nil, errors.New("token not found")
 	}

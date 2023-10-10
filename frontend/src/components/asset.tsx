@@ -111,6 +111,7 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
       setLoadingTx(true);
       let fee = await CalculateFee(
         symbol,
+        contract ? contract : "",
         ledger,
         address,
         data.toAddr,
@@ -151,6 +152,7 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
     setLoadingTx(true);
     Transfer(
       symbol,
+      contract ? contract : "",
       ledger,
       address,
       data.toAddr,
