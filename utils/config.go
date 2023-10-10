@@ -4,7 +4,64 @@ import (
 	"encoding/json"
 	"errors"
 	"keyring-desktop/crosschain"
+	"os"
 )
+
+type AppConfig struct {
+	ShowTestnet bool `json:"showTestnet"`
+}
+
+func ReadAppConfig() (*AppConfig, error) {
+	configPath, err := AppConfigPath()
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			defaultConfig := AppConfig{
+				ShowTestnet: false,
+			}
+			err := WriteAppConfig(defaultConfig)
+			if err != nil {
+				return nil, err
+			}
+			return &defaultConfig, nil
+		}
+		return nil, err
+	}
+	defer file.Close()
+
+	var config AppConfig
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
+
+func WriteAppConfig(config AppConfig) error {
+	filePath, err := AppConfigPath()
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(config)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 type ChainConfig struct {
 	Name     string        `json:"name"`

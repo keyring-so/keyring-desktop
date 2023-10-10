@@ -33,9 +33,10 @@ type CardChainInfo struct {
 }
 
 type ChainDetail struct {
-	Name   string `json:"name"`
-	Symbol string `json:"symbol"`
-	Img    string `json:"img"`
+	Name    string `json:"name"`
+	Symbol  string `json:"symbol"`
+	Img     string `json:"img"`
+	Testnet bool   `json:"testnet"`
 }
 
 type CardCredential struct {

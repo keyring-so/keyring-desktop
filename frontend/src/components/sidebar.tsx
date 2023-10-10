@@ -1,6 +1,11 @@
 import { main } from "@/../wailsjs/go/models";
-import { chainConfigsAtom, showNewLedgerAtom, showSidebarItem } from "@/store/state";
-import { useSetAtom } from "jotai";
+import {
+  chainConfigsAtom,
+  isTestnetAtom,
+  showNewLedgerAtom,
+  showSidebarItem,
+} from "@/store/state";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Plus, Settings, UserCircle } from "lucide-react";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";
 import Logo from "./logo";
@@ -16,6 +21,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setShowNewLedger = useSetAtom(showNewLedgerAtom);
   const setChainConfigs = useSetAtom(chainConfigsAtom);
   const setShowSidebarItem = useSetAtom(showSidebarItem);
+  const allowTestnet = useAtomValue(isTestnetAtom)
 
   const clickAddButton = async () => {
     let chainConfigs = await GetChainConfigs();
@@ -31,29 +37,47 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
             items-center
             "
     >
-      <SidebarIcon icon={Logo} text="Keyring" onClick={() => console.log("click")} />
+      <SidebarIcon
+        icon={Logo}
+        text="Keyring"
+        onClick={() => console.log("click")}
+      />
 
       <Divider />
 
       <div className="flex flex-col">
         {chains.map((chain) => {
           return (
-            <SidebarLedger
-            img={chain.img}
-            text={chain.name}
-            ledger={chain.name}
-            />
+            <div>
+              {(allowTestnet ? true : !chain.testnet) && <SidebarLedger
+                img={chain.img}
+                text={chain.name}
+                ledger={chain.name}
+              />}
+            </div>
           );
         })}
       </div>
 
       {chains.length > 0 && <Divider />}
 
-      <SidebarIcon icon={Plus} text="Add a Blockchain" onClick={clickAddButton} />
+      <SidebarIcon
+        icon={Plus}
+        text="Add a Blockchain"
+        onClick={clickAddButton}
+      />
 
       <div className="flex flex-col fixed bottom-2">
-        <SidebarIcon icon={UserCircle} text="Accounts" onClick={() => setShowSidebarItem("accounts")} />
-        <SidebarIcon icon={Settings} text="Settings" onClick={() => setShowSidebarItem("settings")} />
+        <SidebarIcon
+          icon={UserCircle}
+          text="Accounts"
+          onClick={() => setShowSidebarItem("accounts")}
+        />
+        <SidebarIcon
+          icon={Settings}
+          text="Settings"
+          onClick={() => setShowSidebarItem("settings")}
+        />
       </div>
     </div>
   );

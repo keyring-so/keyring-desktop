@@ -24,6 +24,7 @@ export namespace main {
 	    name: string;
 	    symbol: string;
 	    img: string;
+	    testnet: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new ChainDetail(source);
@@ -34,6 +35,7 @@ export namespace main {
 	        this.name = source["name"];
 	        this.symbol = source["symbol"];
 	        this.img = source["img"];
+	        this.testnet = source["testnet"];
 	    }
 	}
 	export class CardChainInfo {

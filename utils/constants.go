@@ -12,7 +12,7 @@ const DbAllAccountsKey = "all_accounts"
 const Mainnet = "mainnet"
 const Testnet = "testnet"
 
-func DatabasePath() (string, error) {
+func AppConfigPath() (string, error) {
 	dataPath, err := DataPath()
 	if err != nil {
 		return "", err
@@ -21,7 +21,7 @@ func DatabasePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return dataPath + "/keyring.db", nil
+	return dataPath + "/config.json", nil
 }
 
 func SQLiteDatabasePath() (string, error) {

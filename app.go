@@ -15,15 +15,12 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	bolt "go.etcd.io/bbolt"
 )
 
 // App struct
 type App struct {
 	ctx          context.Context
 	chainConfigs []utils.ChainConfig
-	db           *bolt.DB
 	sqlite       *sqlx.DB
 }
 
@@ -39,7 +36,7 @@ func (a *App) startup(ctx context.Context) {
 	utils.Sugar.Info("starting app...")
 
 	a.ctx = ctx
-	a.db = utils.InitDb()
+
 	DbMigrate()
 
 	sqlDbPath, err := utils.SQLiteDatabasePath()
@@ -61,7 +58,6 @@ func (a *App) startup(ctx context.Context) {
 
 // shutdown is called when app quits
 func (a *App) shutdown(ctx context.Context) {
-	a.db.Close()
 	utils.Logger.Sync()
 }
 
@@ -167,9 +163,10 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 		}
 		chainConfig := utils.GetChainConfig(a.chainConfigs, account.ChainName)
 		chainDetail := ChainDetail{
-			Name:   chainConfig.Name,
-			Symbol: chainConfig.Symbol,
-			Img:    chainConfig.Img,
+			Name:    chainConfig.Name,
+			Symbol:  chainConfig.Symbol,
+			Img:     chainConfig.Img,
+			Testnet: chainConfig.Testnet,
 		}
 		chains = append(chains, chainDetail)
 	}

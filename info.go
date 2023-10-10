@@ -9,12 +9,30 @@ import (
 )
 
 func (a *App) EnableTestnet(flag bool) error {
+	config, err := utils.ReadAppConfig()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to read app config")
+	}
+
+	config.ShowTestnet = flag
+
+	err = utils.WriteAppConfig(*config)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to write app config")
+	}
 
 	return nil
 }
 
 func (a *App) IsTestnetEnabled() (bool, error) {
-	return true, nil
+	config, err := utils.ReadAppConfig()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return false, errors.New("failed to read app config")
+	}
+	return config.ShowTestnet, nil
 }
 
 func (a *App) GetChainConfigs() []utils.ChainConfig {
