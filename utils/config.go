@@ -88,11 +88,21 @@ type TokenConfig struct {
 	Contract string `json:"contract"`
 }
 
-func GetChainConfigs(bytes []byte) []ChainConfig {
+func ReadChainConfigs(bytes []byte) []ChainConfig {
 	var chainConfigs []ChainConfig
 	err := json.Unmarshal(bytes, &chainConfigs)
 	if err != nil {
 		Sugar.Fatal(err)
+	}
+
+	infuraApiToken := os.Getenv("INFURA_API_TOKEN")
+	if infuraApiToken != "" {
+		for i, c := range chainConfigs {
+			if c.RpcAuth == "env:INFURA_API_TOKEN" {
+				c.RpcAuth = infuraApiToken
+			}
+			chainConfigs[i] = c
+		}
 	}
 
 	return chainConfigs

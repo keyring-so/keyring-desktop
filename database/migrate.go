@@ -23,6 +23,10 @@ func AddContractAddressColumn(db *sqlx.DB, chainConfigs []utils.ChainConfig) err
 	defer tx.Rollback()
 
 	for _, asset := range assets {
+		if asset.ContractAddress != "" {
+			break
+		}
+
 		var chainName string
 		err = tx.QueryRow("select chain_name from accounts where account_id = ?", asset.AccountId).Scan(&chainName)
 		if err != nil {

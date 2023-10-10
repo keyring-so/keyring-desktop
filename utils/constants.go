@@ -2,16 +2,6 @@ package utils
 
 import "os"
 
-const BucketName = "Keyring"
-const ChainRegistry = "registry.json"
-
-const DbCurrentAccountKey = "current_account"
-const DbSettingsNetwork = "settings_network"
-const DbAllAccountsKey = "all_accounts"
-
-const Mainnet = "mainnet"
-const Testnet = "testnet"
-
 func AppConfigPath() (string, error) {
 	dataPath, err := DataPath()
 	if err != nil {

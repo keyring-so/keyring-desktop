@@ -53,7 +53,7 @@ func (a *App) startup(ctx context.Context) {
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
-	a.chainConfigs = utils.GetChainConfigs(registryConfig)
+	a.chainConfigs = utils.ReadChainConfigs(registryConfig)
 
 	a.DataMigrate()
 }

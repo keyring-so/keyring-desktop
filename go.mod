@@ -13,6 +13,7 @@ require (
 	github.com/hashicorp/vault/api v1.9.2
 	github.com/jinzhu/copier v0.3.5
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/joho/godotenv v1.5.1
 	github.com/kaichaosun/dbmate v0.0.3
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.0
