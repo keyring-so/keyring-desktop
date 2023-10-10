@@ -97,6 +97,50 @@
     ]
   },
   {
+    "name": "Optimism",
+    "symbol": "ETH",
+    "img": "/tokens/OP_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://optimism-mainnet.infura.io/v3",
+    "rpcAuth": "env:INFURA_API_TOKEN",
+    "chainId": 10,
+    "explorer": "https://optimistic.etherscan.io",
+    "decimals": 18,
+    "testnet": false,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+      }
+    ]
+  },
+  {
+    "name": "Optimism Goerli",
+    "symbol": "ETH",
+    "img": "/tokens/OP_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://optimism-goerli.infura.io/v3",
+    "rpcAuth": "env:INFURA_API_TOKEN",
+    "chainId": 420,
+    "explorer": "https://goerli-optimism.etherscan.io",
+    "decimals": 18,
+    "testnet": true,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0xe05606174bac4A6364B31bd0eCA4bf4dD368f8C6"
+      }
+    ]
+  },
+  {
     "name": "Bitcoin",
     "symbol": "BTC",
     "path": "m/44'/0'/0'/0/0",
