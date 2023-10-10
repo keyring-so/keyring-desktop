@@ -76,16 +76,28 @@ func SaveChainAccount(db *sqlx.DB, cardId int, chainName string, address string)
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
-	res, _ := tx.Exec(
+	res, err := tx.Exec(
 		"insert into accounts (card_id, chain_name, address, selected_account) values (?, ?, ?, ?)",
 		cardId, chainName, address, true,
 	)
-	accountId, _ := res.LastInsertId()
-	tx.Exec(
-		"insert into assets (account_id, token_symbol) values (?, ?)",
-		accountId, chainName,
+	if err != nil {
+		return err
+	}
+
+	lastAccountId, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(
+		"update accounts set selected_account = false where card_id = ? and account_id != ?",
+		cardId, lastAccountId,
 	)
+	if err != nil {
+		return err
+	}
 
 	err = tx.Commit()
 	if err != nil {

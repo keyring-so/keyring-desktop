@@ -88,7 +88,6 @@ function Wallet() {
 
           let prices = await GetAssetPrices(account.id, ledger);
           setChainAssets(prices);
-          console.log("prices:", prices);
         } catch (err) {
           setGetBalanceErr(true);
           toast({

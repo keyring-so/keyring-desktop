@@ -192,7 +192,6 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
         setVerified(true);
         setPin("");
       } else {
-        console.log(addr, address);
         setPin("");
         toast({
           variant: "destructive",

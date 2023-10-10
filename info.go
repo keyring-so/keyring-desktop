@@ -95,7 +95,7 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 	for _, asset := range assets {
 		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.ContractAddress)
 		if tokenConfig == nil {
-			return nil, errors.New("token not found")
+			return nil, errors.New("token config not found")
 		}
 		info := AssetInfo{
 			ContractAddress: tokenConfig.Contract,
