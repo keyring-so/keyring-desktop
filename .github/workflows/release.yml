@@ -34,7 +34,7 @@ jobs:
         with:
           old-string: "env:INFURA_API_TOKEN"
           new-string: ${{ secrets.INFURA_API_TOKEN }}
-          file: "resources/crosschain-testnet.yaml resources/crosschain-mainnet.yaml"
+          file: "resources/registry.json"
       - name: Install libpcsclite
         if: matrix.platform == 'linux/amd64'
         run: sudo apt install libpcsclite-dev

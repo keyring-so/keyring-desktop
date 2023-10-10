@@ -1,3 +1,5 @@
+import { AddLedger, GetChains, IsTestnetEnabled } from "@/../wailsjs/go/main/App";
+import { main } from "@/../wailsjs/go/models";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +24,7 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   accountAtom,
   chainConfigsAtom,
+  isTestnetAtom,
   ledgerAtom,
   showNewLedgerAtom,
   showSidebarItem,
@@ -29,18 +32,18 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AddLedger, GetChains } from "@/../wailsjs/go/main/App";
 import Accounts from "./accounts";
-import Wallet from "./wallet";
 import Settings from "./settings";
+import Wallet from "./wallet";
 
 function WelcomePage() {
-  const [chains, setChains] = useState<string[]>([]);
+  const [chains, setChains] = useState<main.ChainDetail[]>([]);
   const [ledgerCandidate, setLedgerCandidate] = useState("");
   const [pin, setPin] = useState("");
 
   const [showNewLedger, setShowNewLedger] = useAtom(showNewLedgerAtom);
   const [ledger, setLedger] = useAtom(ledgerAtom);
+  const [allowTestnet, setAllowTestnet] = useAtom(isTestnetAtom);
   const account = useAtomValue(accountAtom);
   const chainConfigs = useAtomValue(chainConfigsAtom);
   const sidebarItem = useAtomValue(showSidebarItem);
@@ -62,6 +65,13 @@ function WelcomePage() {
       });
   }, [account]);
 
+  useEffect(() => {
+    (async () => {
+      const res = await IsTestnetEnabled();
+      setAllowTestnet(res);
+    })();
+  }, []);
+
   const addLedger = async () => {
     try {
       let _ = await AddLedger(account.id, ledgerCandidate, pin);
@@ -77,6 +87,7 @@ function WelcomePage() {
     setShowNewLedger(false);
   };
 
+  // TODO refactor to a new component
   const newLedgerDialog = () => {
     return (
       <Dialog open={true} onOpenChange={setShowNewLedger}>
@@ -96,8 +107,9 @@ function WelcomePage() {
                 <SelectGroup>
                   {chainConfigs.map((chainConfig) => {
                     return (
-                      !chainConfig.disable && (
-                        <SelectItem value={chainConfig.symbol}>
+                      !chainConfig.disable &&
+                      (allowTestnet ? true : !chainConfig.testnet) && (
+                        <SelectItem value={chainConfig.name}>
                           {chainConfig.name}
                         </SelectItem>
                       )
@@ -132,9 +144,9 @@ function WelcomePage() {
       case "accounts":
         return <Accounts />;
       default:
-        return chains.length === 0 ? <Guide /> : <Wallet />
+        return chains.length === 0 ? <Guide /> : <Wallet />;
     }
-  }
+  };
 
   return (
     <div className="flex flex-row">

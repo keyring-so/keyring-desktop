@@ -20,7 +20,6 @@ require (
 	github.com/status-im/keycard-go v0.2.1-0.20230817085858-0d3f4e886cf7
 	github.com/stretchr/testify v1.8.4
 	github.com/wailsapp/wails/v2 v2.5.1
-	go.etcd.io/bbolt v1.3.6
 	go.mongodb.org/mongo-driver v1.11.0
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.6.0

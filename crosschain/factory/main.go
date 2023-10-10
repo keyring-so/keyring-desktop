@@ -278,12 +278,12 @@ func (f *Factory) cfgFromAssetByContract(contract string, nativeAsset string) (I
 
 // NewClient creates a new Client
 func (f *Factory) NewClient(cfg ITask) (Client, error) {
-	return newClient(cfg)
+	return NewClient(cfg)
 }
 
 // NewTxBuilder creates a new TxBuilder
 func (f *Factory) NewTxBuilder(cfg ITask) (TxBuilder, error) {
-	return newTxBuilder(cfg)
+	return NewTxBuilder(cfg)
 }
 
 // NewSigner creates a new Signer
@@ -322,7 +322,7 @@ func (f *Factory) GetAllPossibleAddressesFromPublicKey(cfg ITask, publicKey []by
 
 // ConvertAmountToHuman converts an AmountBlockchain into AmountHumanReadable, dividing by the appropriate number of decimals
 func (f *Factory) ConvertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
-	return convertAmountToHuman(cfg, blockchainAmount)
+	return ConvertAmountToHuman(cfg, blockchainAmount)
 }
 
 // ConvertAmountToBlockchain converts an AmountHumanReadable into AmountBlockchain, multiplying by the appropriate number of decimals
@@ -332,7 +332,7 @@ func (f *Factory) ConvertAmountToBlockchain(cfg ITask, humanAmount AmountHumanRe
 
 // ConvertAmountStrToBlockchain converts a string representing an AmountHumanReadable into AmountBlockchain, multiplying by the appropriate number of decimals
 func (f *Factory) ConvertAmountStrToBlockchain(cfg ITask, humanAmountStr string) (AmountBlockchain, error) {
-	return convertAmountStrToBlockchain(cfg, humanAmountStr)
+	return ConvertAmountStrToBlockchain(cfg, humanAmountStr)
 }
 
 // EnrichAssetConfig augments a partial AssetConfig, for example if some info is stored in a db and other in a config file
@@ -506,7 +506,7 @@ func AssetsToMap(assetsList []ITask) sync.Map {
 	return assetsMap
 }
 
-func newClient(cfg ITask) (Client, error) {
+func NewClient(cfg ITask) (Client, error) {
 	switch Driver(cfg.GetDriver()) {
 	case DriverEVM:
 		return evm.NewClient(cfg)
@@ -524,7 +524,7 @@ func newClient(cfg ITask) (Client, error) {
 	return nil, errors.New("unsupported asset")
 }
 
-func newTxBuilder(cfg ITask) (TxBuilder, error) {
+func NewTxBuilder(cfg ITask) (TxBuilder, error) {
 	switch Driver(cfg.GetDriver()) {
 	case DriverEVM:
 		return evm.NewTxBuilder(cfg)
@@ -629,7 +629,7 @@ func convertAmountExponent(cfgI ITask) (int32, error) {
 	return 0, errors.New("unsupported asset")
 }
 
-func convertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
+func ConvertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
 	exponent, err := convertAmountExponent(cfg)
 	if err != nil {
 		return AmountHumanReadable(decimal.NewFromInt(0)), err
@@ -648,7 +648,7 @@ func convertAmountToBlockchain(cfg ITask, humanAmount AmountHumanReadable) (Amou
 	return AmountBlockchain(*result), nil
 }
 
-func convertAmountStrToBlockchain(cfg ITask, humanAmountStr string) (AmountBlockchain, error) {
+func ConvertAmountStrToBlockchain(cfg ITask, humanAmountStr string) (AmountBlockchain, error) {
 	humanAmount, err := decimal.NewFromString(humanAmountStr)
 	if err != nil {
 		return AmountBlockchain(*big.NewInt(0)), err

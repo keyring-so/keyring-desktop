@@ -1,45 +1,38 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"keyring-desktop/database"
 	"keyring-desktop/oracle"
 	"keyring-desktop/utils"
-
-	"keyring-desktop/crosschain/factory"
-
-	"github.com/spf13/viper"
 )
 
-func (a *App) SetNetwork(network string) error {
-	var config string
-	if network == utils.Testnet {
-		database.SaveNetwork(a.db, utils.Testnet)
-		config = "crosschain-testnet.yaml"
-	} else {
-		database.SaveNetwork(a.db, utils.Mainnet)
-		config = "crosschain-mainnet.yaml"
-	}
-
-	crosschainConfig, err := resources.ReadFile("resources/" + config)
+func (a *App) EnableTestnet(flag bool) error {
+	config, err := utils.ReadAppConfig()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return err
+		return errors.New("failed to read app config")
 	}
-	a.crosschainConfig = crosschainConfig
+
+	config.ShowTestnet = flag
+
+	err = utils.WriteAppConfig(*config)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to write app config")
+	}
 
 	return nil
 }
 
-func (a *App) GetNetwork() (string, error) {
-	network, err := database.QueryNetwork(a.db)
+func (a *App) IsTestnetEnabled() (bool, error) {
+	config, err := utils.ReadAppConfig()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to read database")
+		return false, errors.New("failed to read app config")
 	}
-	return network, nil
+	return config.ShowTestnet, nil
 }
 
 func (a *App) GetChainConfigs() []utils.ChainConfig {
@@ -93,18 +86,33 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 		}
 	}
 
-	var assetInfos []AssetInfo
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
+	assetsInfo := []AssetInfo{}
 	for _, asset := range assets {
-		info := AssetInfo{
-			Name:    asset.TokenSymbol,
-			Balance: nil,
-			Price:   nil,
+		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.ContractAddress)
+		if tokenConfig == nil {
+			return nil, errors.New("token not found")
 		}
-		assetInfos = append(assetInfos, info)
+		info := AssetInfo{
+			ContractAddress: tokenConfig.Contract,
+			Symbol:          tokenConfig.Symbol,
+			Img:             tokenConfig.Img,
+			Balance:         nil,
+			Price:           nil,
+		}
+		assetsInfo = append(assetsInfo, info)
 	}
 	chainDataRes := ChainAssets{
 		Address: chainAccount.Address,
-		Assets:  assetInfos,
+		Symbol:  chainConfig.Symbol,
+		Img:     chainConfig.Img,
+		Balance: nil,
+		Price:   nil,
+		Assets:  assetsInfo,
 	}
 
 	return &chainDataRes, nil
@@ -120,12 +128,12 @@ func (a *App) GetAssetPrices(cardId int, chain string) (*ChainAssets, error) {
 	return a.getChainAssets(cardId, chain)
 }
 
-func (a *App) AddAsset(cardId int, chain, address, asset string) (*ChainAssets, error) {
+func (a *App) AddAsset(cardId int, chain, address, asset, contract string) (*ChainAssets, error) {
 	if cardId < 0 || chain == "" || address == "" || asset == "" {
 		return nil, errors.New("invalid card, chain or asset")
 	}
 
-	err := database.SaveAsset(a.sqlite, cardId, chain, address, asset)
+	err := database.SaveAsset(a.sqlite, cardId, chain, address, asset, contract)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to save asset to database")
@@ -134,50 +142,50 @@ func (a *App) AddAsset(cardId int, chain, address, asset string) (*ChainAssets, 
 	return a.getChainAssets(cardId, chain)
 }
 
-func (a *App) RemoveAsset(cardId int, chain, address, asset string) (*ChainAssets, error) {
+func (a *App) RemoveAsset(cardId int, chain, address, asset, contract string) error {
 	if cardId < 0 || chain == "" || address == "" || asset == "" || chain == asset {
-		return nil, errors.New("invalid card, chain or asset")
+		return errors.New("invalid card, chain or asset")
 	}
 
-	err := database.RemoveAsset(a.sqlite, cardId, chain, address, asset)
+	err := database.RemoveAsset(a.sqlite, cardId, chain, address, asset, contract)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to remove asset from database")
+		return errors.New("failed to remove asset from database")
 	}
 
-	return a.getChainAssets(cardId, chain)
+	return nil
 
 }
 
-func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
-	selectedAccount, err := database.QueryChainAccount(a.sqlite, cardId, chain)
+func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error) {
+	selectedAccount, err := database.QueryChainAccount(a.sqlite, cardId, chainName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to query current account")
 	}
-	assets, err := database.QueryAssets(a.sqlite, cardId, chain, selectedAccount.Address)
+	assets, err := database.QueryAssets(a.sqlite, cardId, chainName, selectedAccount.Address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read database")
 	}
 
-	prices, err := oracle.GetPrice(assets, a.chainConfigs)
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
+	prices, err := oracle.GetPrice(assets, *chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err = v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read crosschain configurate")
-	}
-	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
-	var assetsInfo []AssetInfo
+	assetsInfo := []AssetInfo{}
 	for _, asset := range assets {
-		balance, err := utils.GetAssetBalance(ctx, xc, asset.TokenSymbol, chain, selectedAccount.Address)
+		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.ContractAddress)
+
+		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.ContractAddress, chainName, selectedAccount.Address)
+		utils.Sugar.Info("balacne: ", balance)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset: " + asset.TokenSymbol)
@@ -187,14 +195,31 @@ func (a *App) getChainAssets(cardId int, chain string) (*ChainAssets, error) {
 
 		bals := balance.String()
 		info := AssetInfo{
-			Name:    asset.TokenSymbol,
-			Balance: &bals,
-			Price:   &price,
+			ContractAddress: tokenConfig.Contract,
+			Symbol:          tokenConfig.Symbol,
+			Img:             tokenConfig.Img,
+			Balance:         &bals,
+			Price:           &price,
 		}
 		assetsInfo = append(assetsInfo, info)
 	}
+
+	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, "", chainName, selectedAccount.Address)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)
+	}
+
+	price := prices[chainConfig.Symbol].Usd
+
+	bals := balance.String()
+
 	chainDataRes := ChainAssets{
 		Address: selectedAccount.Address,
+		Symbol:  chainConfig.Symbol,
+		Img:     chainConfig.Img,
+		Balance: &bals,
+		Price:   &price,
 		Assets:  assetsInfo,
 	}
 

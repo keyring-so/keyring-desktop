@@ -19,9 +19,10 @@ CREATE TABLE assets (
     asset_id integer primary key,
     account_id integer not null,
     token_symbol text not null
-);
+, contract_address text not null default "");
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20230908080559'),
   ('20230908101337'),
-  ('20230908101344');
+  ('20230908101344'),
+  ('20231010033257');

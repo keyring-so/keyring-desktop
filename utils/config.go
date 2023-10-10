@@ -2,20 +2,90 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
+	"keyring-desktop/crosschain"
+	"os"
 )
 
+type AppConfig struct {
+	ShowTestnet bool `json:"showTestnet"`
+}
+
+func ReadAppConfig() (*AppConfig, error) {
+	configPath, err := AppConfigPath()
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			defaultConfig := AppConfig{
+				ShowTestnet: false,
+			}
+			err := WriteAppConfig(defaultConfig)
+			if err != nil {
+				return nil, err
+			}
+			return &defaultConfig, nil
+		}
+		return nil, err
+	}
+	defer file.Close()
+
+	var config AppConfig
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
+
+func WriteAppConfig(config AppConfig) error {
+	filePath, err := AppConfigPath()
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(config)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type ChainConfig struct {
-	Symbol  string        `json:"symbol"`
-	Name    string        `json:"name"`
-	Path    string        `json:"path"`
-	PriceId string        `json:"priceId"`
-	Disable bool          `json:"disable"`
-	Tokens  []TokenConfig `json:"tokens"`
+	Name     string        `json:"name"`
+	Symbol   string        `json:"symbol"`
+	Img      string        `json:"img"`
+	Path     string        `json:"path"`
+	PriceId  string        `json:"priceId"`
+	Driver   string        `json:"driver"`
+	RpcUrl   string        `json:"rpcUrl"`
+	RpcAuth  string        `json:"rpcAuth"` // TODO do not expose auth info
+	ChainId  int64         `json:"chainId"`
+	Explore  string        `json:"explore"`
+	Decimals int32         `json:"decimals"`
+	Testnet  bool          `json:"testnet"`
+	Disable  bool          `json:"disable"`
+	Tokens   []TokenConfig `json:"tokens"`
 }
 
 type TokenConfig struct {
-	Symbol  string `json:"symbol"`
-	PriceId string `json:"priceId"`
+	Symbol   string `json:"symbol"`
+	Img      string `json:"img"`
+	PriceId  string `json:"priceId"`
+	Decimals int32  `json:"decimals"`
+	Contract string `json:"contract"`
 }
 
 func GetChainConfigs(bytes []byte) []ChainConfig {
@@ -28,14 +98,80 @@ func GetChainConfigs(bytes []byte) []ChainConfig {
 	return chainConfigs
 }
 
-func GetChainConfig(config []ChainConfig, chain string) *ChainConfig {
+func GetChainConfig(config []ChainConfig, chainName string) *ChainConfig {
 	var chainConfig *ChainConfig
 	for _, c := range config {
-		if c.Symbol == chain {
+		if c.Name == chainName {
 			chainConfig = &c
 			break
 		}
 	}
 
 	return chainConfig
+}
+
+func GetTokenConfig(configs []TokenConfig, contract string) *TokenConfig {
+	var tokenConfig *TokenConfig
+	for _, c := range configs {
+		if c.Contract == contract {
+			tokenConfig = &c
+			break
+		}
+	}
+
+	return tokenConfig
+}
+
+func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string) (crosschain.ITask, error) {
+	chainConfig := GetChainConfig(configs, chainName)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
+	nativeConfig := crosschain.NativeAssetConfig{
+		Asset:       chainConfig.Symbol,
+		Driver:      chainConfig.Driver,
+		URL:         chainConfig.RpcUrl,
+		Auth:        chainConfig.RpcAuth,
+		Provider:    "infura", // TODO
+		ExplorerURL: chainConfig.Explore,
+		Decimals:    chainConfig.Decimals,
+		ChainID:     chainConfig.ChainId,
+		Type:        crosschain.AssetTypeNative,
+	}
+
+	// TODO now it use chain symbol, if use chain name, it will cause error since ETH != Ethereum
+	if contract == "" {
+		return &nativeConfig, nil
+	}
+
+	tokenConfig := GetTokenConfig(chainConfig.Tokens, contract)
+	if tokenConfig == nil {
+		return nil, errors.New("token not found")
+	}
+
+	tokenAsset := crosschain.AssetConfig{
+		Asset:       tokenConfig.Symbol,
+		Driver:      chainConfig.Driver,
+		URL:         chainConfig.RpcUrl,
+		Auth:        chainConfig.RpcAuth,
+		Provider:    "infura", // TODO
+		ExplorerURL: chainConfig.Explore,
+		Decimals:    tokenConfig.Decimals,
+		ChainID:     chainConfig.ChainId,
+		Type:        crosschain.AssetTypeToken,
+		Contract:    tokenConfig.Contract,
+	}
+
+	res := crosschain.TokenAssetConfig{
+		Asset:             tokenConfig.Symbol,
+		Chain:             chainName,
+		Decimals:          tokenConfig.Decimals,
+		Contract:          tokenConfig.Contract,
+		Type:              crosschain.AssetTypeToken,
+		AssetConfig:       tokenAsset,
+		NativeAssetConfig: &nativeConfig,
+	}
+
+	return &res, nil
 }

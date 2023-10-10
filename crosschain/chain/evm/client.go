@@ -128,7 +128,7 @@ func (i HttpInterceptor) RoundTrip(req *http.Request) (*http.Response, error) {
 func configToEVMClientURL(cfgI xc.ITask) string {
 	cfg := cfgI.GetNativeAsset()
 	if cfg.Provider == "infura" {
-		return cfg.URL + "/" + cfg.AuthSecret
+		return cfg.URL + "/" + cfg.Auth
 	}
 	return cfg.URL
 }

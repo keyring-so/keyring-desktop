@@ -6,13 +6,19 @@ type FeeInfo struct {
 }
 
 type AssetInfo struct {
-	Name    string   `json:"name"`
-	Balance *string  `json:"balance"`
-	Price   *float32 `json:"price"`
+	ContractAddress string   `json:"contractAddress"`
+	Symbol          string   `json:"symbol"`
+	Img             string   `json:"img"`
+	Balance         *string  `json:"balance"`
+	Price           *float32 `json:"price"`
 }
 
 type ChainAssets struct {
 	Address string      `json:"address"`
+	Symbol  string      `json:"symbol"`
+	Img     string      `json:"img"`
+	Balance *string     `json:"balance"`
+	Price   *float32    `json:"price"`
 	Assets  []AssetInfo `json:"assets"`
 }
 
@@ -22,8 +28,15 @@ type CardInfo struct {
 }
 
 type CardChainInfo struct {
-	Chains            []string `json:"chains"`
-	LastSelectedChain string   `json:"lastSelectedChain"`
+	Chains            []ChainDetail `json:"chains"`
+	LastSelectedChain string        `json:"lastSelectedChain"`
+}
+
+type ChainDetail struct {
+	Name    string `json:"name"`
+	Symbol  string `json:"symbol"`
+	Img     string `json:"img"`
+	Testnet bool   `json:"testnet"`
 }
 
 type CardCredential struct {

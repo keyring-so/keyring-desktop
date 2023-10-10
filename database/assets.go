@@ -5,7 +5,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset string) error {
+func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset, contract string) error {
 	var accountId int
 	err := db.Get(&accountId, "select account_id from accounts where card_id = ? and chain_name = ? and address = ?", cardId, chain, address)
 	if err != nil {
@@ -13,8 +13,8 @@ func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset string) error {
 	}
 
 	_, err = db.Exec(
-		"insert into assets (account_id, token_symbol) values (?, ?)",
-		accountId, asset,
+		"insert into assets (account_id, token_symbol, contract_address) values (?, ?, ?)",
+		accountId, asset, contract,
 	)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func QueryAssets(db *sqlx.DB, cardId int, chain, address string) ([]Asset, error
 	return assets, nil
 }
 
-func RemoveAsset(db *sqlx.DB, cardId int, chain, address, asset string) error {
+func RemoveAsset(db *sqlx.DB, cardId int, chain, address, asset, contract string) error {
 	var accountId int
 	err := db.Get(&accountId, "select account_id from accounts where card_id = ? and chain_name = ? and address = ?", cardId, chain, address)
 	if err != nil {

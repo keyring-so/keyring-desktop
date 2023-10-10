@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"keyring-desktop/database"
@@ -14,20 +13,15 @@ import (
 	"keyring-desktop/crosschain/factory"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/spf13/viper"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	bolt "go.etcd.io/bbolt"
 )
 
 // App struct
 type App struct {
-	ctx              context.Context
-	chainConfigs     []utils.ChainConfig
-	db               *bolt.DB
-	sqlite           *sqlx.DB
-	crosschainConfig []byte
+	ctx          context.Context
+	chainConfigs []utils.ChainConfig
+	sqlite       *sqlx.DB
 }
 
 // NewApp creates a new App application struct
@@ -42,7 +36,7 @@ func (a *App) startup(ctx context.Context) {
 	utils.Sugar.Info("starting app...")
 
 	a.ctx = ctx
-	a.db = utils.InitDb()
+
 	DbMigrate()
 
 	sqlDbPath, err := utils.SQLiteDatabasePath()
@@ -55,32 +49,17 @@ func (a *App) startup(ctx context.Context) {
 	}
 	a.sqlite = sqlDb
 
-	network, err := database.QueryNetwork(a.db)
-	if err != nil {
-		utils.Sugar.Fatal(err)
-	}
-	var crosschainConfigPath string
-	if network == utils.Testnet {
-		crosschainConfigPath = "resources/crosschain-testnet.yaml"
-	} else {
-		crosschainConfigPath = "resources/crosschain-mainnet.yaml"
-	}
-	crosschainConfig, err := resources.ReadFile(crosschainConfigPath)
-	if err != nil {
-		utils.Sugar.Fatal(err)
-	}
-	a.crosschainConfig = crosschainConfig
-
 	registryConfig, err := resources.ReadFile("resources/registry.json")
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
 	a.chainConfigs = utils.GetChainConfigs(registryConfig)
+
+	a.DataMigrate()
 }
 
 // shutdown is called when app quits
 func (a *App) shutdown(ctx context.Context) {
-	a.db.Close()
 	utils.Logger.Sync()
 }
 
@@ -177,14 +156,21 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 
 	utils.Sugar.Infof("The chains are: %v", accounts)
 
-	chains := []string{}
+	chains := []ChainDetail{}
 	var lastSelectedChain string
 
 	for _, account := range accounts {
 		if sc, _ := account.SelectedAccount.Value(); sc == true {
 			lastSelectedChain = account.ChainName
 		}
-		chains = append(chains, account.ChainName)
+		chainConfig := utils.GetChainConfig(a.chainConfigs, account.ChainName)
+		chainDetail := ChainDetail{
+			Name:    chainConfig.Name,
+			Symbol:  chainConfig.Symbol,
+			Img:     chainConfig.Img,
+			Testnet: chainConfig.Testnet,
+		}
+		chains = append(chains, chainDetail)
 	}
 
 	res := CardChainInfo{
@@ -294,38 +280,31 @@ func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error)
 
 func (a *App) CalculateFee(
 	asset string,
+	contract string,
 	nativeAsset string,
 	from string,
 	to string,
 	amount string,
 ) (*FeeInfo, error) {
-	utils.Sugar.Infof("Calculate fee for %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
+	utils.Sugar.Infof("Calculate fee for %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, nativeAsset)
 
 	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
 	if chainConfig == nil {
 		return nil, errors.New("chain configuration not found")
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err := v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return nil, errors.New("failed to read crosschain configurate")
-	}
-	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 
-	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, nativeAsset)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("unsupported asset")
 	}
 
-	fromAddress := xc.MustAddress(assetConfig, from)
-	toAddress := xc.MustAddress(assetConfig, to)
+	fromAddress := crosschain.Address(from)
+	toAddress := crosschain.Address(to)
 
-	client, _ := xc.NewClient(assetConfig)
+	client, _ := factory.NewClient(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to create a client")
@@ -347,6 +326,7 @@ func (a *App) CalculateFee(
 
 func (a *App) Transfer(
 	asset string,
+	contract string,
 	nativeAsset string,
 	from string,
 	to string,
@@ -355,7 +335,7 @@ func (a *App) Transfer(
 	pin string,
 	cardId int,
 ) (crosschain.TxHash, error) {
-	utils.Sugar.Infof("Transfer %s %s from %s to %s on %s network", amount, asset, from, to, nativeAsset)
+	utils.Sugar.Infof("Transfer %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, nativeAsset)
 	if from == "" || to == "" || amount == "" || pin == "" {
 		return "", errors.New("input can not be empty")
 	}
@@ -365,31 +345,23 @@ func (a *App) Transfer(
 		return "", errors.New("chain configuration not found")
 	}
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	err := v.ReadConfig(bytes.NewReader(a.crosschainConfig))
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to read crosschain configurate")
-	}
-	xc := factory.NewDefaultFactoryWithConfig(v.GetStringMap("crosschain"))
 	ctx := context.Background()
 
-	assetConfig, err := xc.GetAssetConfig(asset, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, nativeAsset)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")
 	}
 
-	fromAddress := xc.MustAddress(assetConfig, from)
-	toAddress := xc.MustAddress(assetConfig, to)
-	amountInteger, err := xc.ConvertAmountStrToBlockchain(assetConfig, amount)
+	fromAddress := crosschain.Address(from)
+	toAddress := crosschain.Address(to)
+	amountInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, amount)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to convert the input amount")
 	}
 
-	client, _ := xc.NewClient(assetConfig)
+	client, _ := factory.NewClient(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to create a client")
@@ -411,7 +383,7 @@ func (a *App) Transfer(
 	utils.Sugar.Infof("input: %+v", input)
 
 	// build tx
-	builder, err := xc.NewTxBuilder(assetConfig)
+	builder, err := factory.NewTxBuilder(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to create transaction builder")

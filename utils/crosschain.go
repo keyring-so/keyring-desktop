@@ -8,21 +8,21 @@ import (
 	"keyring-desktop/crosschain/factory"
 )
 
-func GetAssetBalance(ctx context.Context, xc *factory.Factory, asset string, chain string, address string) (*crosschain.AmountHumanReadable, error) {
-	token, err := xc.GetAssetConfig(asset, chain)
+func GetAssetBalance(ctx context.Context, configs []ChainConfig, contract string, chain string, address string) (*crosschain.AmountHumanReadable, error) {
+	token, err := ConvertAssetConfig(configs, contract, chain)
 	if err != nil {
 		return nil, err
 	}
-	client, err := xc.NewClient(token)
+	client, err := factory.NewClient(token)
 	if err != nil {
 		return nil, err
 	}
-	addressRes := xc.MustAddress(token, address)
+	addressRes := crosschain.Address(address)
 	balance, err := client.(crosschain.ClientBalance).FetchBalance(ctx, addressRes)
 	if err != nil {
 		return nil, err
 	}
-	humanBalance, err := xc.ConvertAmountToHuman(token, balance)
+	humanBalance, err := factory.ConvertAmountToHuman(token, balance)
 	if err != nil {
 		return nil, err
 	}
