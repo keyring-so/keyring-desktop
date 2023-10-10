@@ -5,7 +5,7 @@ import {
   showNewLedgerAtom,
   showSidebarItem,
 } from "@/store/state";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Plus, Settings, UserCircle } from "lucide-react";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";
 import Logo from "./logo";
@@ -20,7 +20,7 @@ type Props = {
 const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setShowNewLedger = useSetAtom(showNewLedgerAtom);
   const setChainConfigs = useSetAtom(chainConfigsAtom);
-  const setShowSidebarItem = useSetAtom(showSidebarItem);
+  const [sidebarItem, setSidebarItem] = useAtom(showSidebarItem);
   const allowTestnet = useAtomValue(isTestnetAtom)
 
   const clickAddButton = async () => {
@@ -71,12 +71,12 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
         <SidebarIcon
           icon={UserCircle}
           text="Accounts"
-          onClick={() => setShowSidebarItem("accounts")}
+          onClick={() => sidebarItem == "accounts" ? setSidebarItem("") : setSidebarItem("accounts")}
         />
         <SidebarIcon
           icon={Settings}
           text="Settings"
-          onClick={() => setShowSidebarItem("settings")}
+          onClick={() => sidebarItem == "settings" ? setSidebarItem("") : setSidebarItem("settings")}
         />
       </div>
     </div>
