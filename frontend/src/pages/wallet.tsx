@@ -313,7 +313,8 @@ function Wallet() {
         </TabsContent>
       </Tabs>
 
-      <div className="absolute right-16 top-6">
+      <div className="absolute right-16 top-6 flex flex-row gap-2 items-center">
+        <Label className="text-sm">{ledger}</Label>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
