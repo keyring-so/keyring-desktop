@@ -30,9 +30,10 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   };
 
   const showledgerItem = (chain: main.ChainDetail) => {
+    const isSelected = lastSelectedChain == chain.name;
     if (!chain.testnet) {
       return (
-        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} />
+        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} selected={isSelected} />
       );
     }
 
@@ -42,7 +43,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
     return (
       <div className="relative group">
-        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} />
+        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} selected={isSelected} />
         <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-zinc-400" />
       </div>
     );
