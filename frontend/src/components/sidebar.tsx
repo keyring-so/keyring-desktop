@@ -6,7 +6,7 @@ import {
   showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Plus, Settings, UserCircle } from "lucide-react";
+import { FlaskRound, Plus, Settings, UserCircle } from "lucide-react";
 import { GetChainConfigs } from "../../wailsjs/go/main/App";
 import Logo from "./logo";
 import SidebarIcon from "./sidebar-icon";
@@ -21,12 +21,31 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setShowNewLedger = useSetAtom(showNewLedgerAtom);
   const setChainConfigs = useSetAtom(chainConfigsAtom);
   const [sidebarItem, setSidebarItem] = useAtom(showSidebarItem);
-  const allowTestnet = useAtomValue(isTestnetAtom)
+  const allowTestnet = useAtomValue(isTestnetAtom);
 
   const clickAddButton = async () => {
     let chainConfigs = await GetChainConfigs();
     setChainConfigs(chainConfigs);
     setShowNewLedger(true);
+  };
+
+  const showledgerItem = (chain: main.ChainDetail) => {
+    if (!chain.testnet) {
+      return (
+        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} />
+      );
+    }
+
+    if (!allowTestnet) {
+      return;
+    }
+
+    return (
+      <div className="relative group">
+        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} />
+        <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-zinc-400" />
+      </div>
+    );
   };
 
   return (
@@ -45,19 +64,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <Divider />
 
-      <div className="flex flex-col">
-        {chains.map((chain) => {
-          return (
-            <div>
-              {(allowTestnet ? true : !chain.testnet) && <SidebarLedger
-                img={chain.img}
-                text={chain.name}
-                ledger={chain.name}
-              />}
-            </div>
-          );
-        })}
-      </div>
+      <div className="flex flex-col">{chains.map(showledgerItem)}</div>
 
       {chains.length > 0 && <Divider />}
 
@@ -71,12 +78,20 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
         <SidebarIcon
           icon={UserCircle}
           text="Accounts"
-          onClick={() => sidebarItem == "accounts" ? setSidebarItem("") : setSidebarItem("accounts")}
+          onClick={() =>
+            sidebarItem == "accounts"
+              ? setSidebarItem("")
+              : setSidebarItem("accounts")
+          }
         />
         <SidebarIcon
           icon={Settings}
           text="Settings"
-          onClick={() => sidebarItem == "settings" ? setSidebarItem("") : setSidebarItem("settings")}
+          onClick={() =>
+            sidebarItem == "settings"
+              ? setSidebarItem("")
+              : setSidebarItem("settings")
+          }
         />
       </div>
     </div>
