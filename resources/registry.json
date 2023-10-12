@@ -141,6 +141,48 @@
     ]
   },
   {
+    "name": "Base",
+    "symbol": "ETH",
+    "img": "/tokens/BASE_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://mainnet.base.org",
+    "chainId": 8453,
+    "explorer": "https://basescan.org",
+    "decimals": 18,
+    "testnet": false,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      }
+    ]
+  },
+  {
+    "name": "Base Goerli",
+    "symbol": "ETH",
+    "img": "/tokens/BASE_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://goerli.base.org",
+    "chainId": 84531,
+    "explorer": "https://goerli.basescan.org",
+    "decimals": 18,
+    "testnet": true,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0xf175520c52418dfe19c8098071a252da48cd1c19"
+      }
+    ]
+  },
+  {
     "name": "Bitcoin",
     "symbol": "BTC",
     "path": "m/44'/0'/0'/0/0",
