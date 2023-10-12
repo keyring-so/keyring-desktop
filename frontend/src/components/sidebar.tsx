@@ -33,7 +33,12 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
     const isSelected = lastSelectedChain == chain.name;
     if (!chain.testnet) {
       return (
-        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} selected={isSelected} />
+        <SidebarLedger
+          img={chain.img}
+          text={chain.name}
+          ledger={chain.name}
+          selected={isSelected}
+        />
       );
     }
 
@@ -43,7 +48,12 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
     return (
       <div className="relative group">
-        <SidebarLedger img={chain.img} text={chain.name} ledger={chain.name} selected={isSelected} />
+        <SidebarLedger
+          img={chain.img}
+          text={chain.name}
+          ledger={chain.name}
+          selected={isSelected}
+        />
         <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-zinc-400" />
       </div>
     );
@@ -52,16 +62,18 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   return (
     <div
       className="
-            top-2 left-2 w-auto h-screen p-2
+            w-auto h-screen p-2
             flex flex-col bg-gray-100 dark:bg-gray-900 shadow-lg
             items-center
             "
     >
-      <SidebarIcon
-        icon={Logo}
-        text="Keyring"
-        onClick={() => console.log("click")}
-      />
+      <div>
+        <SidebarIcon
+          icon={Logo}
+          text="Keyring"
+          onClick={() => console.log("click")}
+        />
+      </div>
 
       <Divider />
 
@@ -69,13 +81,15 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       {chains.length > 0 && <Divider />}
 
-      <SidebarIcon
-        icon={Plus}
-        text="Add a Blockchain"
-        onClick={clickAddButton}
-      />
+      <div>
+        <SidebarIcon
+          icon={Plus}
+          text="Add a Blockchain"
+          onClick={clickAddButton}
+        />
+      </div>
 
-      <div className="flex flex-col fixed bottom-2">
+      <div className="flex flex-col mt-auto">
         <SidebarIcon
           icon={UserCircle}
           text="Accounts"
