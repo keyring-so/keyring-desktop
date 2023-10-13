@@ -47,6 +47,7 @@ import {
   GetAssetPrices,
   GetChainConfig,
 } from "../../wailsjs/go/main/App";
+import WalletConnect from "@/components/WalletConnect";
 
 type SelectToken = {
   value: string;
@@ -334,6 +335,12 @@ function Wallet() {
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      {chainAssets?.address && (
+        <div className="absolute right-10 bottom-10">
+          <WalletConnect address={chainAssets ? chainAssets.address : ""} />
+        </div>
+      )}
     </div>
   );
 }

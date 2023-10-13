@@ -1,4 +1,9 @@
-import { AddLedger, GetChains, IsTestnetEnabled } from "@/../wailsjs/go/main/App";
+import {
+  AddLedger,
+  GetChainConfigs,
+  GetChains,
+  IsTestnetEnabled,
+} from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
@@ -45,7 +50,7 @@ function WelcomePage() {
   const [ledger, setLedger] = useAtom(ledgerAtom);
   const [allowTestnet, setAllowTestnet] = useAtom(isTestnetAtom);
   const account = useAtomValue(accountAtom);
-  const chainConfigs = useAtomValue(chainConfigsAtom);
+  const [chainConfigs, setChainConfigs] = useAtom(chainConfigsAtom);
   const sidebarItem = useAtomValue(showSidebarItem);
 
   const { toast } = useToast();
@@ -67,6 +72,8 @@ function WelcomePage() {
 
   useEffect(() => {
     (async () => {
+      let chainConfigs = await GetChainConfigs();
+      setChainConfigs(chainConfigs);
       const res = await IsTestnetEnabled();
       setAllowTestnet(res);
     })();
