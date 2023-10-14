@@ -8,6 +8,7 @@ import (
 	"keyring-desktop/crosschain/factory"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -24,7 +25,7 @@ func (a *App) SendTransaction(
 	cardId int,
 ) (crosschain.TxHash, error) {
 	utils.Sugar.Infof("Send transaction from %s to %s on %s", from, to, chainName)
-	if pin == "" || from == "" || to == "" || chainName == "" || value == "" || gas == "" || data == "" {
+	if pin == "" || from == "" || to == "" || chainName == "" {
 		return "", errors.New("input can not be empty")
 	}
 
@@ -72,7 +73,10 @@ func (a *App) SendTransaction(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decode payload")
 	}
-	valueInt, err := hexutil.DecodeBig(value)
+	valueInt := new(big.Int)
+	if value != "" {
+		valueInt, err = hexutil.DecodeBig(value)
+	}
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decode value")
