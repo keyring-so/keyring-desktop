@@ -366,7 +366,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
   return (
     <div>
       <div
-        className="flex flex-col h-12 w-12 rounded-xl bg-secondary-foreground p-3 items-center justify-center"
+        className="flex flex-col h-12 w-12 rounded-xl bg-primary text-white p-3 items-center justify-center"
         onClick={() => setShowConnect(true)}
       >
         <img src="/walletconnect.svg" alt="WalletConnect" />
