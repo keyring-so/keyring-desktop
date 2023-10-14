@@ -1,12 +1,11 @@
+import { SendTransaction } from "@/../wailsjs/go/main/App";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
-import { chainConfigsAtom } from "@/store/state";
-import { Core } from "@walletconnect/core";
-import { SignClientTypes } from "@walletconnect/types";
+import { chainConfigsAtom, walletConnectDataAtom } from "@/store/state";
+import { web3wallet } from "@/utils/WalletConnectUtil";
 import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils";
-import { IWeb3Wallet, Web3Wallet } from "@walletconnect/web3wallet";
-import { useAtomValue } from "jotai";
-import { useEffect, useMemo, useState } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import { useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -18,31 +17,24 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
-
-let web3wallet: IWeb3Wallet;
-const core = new Core({
-  projectId: "demoid", // TODO use config
-  relayUrl: "wss://relay.walletconnect.com",
-});
-
-interface Data {
-  proposal?: SignClientTypes.EventArguments["session_proposal"];
-}
 
 interface Props {
   address: string;
+  ledger: string;
+  cardId: number;
 }
 
-const WalletConnect = ({ address }: Props) => {
-  const [initialized, setInitialized] = useState(false);
-  const [data, setData] = useState<Data>();
+const WalletConnect = ({ address, ledger, cardId }: Props) => {
   const [showConnect, setShowConnect] = useState(false);
   const [link, setLink] = useState("");
+  const [pin, setPin] = useState("");
 
   const { toast } = useToast();
 
   const chainConfigs = useAtomValue(chainConfigsAtom);
+  const [walletConnectData, setWalletConnectData] = useAtom(walletConnectDataAtom);
 
   const supportedNamespaces = useMemo(() => {
     const evmChains = chainConfigs
@@ -54,7 +46,7 @@ const WalletConnect = ({ address }: Props) => {
     const evmMethods = Object.values(EIP155_SIGNING_METHODS);
 
     console.log("address:", address);
-    
+
     return {
       eip155: {
         chains: evmChains,
@@ -65,52 +57,59 @@ const WalletConnect = ({ address }: Props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!initialized) {
-      initWalletConnect();
-    }
-  }, [initialized]);
+  // const onSessionProposal = (
+  //   proposal: SignClientTypes.EventArguments["session_proposal"]
+  // ) => {
+  //   console.log("session proposal: ", proposal);
+  //   setWalletConnectData({ proposal });
+  // };
 
-  const onSessionProposal = (
-    proposal: SignClientTypes.EventArguments["session_proposal"]
-  ) => {
-    console.log("session proposal: ", proposal);
-    setData({ proposal });
-  };
+  // const onSessionRequest = async (
+  //   requestEvent: SignClientTypes.EventArguments["session_request"]
+  // ) => {
+  //   console.log("session request: ", requestEvent);
+  //   const { topic, params, verifyContext } = requestEvent;
+  //   const { request } = params;
+  //   const requestSession = web3wallet.engine.signClient.session.get(topic);
 
-  const onSessionRequest = async (
-    event: SignClientTypes.EventArguments["session_request"]
-  ) => {
-    console.log("session request: ", event);
-    const { topic, params, verifyContext } = event;
-    const { request } = params;
-  };
+  //   switch (request.method) {
+  //     case EIP155_SIGNING_METHODS.ETH_SIGN:
+  //     case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
+  //       return;
+  //     case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+  //     case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+  //       setWalletConnectData({ requestEvent, requestSession });
+  //       return;
+  //     default:
+  //       return;
+  //   }
+  // };
 
-  const initWalletConnect = async () => {
-    try {
-      web3wallet = await Web3Wallet.init({
-        core,
-        metadata: {
-          name: "Keyring",
-          description: "Secure and handy hardware wallet for crypto holders",
-          url: "https://keyring.so",
-          icons: ["https://keyring.so/_next/image?url=%2Flogo.png&w=128&q=75"], // TODO use local image
-        },
-      });
-    } catch (err) {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    } finally {
-      setLink("");
-    }
+  // const initWalletConnect = async () => {
+  //   try {
+  //     web3wallet = await Web3Wallet.init({
+  //       core,
+  //       metadata: {
+  //         name: "Keyring",
+  //         description: "Secure and handy hardware wallet for crypto holders",
+  //         url: "https://keyring.so",
+  //         icons: ["https://keyring.so/_next/image?url=%2Flogo.png&w=128&q=75"], // TODO use local image
+  //       },
+  //     });
+  //   } catch (err) {
+  //     toast({
+  //       title: "Uh oh! Something went wrong.",
+  //       description: `Error happens: ${err}`,
+  //     });
+  //   } finally {
+  //     setLink("");
+  //   }
 
-    web3wallet.on("session_proposal", onSessionProposal);
-    web3wallet.on("session_request", onSessionRequest);
+  //   web3wallet.on("session_proposal", onSessionProposal);
+  //   web3wallet.on("session_request", onSessionRequest);
 
-    setInitialized(true);
-  };
+  //   setInitialized(true);
+  // };
 
   const connect = async () => {
     console.log("web3 wallet:", web3wallet);
@@ -131,7 +130,7 @@ const WalletConnect = ({ address }: Props) => {
 
   const onApprove = async () => {
     console.log("approve");
-    const proposal = data?.proposal;
+    const proposal = walletConnectData?.proposal;
 
     console.log("supportedNamespaces", supportedNamespaces);
 
@@ -154,7 +153,7 @@ const WalletConnect = ({ address }: Props) => {
           description: "Session is approved.",
         });
 
-        setData({});
+        setWalletConnectData({});
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -165,13 +164,98 @@ const WalletConnect = ({ address }: Props) => {
   };
 
   const onReject = async () => {
-    const proposal = data?.proposal;
+    const proposal = walletConnectData?.proposal;
     if (proposal) {
       try {
         await web3wallet.rejectSession({
           id: proposal.id,
           reason: getSdkError("USER_REJECTED_METHODS"),
         });
+        setWalletConnectData({});
+      } catch (err) {
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        });
+      }
+    }
+  };
+
+  // from string,
+  // to string,
+  // chainName string,
+  // value string,
+  // gas string,
+  // data string,
+  // tip string,
+  // pin string,
+  // cardId int,
+  const onApproveRequest = async () => {
+    console.log("approve request");
+    const requestEvent = walletConnectData?.requestEvent;
+
+    if (requestEvent) {
+      const { topic, params, id } = requestEvent;
+      const { chainId, request } = params; // TODO check chain id is matched
+      const transaction = request.params[0];
+
+      try {
+        let result;
+        switch (request.method) {
+          case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+            result = await SendTransaction(
+              transaction.from,
+              transaction.to,
+              ledger,
+              transaction.value,
+              transaction.gas,
+              transaction.data,
+              "", // TODO adjust tip
+              pin,
+              cardId
+            );
+            break;
+          default:
+            break;
+        }
+
+        const response = { id, result: result, jsonrpc: "2.0" };
+        await web3wallet.respondSessionRequest({
+          topic,
+          response,
+        });
+        toast({
+          title: "Success!",
+          description: "Reqeust is approved.",
+        });
+        setWalletConnectData({});
+      } catch (err) {
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        });
+      }
+    }
+  };
+
+  const onRejectRequest = async () => {
+    const requestEvent = walletConnectData?.requestEvent;
+    if (requestEvent) {
+      const { topic, params, id } = requestEvent;
+      const response = {
+        id,
+        jsonrpc: "2.0",
+        error: {
+          code: 5000,
+          message: "User rejected.",
+        },
+      };
+      try {
+        await web3wallet.respondSessionRequest({
+          topic,
+          response,
+        });
+        setWalletConnectData({});
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -206,10 +290,10 @@ const WalletConnect = ({ address }: Props) => {
   };
 
   const proposalDialog = () => {
-    const metadata = data!.proposal!.params.proposer.metadata;
+    const metadata = walletConnectData!.proposal!.params.proposer.metadata;
     const { icons, name, url } = metadata;
     return (
-      <Dialog open={true} onOpenChange={() => setData({})}>
+      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
@@ -237,6 +321,48 @@ const WalletConnect = ({ address }: Props) => {
     );
   };
 
+  const requestDialog = () => {
+    const metadata = walletConnectData!.requestSession!.peer.metadata;
+    const transaction = walletConnectData!.requestEvent!.params.request.params[0];
+    const { icons, name, url } = metadata;
+
+    return (
+      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Wallet Connect</DialogTitle>
+            <DialogDescription>
+              Do you want to approve this request?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <Avatar>
+              <AvatarImage src={icons[0]} />
+              <AvatarFallback>n/a</AvatarFallback>
+            </Avatar>
+            <Label>{name} wants to request operation from your wallet.</Label>
+            <Textarea>{JSON.stringify(transaction)}</Textarea>
+            <div className="flex flex-row items-center justify-center gap-4">
+              <Label className="text-right">PIN</Label>
+              <Input
+                type="password"
+                onChange={(e) => setPin(e.target.value)}
+              ></Input>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={onApproveRequest}>
+              Approve
+            </Button>
+            <Button type="submit" onClick={onRejectRequest}>
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <div>
       <div
@@ -246,7 +372,8 @@ const WalletConnect = ({ address }: Props) => {
         <img src="/walletconnect.svg" alt="WalletConnect" />
       </div>
       {showConnect && connectDialog()}
-      {data?.proposal && proposalDialog()}
+      {walletConnectData?.proposal && proposalDialog()}
+      {walletConnectData?.requestEvent && requestDialog()}
     </div>
   );
 };

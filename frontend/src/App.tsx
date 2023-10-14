@@ -6,11 +6,14 @@ import { CurrentAccount } from "../wailsjs/go/main/App";
 import ConnectPage from "./pages/connect";
 import WelcomePage from "./pages/welcome";
 import { accountAtom } from "./store/state";
+import useInitialization from "@/hooks/useInitialization";
 
 function App() {
   const [account, setAccount] = useAtom(accountAtom);
 
   const { toast } = useToast();
+
+  const initialized = useInitialization();
 
   useEffect(() => {
     CurrentAccount()

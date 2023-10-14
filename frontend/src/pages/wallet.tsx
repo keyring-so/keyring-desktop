@@ -338,7 +338,7 @@ function Wallet() {
 
       {chainAssets?.address && (
         <div className="absolute right-10 bottom-10">
-          <WalletConnect address={chainAssets ? chainAssets.address : ""} />
+          <WalletConnect address={chainAssets.address} ledger={ledger} cardId={account.id} />
         </div>
       )}
     </div>

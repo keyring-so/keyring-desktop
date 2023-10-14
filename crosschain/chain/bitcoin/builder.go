@@ -3,6 +3,7 @@ package bitcoin
 import (
 	"errors"
 	"fmt"
+	"math/big"
 
 	xc "keyring-desktop/crosschain"
 
@@ -42,6 +43,10 @@ func (txBuilder TxBuilder) NewTransfer(from xc.Address, to xc.Address, amount xc
 		return txBuilder.NewTokenTransfer(from, to, amount, input)
 	}
 	return txBuilder.NewNativeTransfer(from, to, amount, input)
+}
+
+func (txBuilder TxBuilder) NewSendTransaction(from xc.Address, to xc.Address, gas uint64, value *big.Int, data []byte, input xc.TxInput) (xc.Tx, error) {
+	return nil, errors.New("not implemented")
 }
 
 // NewNativeTransfer creates a new transfer for a native asset

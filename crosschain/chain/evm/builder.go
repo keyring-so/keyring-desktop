@@ -42,6 +42,14 @@ func (txBuilder TxBuilder) NewTransfer(from xc.Address, to xc.Address, amount xc
 	return txBuilder.NewNativeTransfer(from, to, amount, input)
 }
 
+func (txBuilder TxBuilder) NewSendTransaction(from xc.Address, to xc.Address, gas uint64, value *big.Int, data []byte, input xc.TxInput) (xc.Tx, error) {
+	txInput := input.(*TxInput)
+
+	txInput.GasLimit = gas
+
+	return txBuilder.buildEvmTxWithPayload(to, value, data, txInput)
+}
+
 // NewNativeTransfer creates a new transfer for a native asset
 func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
 	txInput := input.(*TxInput)
