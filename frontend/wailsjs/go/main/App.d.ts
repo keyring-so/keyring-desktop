@@ -50,6 +50,8 @@ export function Pair(arg1:string,arg2:string,arg3:string,arg4:string):Promise<ma
 
 export function RemoveAsset(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string):Promise<void>;
 
+export function RemoveLedger(arg1:number,arg2:string):Promise<void>;
+
 export function ResetCard(arg1:number,arg2:string):Promise<void>;
 
 export function ResetWallet():Promise<void>;

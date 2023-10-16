@@ -35,8 +35,8 @@ func QueryChainAccount(db *sqlx.DB, cardId int, chain string) (*Account, error) 
 }
 
 func UpdateSelectedAccount(db *sqlx.DB, cardId int, chainName string) error {
-	var oldSelectedId int
-	err := db.Get(&oldSelectedId, "select account_id from accounts where selected_account = true and card_id = ? limit 1", cardId)
+	var ids []int
+	err := db.Select(&ids, "select account_id from accounts where selected_account = true and card_id = ? limit 1", cardId)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,9 @@ func UpdateSelectedAccount(db *sqlx.DB, cardId int, chainName string) error {
 		return err
 	}
 
-	tx.Exec(`UPDATE accounts SET selected_account = false WHERE account_id = ?`, oldSelectedId)
+	if len(ids) > 0 {
+		tx.Exec(`UPDATE accounts SET selected_account = false WHERE account_id = ?`, ids[0])
+	}
 	tx.Exec(`UPDATE accounts SET selected_account = true WHERE card_id = ? and chain_name = ?`, cardId, chainName)
 
 	err = tx.Commit()
@@ -118,6 +120,7 @@ func ClearAccounts(db *sqlx.DB, cardId int) error {
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
 	for _, accountId := range accountIds {
 		_, err = tx.Exec(`delete from assets where account_id = ?`, accountId)
@@ -132,6 +135,39 @@ func ClearAccounts(db *sqlx.DB, cardId int) error {
 	}
 
 	_, err = tx.Exec(`delete from cards where card_id = ?`, cardId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func DeleteLedger(db *sqlx.DB, cardId int, chainName string) error {
+	accountIds := []int{}
+	err := db.Select(&accountIds, "select account_id from accounts where card_id = ? and chain_name = ?", cardId, chainName)
+	if err != nil {
+		return err
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	for _, accountId := range accountIds {
+		_, err = tx.Exec(`delete from assets where account_id = ?`, accountId)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = tx.Exec(`delete from accounts where card_id = ? and chain_name = ?`, cardId, chainName)
 	if err != nil {
 		return err
 	}

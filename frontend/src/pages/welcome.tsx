@@ -151,7 +151,7 @@ function WelcomePage() {
       case "accounts":
         return <Accounts />;
       default:
-        return chains.length === 0 ? <Guide /> : <Wallet />;
+        return chains.length === 0 || !ledger ? <Guide /> : <Wallet />;
     }
   };
 

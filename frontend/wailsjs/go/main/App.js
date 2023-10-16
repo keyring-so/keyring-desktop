@@ -94,6 +94,10 @@ export function RemoveAsset(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['RemoveAsset'](arg1, arg2, arg3, arg4, arg5);
 }
 
+export function RemoveLedger(arg1, arg2) {
+  return window['go']['main']['App']['RemoveLedger'](arg1, arg2);
+}
+
 export function ResetCard(arg1, arg2) {
   return window['go']['main']['App']['ResetCard'](arg1, arg2);
 }

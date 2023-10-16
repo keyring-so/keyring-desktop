@@ -1,16 +1,26 @@
+import { GetChainConfigs, RemoveLedger } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger
+} from "@/components/ui/context-menu";
+import {
+  accountAtom,
   chainConfigsAtom,
   isTestnetAtom,
+  refreshAtom,
   showNewLedgerAtom,
   showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { FlaskRound, Plus, Settings, UserCircle } from "lucide-react";
-import { GetChainConfigs } from "../../wailsjs/go/main/App";
+import { FlaskRound, Plus, Settings, Trash2, UserCircle } from "lucide-react";
 import Logo from "./logo";
 import SidebarIcon from "./sidebar-icon";
 import SidebarLedger from "./sidebar-ledger";
+import { Label } from "./ui/label";
+import { useToast } from "./ui/use-toast";
 
 type Props = {
   chains: main.ChainDetail[];
@@ -22,6 +32,10 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
   const setChainConfigs = useSetAtom(chainConfigsAtom);
   const [sidebarItem, setSidebarItem] = useAtom(showSidebarItem);
   const allowTestnet = useAtomValue(isTestnetAtom);
+  const account = useAtomValue(accountAtom);
+  const setRefresh = useSetAtom(refreshAtom);
+
+  const { toast } = useToast();
 
   const clickAddButton = async () => {
     let chainConfigs = await GetChainConfigs();
@@ -29,16 +43,38 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
     setShowNewLedger(true);
   };
 
+  const deleteChain = async (chainName: string) => {
+    try {
+      await RemoveLedger(account.id, chainName);
+      setRefresh(true);
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
   const showledgerItem = (chain: main.ChainDetail) => {
     const isSelected = lastSelectedChain == chain.name;
     if (!chain.testnet) {
       return (
-        <SidebarLedger
-          img={chain.img}
-          text={chain.name}
-          ledger={chain.name}
-          selected={isSelected}
-        />
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <SidebarLedger
+              img={chain.img}
+              text={chain.name}
+              ledger={chain.name}
+              selected={isSelected}
+            />
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem onClick={() => deleteChain(chain.name)}>
+              <Label>Delete</Label>
+              <Trash2 className="ml-auto" />
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       );
     }
 
@@ -47,15 +83,25 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
     }
 
     return (
-      <div className="relative group">
-        <SidebarLedger
-          img={chain.img}
-          text={chain.name}
-          ledger={chain.name}
-          selected={isSelected}
-        />
-        <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-primary-foreground" />
-      </div>
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div className="relative group">
+            <SidebarLedger
+              img={chain.img}
+              text={chain.name}
+              ledger={chain.name}
+              selected={isSelected}
+            />
+            <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-primary-foreground" />
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onClick={() => deleteChain(chain.name)}>
+            <Label>Delete</Label>
+            <Trash2 className="ml-auto" />
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     );
   };
 

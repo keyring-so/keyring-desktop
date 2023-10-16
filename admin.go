@@ -79,6 +79,19 @@ func (a *App) ClearData(cardId int, pin string) error {
 	return nil
 }
 
+// Remove a ledger in database
+func (a *App) RemoveLedger(cardId int, chainName string) error {
+	utils.Sugar.Info("Start to clear data for the card")
+
+	err := database.DeleteLedger(a.sqlite, cardId, chainName)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("failed to clear ledger")
+	}
+
+	return nil
+}
+
 func (a *App) ResetWallet() error {
 	utils.Sugar.Info("Start to reset wallet")
 
