@@ -34,3 +34,4 @@ export const LEDGERS = new Map<String, LedgerInfo>([
 ]);
 
 export const GWEI = 1000_000_000;
+export const ETH = 1_000_000_000_000_000_000;

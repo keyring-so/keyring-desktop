@@ -20,6 +20,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { ETH } from "@/constants";
 
 interface Props {
   address: string;
@@ -60,60 +61,6 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
       },
     };
   }, []);
-
-  // const onSessionProposal = (
-  //   proposal: SignClientTypes.EventArguments["session_proposal"]
-  // ) => {
-  //   console.log("session proposal: ", proposal);
-  //   setWalletConnectData({ proposal });
-  // };
-
-  // const onSessionRequest = async (
-  //   requestEvent: SignClientTypes.EventArguments["session_request"]
-  // ) => {
-  //   console.log("session request: ", requestEvent);
-  //   const { topic, params, verifyContext } = requestEvent;
-  //   const { request } = params;
-  //   const requestSession = web3wallet.engine.signClient.session.get(topic);
-
-  //   switch (request.method) {
-  //     case EIP155_SIGNING_METHODS.ETH_SIGN:
-  //     case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
-  //       return;
-  //     case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-  //     case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-  //       setWalletConnectData({ requestEvent, requestSession });
-  //       return;
-  //     default:
-  //       return;
-  //   }
-  // };
-
-  // const initWalletConnect = async () => {
-  //   try {
-  //     web3wallet = await Web3Wallet.init({
-  //       core,
-  //       metadata: {
-  //         name: "Keyring",
-  //         description: "Secure and handy hardware wallet for crypto holders",
-  //         url: "https://keyring.so",
-  //         icons: ["https://keyring.so/_next/image?url=%2Flogo.png&w=128&q=75"], // TODO use local image
-  //       },
-  //     });
-  //   } catch (err) {
-  //     toast({
-  //       title: "Uh oh! Something went wrong.",
-  //       description: `Error happens: ${err}`,
-  //     });
-  //   } finally {
-  //     setLink("");
-  //   }
-
-  //   web3wallet.on("session_proposal", onSessionProposal);
-  //   web3wallet.on("session_request", onSessionRequest);
-
-  //   setInitialized(true);
-  // };
 
   const connect = async () => {
     try {
@@ -349,7 +296,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
 
     return (
       <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[465px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
             <DialogDescription>
@@ -362,7 +309,35 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
               <AvatarFallback>n/a</AvatarFallback>
             </Avatar>
             <Label>{name} wants to request operation from your wallet.</Label>
-            <Textarea>{JSON.stringify(transaction)}</Textarea>
+            <div className="flex flex-col w-full">
+              <Label className="mb-2">Send Transaction:</Label>
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <Label className="w-[50px]">From:</Label>
+                <Input value={transaction.from} disabled></Input>
+              </div>
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <Label className="w-[50px]">To:</Label>
+                <Input value={transaction.to} disabled></Input>
+              </div>
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <Label className="w-[50px]">Gas:</Label>
+                <Input
+                  value={BigInt(transaction.gas).toString()}
+                  disabled
+                ></Input>
+              </div>
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <Label className="w-[50px]">Value:</Label>
+                <Input
+                  value={(Number(transaction.value || "0") / ETH).toString()}
+                  disabled
+                ></Input>
+              </div>
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <Label className="w-[50px]">Data:</Label>
+                <Input value={transaction.data} disabled></Input>
+              </div>
+            </div>
             <div className="flex flex-row items-center justify-center gap-4">
               <Label className="text-right">PIN</Label>
               <Input
