@@ -57,6 +57,10 @@ func (a *App) GetCredentials() (*CardCredential, error) {
 	return &res, nil
 }
 
+func (a *App) GetWalletConnectProjectId() (string, error) {
+	return a.initConfig.WalletConnectProjectId, nil
+}
+
 // return the address of the selected account and chain
 func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error) {
 	utils.Sugar.Infof("Get account address, %s", cardId)

@@ -21,6 +21,7 @@ import (
 type App struct {
 	ctx          context.Context
 	chainConfigs []utils.ChainConfig
+	initConfig   utils.InitConfig
 	sqlite       *sqlx.DB
 }
 
@@ -54,6 +55,16 @@ func (a *App) startup(ctx context.Context) {
 		utils.Sugar.Fatal(err)
 	}
 	a.chainConfigs = utils.ReadChainConfigs(registryConfig)
+
+	initConfigBytes, err := resources.ReadFile("resources/init.json")
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	initConfig, err := utils.ReadInitConfig(initConfigBytes)
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+	a.initConfig = *initConfig
 
 	a.DataMigrate()
 }

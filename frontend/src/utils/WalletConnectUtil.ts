@@ -1,11 +1,13 @@
 import { Web3Wallet, IWeb3Wallet } from "@walletconnect/web3wallet";
 import { Core } from "@walletconnect/core";
+import { GetWalletConnectProjectId } from "@/../wailsjs/go/main/App";
 
 export let web3wallet: IWeb3Wallet;
 
 export const createWeb3Wallet = async () => {
+  const projectId = await GetWalletConnectProjectId();
   const core = new Core({
-    projectId: "demoid", // TODO use config
+    projectId,
     relayUrl: "wss://relay.walletconnect.com",
   });
 

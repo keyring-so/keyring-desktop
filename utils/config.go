@@ -63,6 +63,10 @@ func WriteAppConfig(config AppConfig) error {
 	return nil
 }
 
+type InitConfig struct {
+	WalletConnectProjectId string `json:"walletConnectProjectId"`
+}
+
 type ChainConfig struct {
 	Name     string        `json:"name"`
 	Symbol   string        `json:"symbol"`
@@ -86,6 +90,23 @@ type TokenConfig struct {
 	PriceId  string `json:"priceId"`
 	Decimals int32  `json:"decimals"`
 	Contract string `json:"contract"`
+}
+
+func ReadInitConfig(config []byte) (*InitConfig, error) {
+
+	var initConfig InitConfig
+	err := json.Unmarshal(config, &initConfig)
+	if err != nil {
+		Sugar.Error(err)
+		return nil, errors.New("failed to parse configuration")
+	}
+
+	if initConfig.WalletConnectProjectId == "env:WALLET_CONNECT_PROJECT_ID" {
+		initConfig.WalletConnectProjectId = os.Getenv("WALLET_CONNECT_PROJECT_ID")
+		return &initConfig, nil
+	}
+
+	return nil, errors.New("failed to read configuration env")
 }
 
 func ReadChainConfigs(bytes []byte) []ChainConfig {

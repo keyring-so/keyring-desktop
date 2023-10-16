@@ -19,6 +19,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface Props {
   address: string;
@@ -28,13 +29,16 @@ interface Props {
 
 const WalletConnect = ({ address, ledger, cardId }: Props) => {
   const [showConnect, setShowConnect] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [link, setLink] = useState("");
   const [pin, setPin] = useState("");
 
   const { toast } = useToast();
 
   const chainConfigs = useAtomValue(chainConfigsAtom);
-  const [walletConnectData, setWalletConnectData] = useAtom(walletConnectDataAtom);
+  const [walletConnectData, setWalletConnectData] = useAtom(
+    walletConnectDataAtom
+  );
 
   const supportedNamespaces = useMemo(() => {
     const evmChains = chainConfigs
@@ -112,8 +116,8 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
   // };
 
   const connect = async () => {
-    console.log("web3 wallet:", web3wallet);
     try {
+      setLoading(true);
       await web3wallet.pair({ uri: link });
       setShowConnect(false);
       toast({
@@ -125,24 +129,21 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   const onApprove = async () => {
-    console.log("approve");
     const proposal = walletConnectData?.proposal;
-
-    console.log("supportedNamespaces", supportedNamespaces);
-
     if (proposal) {
       const namespaces = buildApprovedNamespaces({
         proposal: proposal.params,
         supportedNamespaces,
       });
 
-      console.log("support name spaces:", namespaces);
-
       try {
+        setLoading(true);
         await web3wallet.approveSession({
           id: proposal.id,
           relayProtocol: proposal.params.relays[0].protocol,
@@ -159,6 +160,8 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,
         });
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -191,7 +194,6 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
   // pin string,
   // cardId int,
   const onApproveRequest = async () => {
-    console.log("approve request");
     const requestEvent = walletConnectData?.requestEvent;
 
     if (requestEvent) {
@@ -200,6 +202,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
       const transaction = request.params[0];
 
       try {
+        setLoading(true);
         let result;
         switch (request.method) {
           case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
@@ -234,6 +237,8 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,
         });
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -280,9 +285,16 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
             <Input onChange={(e) => setLink(e.target.value)}></Input>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={() => connect()}>
-              Connect
-            </Button>
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Connect
+              </Button>
+            ) : (
+              <Button type="submit" onClick={() => connect()}>
+                Connect
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -309,9 +321,17 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
             <Label>{name} wants to connect your wallet.</Label>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={onApprove}>
-              Approve
-            </Button>
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Approve
+              </Button>
+            ) : (
+              <Button type="submit" onClick={onApprove}>
+                Approve
+              </Button>
+            )}
+
             <Button type="submit" onClick={onReject}>
               Reject
             </Button>
@@ -323,7 +343,8 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
 
   const requestDialog = () => {
     const metadata = walletConnectData!.requestSession!.peer.metadata;
-    const transaction = walletConnectData!.requestEvent!.params.request.params[0];
+    const transaction =
+      walletConnectData!.requestEvent!.params.request.params[0];
     const { icons, name, url } = metadata;
 
     return (
@@ -351,9 +372,17 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={onApproveRequest}>
-              Approve
-            </Button>
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Approve
+              </Button>
+            ) : (
+              <Button type="submit" onClick={onApproveRequest}>
+                Approve
+              </Button>
+            )}
+
             <Button type="submit" onClick={onRejectRequest}>
               Reject
             </Button>

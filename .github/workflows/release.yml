@@ -35,6 +35,12 @@ jobs:
           old-string: "env:INFURA_API_TOKEN"
           new-string: ${{ secrets.INFURA_API_TOKEN }}
           file: "resources/registry.json"
+      - name: Replace WalletConnect projectId
+        uses: MathieuSoysal/replace-string-in-file@v1.0.0
+        with:
+          old-string: "env:WALLET_CONNECT_PROJECT_ID"
+          new-string: ${{ secrets.WALLET_CONNECT_PROJECT_ID }}
+          file: "resources/init.json"
       - name: Install libpcsclite
         if: matrix.platform == 'linux/amd64'
         run: sudo apt install libpcsclite-dev

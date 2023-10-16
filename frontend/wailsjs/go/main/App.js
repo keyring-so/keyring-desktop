@@ -66,6 +66,10 @@ export function GetCredentials() {
   return window['go']['main']['App']['GetCredentials']();
 }
 
+export function GetWalletConnectProjectId() {
+  return window['go']['main']['App']['GetWalletConnectProjectId']();
+}
+
 export function Initialize(arg1, arg2, arg3) {
   return window['go']['main']['App']['Initialize'](arg1, arg2, arg3);
 }

@@ -36,6 +36,8 @@ export function GetChains(arg1:number):Promise<main.CardChainInfo>;
 
 export function GetCredentials():Promise<main.CardCredential>;
 
+export function GetWalletConnectProjectId():Promise<string>;
+
 export function Initialize(arg1:string,arg2:string,arg3:number):Promise<main.InitCardResponse>;
 
 export function Install():Promise<void>;

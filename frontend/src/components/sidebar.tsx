@@ -54,7 +54,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
           ledger={chain.name}
           selected={isSelected}
         />
-        <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-zinc-400" />
+        <FlaskRound className="absolute top-2 right-0 h-4 w-4 text-primary-foreground" />
       </div>
     );
   };
