@@ -290,23 +290,21 @@ func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error)
 }
 
 func (a *App) CalculateFee(
-	asset string,
 	contract string,
-	nativeAsset string,
+	chainName string,
 	from string,
 	to string,
-	amount string,
 ) (*FeeInfo, error) {
-	utils.Sugar.Infof("Calculate fee for %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, nativeAsset)
+	utils.Sugar.Infof("Calculate fee for contract %s from %s to %s on %s network", contract, from, to, chainName)
 
-	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
 	if chainConfig == nil {
 		return nil, errors.New("chain configuration not found")
 	}
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, chainName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("unsupported asset")

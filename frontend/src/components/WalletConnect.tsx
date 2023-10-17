@@ -1,11 +1,15 @@
 import { SendTransaction } from "@/../wailsjs/go/main/App";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ETH } from "@/constants";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
+import { useClipboard } from "@/hooks/useClipboard";
 import { chainConfigsAtom, walletConnectDataAtom } from "@/store/state";
 import { web3wallet } from "@/utils/WalletConnectUtil";
 import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils";
 import { useAtom, useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import GasFee from "./gas";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -17,10 +21,7 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
-import { Loader2 } from "lucide-react";
-import { ETH } from "@/constants";
 
 interface Props {
   address: string;
@@ -33,8 +34,11 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
   const [loading, setLoading] = useState(false);
   const [link, setLink] = useState("");
   const [pin, setPin] = useState("");
+  const [tip, setTip] = useState("");
 
   const { toast } = useToast();
+
+  const { hasCopied, onCopy } = useClipboard();
 
   const chainConfigs = useAtomValue(chainConfigsAtom);
   const [walletConnectData, setWalletConnectData] = useAtom(
@@ -61,6 +65,12 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
       },
     };
   }, []);
+
+  useEffect(() => {
+    if (hasCopied) {
+      toast({ description: "Copied to clipboard!" });
+    }
+  }, [hasCopied]);
 
   const connect = async () => {
     try {
@@ -150,7 +160,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
 
       try {
         setLoading(true);
-        let result;
+        let result = "";
         switch (request.method) {
           case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
             result = await SendTransaction(
@@ -160,7 +170,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
               transaction.value,
               transaction.gas,
               transaction.data,
-              "", // TODO adjust tip
+              tip,
               pin,
               cardId
             );
@@ -175,8 +185,9 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
           response,
         });
         toast({
-          title: "Success!",
-          description: "Reqeust is approved.",
+          title: "Send transaction successfully.",
+          description: `${result}`,
+          action: <Button onClick={() => onCopy(result)}>Copy</Button>,
         });
         setWalletConnectData({});
       } catch (err) {
@@ -303,7 +314,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
               Do you want to approve this request?
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col items-center justify-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-6">
             <Avatar>
               <AvatarImage src={icons[0]} />
               <AvatarFallback>n/a</AvatarFallback>
@@ -338,6 +349,16 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
                 <Input value={transaction.data} disabled></Input>
               </div>
             </div>
+
+            <div className="self-start">
+              <GasFee
+                chainName={ledger}
+                from={transaction.from}
+                to={transaction.to}
+                setTip={setTip}
+              />
+            </div>
+
             <div className="flex flex-row items-center justify-center gap-4">
               <Label className="text-right">PIN</Label>
               <Input

@@ -1,8 +1,7 @@
 import {
-  CalculateFee,
   RemoveAsset,
   Transfer,
-  VerifyAddress,
+  VerifyAddress
 } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
 import { LogoImageSrc } from "@/components/logo";
@@ -35,9 +34,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { GWEI, LEDGERS } from "@/constants";
+import { LEDGERS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
 import { accountAtom, ledgerAtom, refreshAtom } from "@/store/state";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,6 +45,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import GasFee from "./gas";
 
 type Props = {
   symbol: string;
@@ -100,33 +99,6 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
   const transferForm = useForm<z.infer<typeof AssetTransferSchema>>({
     resolver: zodResolver(AssetTransferSchema),
   });
-
-  const updateTip = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const tipFee = Number(event.target.value) * GWEI;
-    setTip(tipFee.toString());
-  };
-
-  const queryFee = async (data: z.infer<typeof AssetTransferSchema>) => {
-    try {
-      setLoadingTx(true);
-      let fee = await CalculateFee(
-        symbol,
-        contract ? contract : "",
-        ledger,
-        address,
-        data.toAddr,
-        data.amount
-      );
-      setLoadingTx(false);
-      setFee(fee);
-    } catch (err) {
-      setLoadingTx(false);
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description: `Error happens: ${err}`,
-      });
-    }
-  };
 
   const ledgerName = () => {
     let ledgerInfo = LEDGERS.get(ledger);
@@ -365,37 +337,12 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
                       )}
                     />
 
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="advance-fee-mode"
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            queryFee(transferForm.getValues());
-                          } else {
-                            setFee(undefined);
-                          }
-                        }}
-                      />
-                      <Label htmlFor="advance-fee-mode">Fee Options</Label>
-                    </div>
-                    {fee ? (
-                      <div>
-                        <div>
-                          <Label>Base Fee (GWEI)</Label>
-                          <Input
-                            disabled
-                            value={(Number(fee.base) / GWEI).toFixed(2)}
-                          />
-                        </div>
-                        <div>
-                          <Label>Tip Fee (GWEI)</Label>
-                          <Input
-                            defaultValue={(Number(fee.tip) / GWEI).toFixed(2)}
-                            onChange={updateTip}
-                          />
-                        </div>
-                      </div>
-                    ) : null}
+                    <GasFee
+                      chainName={ledger}
+                      from={address}
+                      to={transferForm.getValues().toAddr}
+                      setTip={setTip}
+                    />
 
                     {loadingTx ? (
                       <Button className="w-1/2" disabled>
