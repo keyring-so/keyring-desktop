@@ -107,7 +107,7 @@ func ReadInitConfig(config []byte) (*InitConfig, error) {
 		return &initConfig, nil
 	}
 
-	return nil, errors.New("failed to read configuration env")
+	return &initConfig, nil
 }
 
 func ReadChainConfigs(bytes []byte) []ChainConfig {
