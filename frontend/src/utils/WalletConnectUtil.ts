@@ -17,7 +17,7 @@ export const createWeb3Wallet = async () => {
       name: "Keyring",
       description: "Secure and handy hardware wallet for crypto holders",
       url: "https://keyring.so",
-      icons: ["https://keyring.so/_next/image?url=%2Flogo.png&w=128&q=75"], // TODO use local image
+      icons: ["https://keyring.so/_next/image?url=%2Flogo.png&w=128&q=75"],
     },
   });
 };

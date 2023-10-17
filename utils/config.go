@@ -68,20 +68,21 @@ type InitConfig struct {
 }
 
 type ChainConfig struct {
-	Name     string        `json:"name"`
-	Symbol   string        `json:"symbol"`
-	Img      string        `json:"img"`
-	Path     string        `json:"path"`
-	PriceId  string        `json:"priceId"`
-	Driver   string        `json:"driver"`
-	RpcUrl   string        `json:"rpcUrl"`
-	RpcAuth  string        `json:"rpcAuth"` // TODO do not expose auth info
-	ChainId  int64         `json:"chainId"`
-	Explore  string        `json:"explore"`
-	Decimals int32         `json:"decimals"`
-	Testnet  bool          `json:"testnet"`
-	Disable  bool          `json:"disable"`
-	Tokens   []TokenConfig `json:"tokens"`
+	Name        string        `json:"name"`
+	Symbol      string        `json:"symbol"`
+	Img         string        `json:"img"`
+	Path        string        `json:"path"`
+	PriceId     string        `json:"priceId"`
+	Driver      string        `json:"driver"`
+	RpcUrl      string        `json:"rpcUrl"`
+	RpcAuth     string        `json:"rpcAuth"`
+	RpcProvider string        `json:"rpcProvider"`
+	ChainId     int64         `json:"chainId"`
+	Explore     string        `json:"explore"`
+	Decimals    int32         `json:"decimals"`
+	Testnet     bool          `json:"testnet"`
+	Disable     bool          `json:"disable"`
+	Tokens      []TokenConfig `json:"tokens"`
 }
 
 type TokenConfig struct {
@@ -164,14 +165,13 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Driver:      chainConfig.Driver,
 		URL:         chainConfig.RpcUrl,
 		Auth:        chainConfig.RpcAuth,
-		Provider:    "infura", // TODO
+		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    chainConfig.Decimals,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeNative,
 	}
 
-	// TODO now it use chain symbol, if use chain name, it will cause error since ETH != Ethereum
 	if contract == "" {
 		return &nativeConfig, nil
 	}
@@ -186,7 +186,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Driver:      chainConfig.Driver,
 		URL:         chainConfig.RpcUrl,
 		Auth:        chainConfig.RpcAuth,
-		Provider:    "infura", // TODO
+		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    tokenConfig.Decimals,
 		ChainID:     chainConfig.ChainId,

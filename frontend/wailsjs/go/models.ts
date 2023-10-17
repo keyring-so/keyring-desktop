@@ -219,6 +219,7 @@ export namespace utils {
 	    driver: string;
 	    rpcUrl: string;
 	    rpcAuth: string;
+	    rpcProvider: string;
 	    chainId: number;
 	    explore: string;
 	    decimals: number;
@@ -240,6 +241,7 @@ export namespace utils {
 	        this.driver = source["driver"];
 	        this.rpcUrl = source["rpcUrl"];
 	        this.rpcAuth = source["rpcAuth"];
+	        this.rpcProvider = source["rpcProvider"];
 	        this.chainId = source["chainId"];
 	        this.explore = source["explore"];
 	        this.decimals = source["decimals"];
