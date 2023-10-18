@@ -44,14 +44,13 @@ export default function useInitialization() {
   const onInitialize = async () => {
     try {
       await createWeb3Wallet();
+      setInitialized(true);
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
         description: `Error happens: ${err}`,
       });
     }
-
-    setInitialized(true);
   };
   useEffect(() => {
     if (!initialized) {
@@ -60,7 +59,7 @@ export default function useInitialization() {
         web3wallet.on("session_proposal", onSessionProposal);
         web3wallet.on("session_request", onSessionRequest);
     }
-  }, [initialized, onInitialize]);
+  }, []);
 
   return initialized;
 }
