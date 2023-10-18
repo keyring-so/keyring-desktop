@@ -30,13 +30,13 @@ jobs:
         with:
           submodules: recursive
       - name: Replace Secrets
-        uses: kaichaosun/replace-string-in-file@v2.0.0
+        uses: kaichaosun/ga-replace-string@v0.1.0
         with:
           old-string: "env:INFURA_API_TOKEN"
           new-string: ${{ secrets.INFURA_API_TOKEN }}
           file: "resources/registry.json"
       - name: Replace WalletConnect projectId
-        uses: kaichaosun/replace-string-in-file@v2.0.0
+        uses: kaichaosun/ga-replace-string@v0.1.0
         with:
           old-string: "env:WALLET_CONNECT_PROJECT_ID"
           new-string: ${{ secrets.WALLET_CONNECT_PROJECT_ID }}
