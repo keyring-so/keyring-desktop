@@ -59,7 +59,7 @@ export default function useInitialization() {
         web3wallet.on("session_proposal", onSessionProposal);
         web3wallet.on("session_request", onSessionRequest);
     }
-  }, []);
+  }, [initialized, onInitialize]);
 
   return initialized;
 }
