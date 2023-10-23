@@ -1,4 +1,4 @@
-import { SendTransaction } from "@/../wailsjs/go/main/App";
+import { SendTransaction, SignTypedData } from "@/../wailsjs/go/main/App";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ETH } from "@/constants";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
@@ -50,11 +50,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
       .filter((chain) => chain.driver === "evm")
       .map((chain) => `eip155:${chain.chainId}`);
 
-    console.log("evm chains:", evmChains);
-
     const evmMethods = Object.values(EIP155_SIGNING_METHODS);
-
-    console.log("address:", address);
 
     return {
       eip155: {
@@ -175,6 +171,16 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
               cardId
             );
             break;
+          case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
+          case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
+          case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
+            result = await SignTypedData(
+              ledger,
+              request.params[1],
+              pin,
+              cardId
+            );
+            break;
           default:
             break;
         }
@@ -185,7 +191,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
           response,
         });
         toast({
-          title: "Send transaction successfully.",
+          title: "Send data successfully.",
           description: `${result}`,
           action: <Button onClick={() => onCopy(result)}>Copy</Button>,
         });
@@ -299,7 +305,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
     );
   };
 
-  const requestDialog = () => {
+  const sendTransactionModal = () => {
     const metadata = walletConnectData!.requestSession!.peer.metadata;
     const transaction =
       walletConnectData!.requestEvent!.params.request.params[0];
@@ -386,6 +392,102 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
         </DialogContent>
       </Dialog>
     );
+  };
+
+  const unknownMethodModal = (method: string) => {
+    return (
+      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>WalletConnect</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-row items-center justify-center gap-4">
+            <Label className="text-right">Unknown method:</Label>
+            <Input className="w-auto" disabled value={method} />
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button type="button" onClick={() => setWalletConnectData({})}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
+  const signTypedDataModal = () => {
+    const metadata = walletConnectData!.requestSession!.peer.metadata;
+    const data =
+      walletConnectData!.requestEvent!.params.request.params[1];
+    const { icons, name, url } = metadata;
+
+    return (
+      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+        <DialogContent className="sm:max-w-[465px]">
+          <DialogHeader>
+            <DialogTitle>Wallet Connect</DialogTitle>
+            <DialogDescription>
+              Do you want to approve this request?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center gap-6">
+            <Avatar>
+              <AvatarImage src={icons[0]} />
+              <AvatarFallback>n/a</AvatarFallback>
+            </Avatar>
+            <Label>{name} wants to sign data from your wallet.</Label>
+            <div className="flex flex-col w-full">
+              <div className="flex flex-row gap-2 items-center justify-center">
+                <Label className="w-[50px]">Data:</Label>
+                <Input value={data} disabled></Input>
+              </div>
+            </div>
+
+            <div className="flex flex-row items-center justify-center gap-4">
+              <Label className="text-right">PIN</Label>
+              <Input
+                type="password"
+                onChange={(e) => setPin(e.target.value)}
+              ></Input>
+            </div>
+          </div>
+          <DialogFooter>
+            {loading ? (
+              <Button disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Approve
+              </Button>
+            ) : (
+              <Button type="submit" onClick={onApproveRequest}>
+                Approve
+              </Button>
+            )}
+
+            <Button type="submit" onClick={onRejectRequest}>
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
+  const requestDialog = () => {
+    const { params, id } = walletConnectData!.requestEvent!;
+    const { chainId, request } = params;
+
+    switch (request.method) {
+      case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+        return sendTransactionModal();
+
+      case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
+      case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
+      case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
+        return signTypedDataModal();
+
+      default:
+        return unknownMethodModal(request.method);
+    }
   };
 
   return (

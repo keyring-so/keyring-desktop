@@ -110,6 +110,10 @@ export function SendTransaction(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 
   return window['go']['main']['App']['SendTransaction'](arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 }
 
+export function SignTypedData(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['SignTypedData'](arg1, arg2, arg3, arg4);
+}
+
 export function SwitchAccount(arg1) {
   return window['go']['main']['App']['SwitchAccount'](arg1);
 }

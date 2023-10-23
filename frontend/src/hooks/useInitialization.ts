@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 export default function useInitialization() {
   const [initialized, setInitialized] = useState(false);
 
-  const setWalletConnectData = useSetAtom(walletConnectDataAtom)
+  const setWalletConnectData = useSetAtom(walletConnectDataAtom);
 
   const { toast } = useToast();
 
@@ -28,17 +28,7 @@ export default function useInitialization() {
     const { request } = params;
     const requestSession = web3wallet.engine.signClient.session.get(topic);
 
-    switch (request.method) {
-      case EIP155_SIGNING_METHODS.ETH_SIGN:
-      case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
-        return;
-      case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-      case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-        setWalletConnectData({ requestEvent, requestSession });
-        return;
-      default:
-        return;
-    }
+    setWalletConnectData({ requestEvent, requestSession });
   };
 
   const onInitialize = async () => {
@@ -56,8 +46,8 @@ export default function useInitialization() {
     if (!initialized) {
       onInitialize();
     } else {
-        web3wallet.on("session_proposal", onSessionProposal);
-        web3wallet.on("session_request", onSessionRequest);
+      web3wallet.on("session_proposal", onSessionProposal);
+      web3wallet.on("session_request", onSessionRequest);
     }
   }, [initialized, onInitialize]);
 
