@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"keyring-desktop/crosschain"
 	"keyring-desktop/crosschain/chain/evm"
@@ -11,6 +12,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
 func (a *App) SendTransaction(
@@ -139,4 +141,56 @@ func (a *App) SendTransaction(
 	}
 
 	return txId, nil
+}
+
+func (a *App) SignTypedData(
+	chainName string,
+	data string,
+	pin string,
+	cardId int,
+) (string, error) {
+	utils.Sugar.Infof("sign typed data: %s", data)
+	if pin == "" || data == "" || chainName == "" {
+		return "", errors.New("input can not be empty")
+	}
+
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
+	if chainConfig == nil {
+		return "", errors.New("chain configuration not found")
+	}
+
+	var typedData apitypes.TypedData
+	err := json.Unmarshal([]byte(data), &typedData)
+	if err != nil {
+		return "", errors.New("failed to parse typed data")
+	}
+
+	hash, _, err := apitypes.TypedDataAndHash(typedData)
+	if err != nil {
+		return "", errors.New("failed to hash typed data")
+	}
+
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to connect to card")
+	}
+	defer keyringCard.Release()
+
+	// get pairing info
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to get pairing info")
+	}
+
+	signature, err := keyringCard.Sign(hash, chainConfig, pin, pairingInfo)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to sign transaction hash")
+	}
+	utils.Sugar.Infof("signature: %x", signature)
+
+	return hexutil.Encode(signature), nil
 }
