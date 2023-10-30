@@ -41,6 +41,7 @@ const PairDialog = ({ handleClose }: Props) => {
         title: "Success!",
         description: "Card is paired.",
       });
+      handleClose(false);
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",

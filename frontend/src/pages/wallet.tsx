@@ -76,6 +76,7 @@ function Wallet() {
 
   // get the address for a specific chain
   useEffect(() => {
+    let responseSubscribed = true;
     const fn = async () => {
       if (account.id && ledger) {
         try {
@@ -88,7 +89,9 @@ function Wallet() {
           }
 
           let prices = await GetAssetPrices(account.id, ledger);
-          setChainAssets(prices);
+          if (responseSubscribed) {
+            setChainAssets(prices);
+          }
         } catch (err) {
           setGetBalanceErr(true);
           toast({
@@ -100,6 +103,9 @@ function Wallet() {
     };
 
     fn();
+    return () => {
+      responseSubscribed = false;
+    };
   }, [ledger, isTestnet]);
 
   useEffect(() => {
@@ -338,7 +344,11 @@ function Wallet() {
 
       {chainAssets?.address && (
         <div className="absolute right-10 bottom-10">
-          <WalletConnect address={chainAssets.address} ledger={ledger} cardId={account.id} />
+          <WalletConnect
+            address={chainAssets.address}
+            ledger={ledger}
+            cardId={account.id}
+          />
         </div>
       )}
     </div>
