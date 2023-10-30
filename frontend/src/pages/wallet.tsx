@@ -100,7 +100,7 @@ function Wallet() {
     };
 
     fn();
-  }, [account, ledger, isTestnet]);
+  }, [ledger, isTestnet]);
 
   useEffect(() => {
     GetChainConfig(ledger)

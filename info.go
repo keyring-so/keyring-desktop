@@ -63,7 +63,7 @@ func (a *App) GetWalletConnectProjectId() (string, error) {
 
 // return the address of the selected account and chain
 func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error) {
-	utils.Sugar.Infof("Get account address, %s", cardId)
+	utils.Sugar.Infof("Get account address, %s with chain %s", cardId, chain)
 
 	if cardId < 0 || chain == "" {
 		return nil, errors.New("invalid card or chain")

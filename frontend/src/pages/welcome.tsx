@@ -51,7 +51,7 @@ function WelcomePage() {
   const [allowTestnet, setAllowTestnet] = useAtom(isTestnetAtom);
   const account = useAtomValue(accountAtom);
   const [chainConfigs, setChainConfigs] = useAtom(chainConfigsAtom);
-  const sidebarItem = useAtomValue(showSidebarItem);
+  const [sidebarItem, setSidebarItem] = useAtom(showSidebarItem);
 
   const { toast } = useToast();
 
@@ -61,6 +61,7 @@ function WelcomePage() {
       .then((chains) => {
         setLedger(chains.lastSelectedChain);
         setChains(chains.chains);
+        setSidebarItem("ledger");
       })
       .catch((err) => {
         toast({
@@ -150,8 +151,10 @@ function WelcomePage() {
         return <Settings />;
       case "accounts":
         return <Accounts />;
-      default:
+      case "ledger":
         return chains.length === 0 || !ledger ? <Guide /> : <Wallet />;
+      default:
+        return <Guide />;
     }
   };
 
