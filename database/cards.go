@@ -30,15 +30,15 @@ func SaveCard(db *sqlx.DB, puk, code, pairingKey, pairingIndex, name string) err
 	return nil
 }
 
-func QueryCurrentCard(db *sqlx.DB) (*Card, error) {
-	card := Card{}
+func QueryCurrentCard(db *sqlx.DB) ([]Card, error) {
+	cards := []Card{}
 
-	err := db.Get(&card, "select * from cards where selected = true limit 1")
+	err := db.Select(&cards, "select * from cards where selected = true limit 1")
 	if err != nil {
 		return nil, err
 	}
 
-	return &card, nil
+	return cards, nil
 }
 
 func QueryAllCards(db *sqlx.DB) ([]Card, error) {
@@ -53,8 +53,8 @@ func QueryAllCards(db *sqlx.DB) ([]Card, error) {
 }
 
 func UpdateCurrentCard(db *sqlx.DB, cardId int) error {
-	var selectedId int
-	err := db.Get(&selectedId, "select card_id from cards where selected = true limit 1")
+	var ids []int
+	err := db.Select(&ids, "select card_id from cards where selected = true limit 1")
 	if err != nil {
 		return err
 	}
@@ -64,8 +64,11 @@ func UpdateCurrentCard(db *sqlx.DB, cardId int) error {
 		return err
 	}
 
+	if len(ids) > 0 {
+		tx.Exec(`UPDATE cards SET selected = false WHERE card_id = ?`, ids[0])
+	}
+
 	tx.Exec(`UPDATE cards SET selected = true WHERE card_id = ?`, cardId)
-	tx.Exec(`UPDATE cards SET selected = false WHERE card_id = ?`, selectedId)
 
 	err = tx.Commit()
 	if err != nil {

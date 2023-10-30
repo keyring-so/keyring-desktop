@@ -61,7 +61,9 @@ function WelcomePage() {
       .then((chains) => {
         setLedger(chains.lastSelectedChain);
         setChains(chains.chains);
-        setSidebarItem("ledger");
+        if (sidebarItem == "") {
+          setSidebarItem("ledger");
+        }
       })
       .catch((err) => {
         toast({
@@ -69,7 +71,7 @@ function WelcomePage() {
           description: `Error happens: ${err}`,
         });
       });
-  }, [account]);
+  }, [account, sidebarItem]);
 
   useEffect(() => {
     (async () => {

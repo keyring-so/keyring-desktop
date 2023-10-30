@@ -62,8 +62,8 @@ export function GetChains(arg1) {
   return window['go']['main']['App']['GetChains'](arg1);
 }
 
-export function GetCredentials() {
-  return window['go']['main']['App']['GetCredentials']();
+export function GetCredentials(arg1) {
+  return window['go']['main']['App']['GetCredentials'](arg1);
 }
 
 export function GetWalletConnectProjectId() {

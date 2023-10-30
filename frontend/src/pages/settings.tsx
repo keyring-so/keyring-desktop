@@ -121,7 +121,7 @@ const Settings = () => {
 
   const getCredentials = async () => {
     try {
-      const res = await GetCredentials();
+      const res = await GetCredentials(account.id);
       setCredentials(res);
     } catch (err) {
       errToast(err);

@@ -154,7 +154,7 @@ const Accounts = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {allAccounts.map((account) => (
-                    <SelectItem value={account.id.toString()}>
+                    <SelectItem key={account.id} value={account.id.toString()}>
                       {account.name}
                     </SelectItem>
                   ))}

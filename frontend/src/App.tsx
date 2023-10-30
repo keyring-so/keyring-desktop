@@ -17,8 +17,11 @@ function App() {
 
   useEffect(() => {
     CurrentAccount()
-      .then((res) => setAccount(res))
-      .catch((err) => console.log(err));
+      .then((res) => res && setAccount(res))
+      .catch((err) => toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      }));
   }, []);
 
   return (

@@ -59,7 +59,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
     const isSelected = lastSelectedChain == chain.name;
     if (!chain.testnet) {
       return (
-        <ContextMenu>
+        <ContextMenu key={chain.name}>
           <ContextMenuTrigger>
             <SidebarLedger
               img={chain.img}

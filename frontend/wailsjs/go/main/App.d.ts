@@ -34,7 +34,7 @@ export function GetChainConfigs():Promise<Array<utils.ChainConfig>>;
 
 export function GetChains(arg1:number):Promise<main.CardChainInfo>;
 
-export function GetCredentials():Promise<main.CardCredential>;
+export function GetCredentials(arg1:number):Promise<main.CardCredential>;
 
 export function GetWalletConnectProjectId():Promise<string>;
 

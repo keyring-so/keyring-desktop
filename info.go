@@ -43,8 +43,8 @@ func (a *App) GetChainConfig(chain string) *utils.ChainConfig {
 	return utils.GetChainConfig(a.chainConfigs, chain)
 }
 
-func (a *App) GetCredentials() (*CardCredential, error) {
-	card, err := database.QueryCurrentCard(a.sqlite)
+func (a *App) GetCredentials(cardId int) (*CardCredential, error) {
+	card, err := database.QueryCard(a.sqlite, cardId)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to query current card")
