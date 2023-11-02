@@ -83,7 +83,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
     }
 
     return (
-      <ContextMenu>
+      <ContextMenu key={chain.name}>
         <ContextMenuTrigger>
           <div className="relative group">
             <SidebarLedger

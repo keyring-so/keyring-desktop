@@ -229,6 +229,7 @@ function Wallet() {
               {chainAssets?.assets.map((userAsset) => {
                 return (
                   <Asset
+                    key={userAsset.symbol}
                     symbol={userAsset.symbol}
                     balance={userAsset.balance}
                     address={chainAssets.address}
