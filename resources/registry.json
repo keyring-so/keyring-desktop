@@ -92,12 +92,6 @@
         "contract": "0x75231F58b43240C9718Dd58B4967c5114342a86c"
       },
       {
-        "symbol": "BUSD",
-        "priceId": "busd",
-        "decimals": 18,
-        "contract": "0x4Fabb145d64652a948d72533023f6E7A623C7C53"
-      },
-      {
         "symbol": "UIP",
         "priceId": "unlimitedip",
         "decimals": 18,
