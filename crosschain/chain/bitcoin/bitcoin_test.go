@@ -20,6 +20,7 @@ var UXTO_ASSETS []xc.NativeAsset = []xc.NativeAsset{
 	xc.BCH,
 	xc.DOGE,
 	xc.LTC,
+	xc.LBC,
 }
 
 type CrosschainTestSuite struct {
@@ -73,6 +74,10 @@ func (s *CrosschainTestSuite) TestGetAddressFromPublicKey() {
 			require.NoError(err)
 			require.Equal(xc.Address("nWDiCL2RxZcMTvhUGRWCnPDWFWHSCfkhoz"), address)
 		case xc.LTC:
+			address, err := builder.GetAddressFromPublicKey(pubkey)
+			require.NoError(err)
+			require.Equal(xc.Address("mhYWE7RrYCgbq4RJDaqZp8fvzVmYnPVnFD"), address)
+		case xc.LBC:
 			address, err := builder.GetAddressFromPublicKey(pubkey)
 			require.NoError(err)
 			require.Equal(xc.Address("mhYWE7RrYCgbq4RJDaqZp8fvzVmYnPVnFD"), address)
