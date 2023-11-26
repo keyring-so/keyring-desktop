@@ -65,6 +65,8 @@ func GetParams(cfg *xc.AssetConfig) (*chaincfg.Params, error) {
 		return DogeNetworks.GetParams(cfg.Net), nil
 	case xc.LTC:
 		return LtcNetworks.GetParams(cfg.Net), nil
+	case xc.LBC:
+		return LbcNetworks.GetParams(cfg.Net), nil
 	}
 	return &chaincfg.Params{}, errors.New("unsupported utxo asset: " + string(cfg.NativeAsset))
 }
@@ -194,5 +196,66 @@ var LtcNetworks *NetworkTriple = &NetworkTriple{
 		// BIP 173. Dogecoin does not actually support this, but we do not want to
 		// collide with real addresses, so we specify it.
 		Bech32HRPSegwit: "rltc",
+	},
+}
+
+var LbcNetworks *NetworkTriple = &NetworkTriple{
+	Mainnet: &chaincfg.Params{
+		Name: "mainnet",
+		Net:  0xf1aae4fa,
+
+		// Address encoding magics
+		PubKeyHashAddrID: 0x55,
+		ScriptHashAddrID: 0x7a,
+		PrivateKeyID:     0x1c,
+
+		// BIP32 hierarchical deterministic extended key magics
+		HDPrivateKeyID: [4]byte{0x04, 0x88, 0xAD, 0xE4}, // starts with xprv
+		HDPublicKeyID:  [4]byte{0x04, 0x88, 0xB2, 0x1E}, // starts with xpub
+
+		// Human-readable part for Bech32 encoded segwit addresses, as defined in
+		// BIP 173. LBRY does not actually support this, but we do not want to
+		// collide with real addresses, so we specify it.
+		Bech32HRPSegwit: "lbc",
+	},
+	Testnet: &chaincfg.Params{
+		Name: "testnet3",
+		Net:  0xe1aae4fa,
+
+		// Address encoding magics
+		PubKeyHashAddrID: 111,
+		ScriptHashAddrID: 196,
+		PrivateKeyID:     239,
+
+		// BIP32 hierarchical deterministic extended key magics
+		HDPrivateKeyID: [4]byte{0x04, 0x35, 0x83, 0x94}, // starts with xprv
+		HDPublicKeyID:  [4]byte{0x04, 0x35, 0x87, 0xCF}, // starts with xpub
+
+		// Human-readable part for Bech32 encoded segwit addresses, as defined in
+		// BIP 173. LBRY does not actually support this, but we do not want to
+		// collide with real addresses, so we specify it.
+		Bech32HRPSegwit: "tlbc",
+	},
+	Regtest: &chaincfg.Params{
+		Name: "regtest",
+
+		// Dogecoin has 0xdab5bffa as RegTest (same as Bitcoin's RegTest).
+		// Setting it to an arbitrary value (leet_hex(dogecoin)), so that we can
+		// register the regtest network.
+		Net: 0xd1aae4fa,
+
+		// Address encoding magics
+		PubKeyHashAddrID: 111,
+		ScriptHashAddrID: 196,
+		PrivateKeyID:     239,
+
+		// BIP32 hierarchical deterministic extended key magics
+		HDPrivateKeyID: [4]byte{0x04, 0x35, 0x83, 0x94}, // starts with xprv
+		HDPublicKeyID:  [4]byte{0x04, 0x35, 0x87, 0xcf}, // starts with xpub
+
+		// Human-readable part for Bech32 encoded segwit addresses, as defined in
+		// BIP 173. LBRY does not actually support this, but we do not want to
+		// collide with real addresses, so we specify it.
+		Bech32HRPSegwit: "rlbc",
 	},
 }

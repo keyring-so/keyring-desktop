@@ -21,7 +21,7 @@ const (
 // AssetType returns the type of an Asset
 func (asset Asset) AssetType() AssetType {
 	switch native := NativeAsset(asset); native {
-	case BCH, BTC, DOGE, LTC:
+	case BCH, BTC, DOGE, LTC, LBC:
 		return AssetTypeNative
 	case ACA,
 		APTOS,
@@ -68,7 +68,7 @@ const (
 // ChainType returns the type of a chain, represented as its NativeAsset
 func (native NativeAsset) ChainType() ChainType {
 	switch native {
-	case BCH, BTC, DOGE, LTC:
+	case BCH, BTC, DOGE, LTC, LBC:
 		return ChainTypeUTXO
 	case ACA,
 		APTOS,
@@ -113,6 +113,7 @@ const (
 	BTC  = NativeAsset("BTC")  // Bitcoin
 	DOGE = NativeAsset("DOGE") // Dogecoin
 	LTC  = NativeAsset("LTC")  // Litecoin
+	LBC  = NativeAsset("LBC")  // LBRY Credits
 
 	// Account-based
 	ACA       = NativeAsset("ACA")       // Acala

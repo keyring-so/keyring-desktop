@@ -161,6 +161,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 	}
 
 	nativeConfig := crosschain.NativeAssetConfig{
+		NativeAsset: crosschain.NativeAsset(chainConfig.Symbol),
 		Asset:       chainConfig.Symbol,
 		Driver:      chainConfig.Driver,
 		URL:         chainConfig.RpcUrl,

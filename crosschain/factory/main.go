@@ -311,6 +311,10 @@ func (f *Factory) GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address,
 	return getAddressFromPublicKey(cfg, publicKey)
 }
 
+func GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, error) {
+	return getAddressFromPublicKey(cfg, publicKey)
+}
+
 // GetAllPossibleAddressesFromPublicKey returns all PossibleAddress(es) given a public key
 func (f *Factory) GetAllPossibleAddressesFromPublicKey(cfg ITask, publicKey []byte) ([]PossibleAddress, error) {
 	builder, err := newAddressBuilder(cfg)

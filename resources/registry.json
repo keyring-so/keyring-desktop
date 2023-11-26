@@ -705,6 +705,15 @@
     "disable": true
   },
   {
+    "name": "LBRY",
+    "symbol": "LBC",
+    "img": "/tokens/LBC_logo.png",
+    "path": "m/44'/140'/0'/0/0",
+    "priceId": "lbry-credits",
+    "driver": "bitcoin",
+    "disable": false
+  },
+  {
     "name": "Polygon",
     "symbol": "MATIC",
     "path": "m/44'/60'/0'/0/0",

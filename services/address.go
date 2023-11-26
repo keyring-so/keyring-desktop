@@ -16,49 +16,49 @@ import (
 // keycard-derive-key
 // keycard-sign "hello"
 // keycard-unpair {{ session_pairing_index }}
-func (i *KeyringCard) ChainAddress(pin string, pairingInfo *types.PairingInfo, config *utils.ChainConfig) (string, error) {
+func (i *KeyringCard) ChainAddress(pin string, pairingInfo *types.PairingInfo, config *utils.ChainConfig) ([]byte, error) {
 	cmdSet := keycard.NewCommandSet(i.c)
 
 	utils.Sugar.Infof("select keycard applet")
 	err := cmdSet.Select()
 	if err != nil {
 		utils.Sugar.Infof("Error: %s", err)
-		return "", err
+		return nil, err
 	}
 
 	if !cmdSet.ApplicationInfo.Installed {
 		utils.Sugar.Infof("installation is not done, error: %s", errCardNotInstalled)
-		return "", errCardNotInstalled
+		return nil, errCardNotInstalled
 	}
 
 	if !cmdSet.ApplicationInfo.Initialized {
 		utils.Sugar.Error(errCardNotInitialized)
-		return "", errCardNotInitialized
+		return nil, errCardNotInitialized
 	}
 
 	utils.Sugar.Info("set pairing info")
 	cmdSet.PairingInfo = pairingInfo
 	if cmdSet.PairingInfo == nil {
 		utils.Sugar.Infof("cannot open secure channel without setting pairing info")
-		return "", errNoPairingInfo
+		return nil, errNoPairingInfo
 	}
 
 	utils.Sugar.Infof("open keycard secure channel")
 	if err := cmdSet.OpenSecureChannel(); err != nil {
 		utils.Sugar.Infof("open keycard secure channel failed, error: %s", err)
-		return "", err
+		return nil, err
 	}
 
 	utils.Sugar.Infof("verify PIN")
 	if err := cmdSet.VerifyPIN(pin); err != nil {
 		utils.Sugar.Infof("verify PIN failed, error: %s", err)
-		return "", err
+		return nil, err
 	}
 
 	utils.Sugar.Infof("derive key")
 	if err := cmdSet.DeriveKey(config.Path); err != nil {
 		utils.Sugar.Infof("derive key failed, error: %s", err)
-		return "", err
+		return nil, err
 	}
 
 	utils.Sugar.Infof("sign hello")
@@ -67,15 +67,8 @@ func (i *KeyringCard) ChainAddress(pin string, pairingInfo *types.PairingInfo, c
 
 	if err != nil {
 		utils.Sugar.Infof("sign failed, error: %s", err)
-		return "", err
-	}
-	ecdsaPubKey, err := crypto.UnmarshalPubkey(sig.PubKey())
-	if err != nil {
-		utils.Sugar.Infof("pub key error: %s", err)
-		return "", err
+		return nil, err
 	}
 
-	address := crypto.PubkeyToAddress(*ecdsaPubKey).Hex()
-
-	return address, nil
+	return sig.PubKey(), nil
 }

@@ -253,14 +253,25 @@ func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
 		return "", err
 	}
 
-	address, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
+	pubkey, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to get chain address")
+		return "", errors.New("failed to get public key")
+	}
+
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, "", chain)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("unsupported asset")
+	}
+	address, err := factory.GetAddressFromPublicKey(assetConfig, pubkey)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to get address from public key")
 	}
 
 	utils.Sugar.Infof("chain: %s, address: %s", chain, address)
-	return address, nil
+	return string(address), nil
 }
 
 func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error) {
