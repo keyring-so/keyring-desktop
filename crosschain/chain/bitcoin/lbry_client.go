@@ -56,7 +56,7 @@ func NewLbryClient(cfgI xc.ITask) (*LbryClient, error) {
 func (client *LbryClient) FetchBalance(ctx context.Context, address xc.Address) (xc.AmountBlockchain, error) {
 	amount := xc.NewAmountBlockchainFromUint64(0)
 
-	query := "select balance from address where address = '" + string("bXJJSaHy9vbLM2nzSUq8TpLEaVJhRnNhfT") + "';"
+	query := "select balance from address where address = '" + string(address) + "';"
 	url := "https://chainquery.lbry.com/api/sql" + "?query=" + url.QueryEscape(query)
 	response, _ := client.http.Get(url)
 
