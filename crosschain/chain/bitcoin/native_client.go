@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -72,7 +73,18 @@ type NativeClient struct {
 
 var _ xc.FullClientWithGas = &NativeClient{}
 
-var NewClient = NewBlockchairClient
+// var NewClient = NewBlockchairClient
+
+func NewClient(cfgI xc.ITask) (xc.Client, error) {
+	switch cfgI.GetAssetConfig().NativeAsset {
+	case xc.BTC, xc.BCH, xc.DOGE, xc.LTC:
+		return NewBlockchairClient(cfgI)
+	case xc.LBC:
+		return NewLbryClient(cfgI)
+	}
+
+	return nil, errors.New("unsupported native asset")
+}
 
 // NewClient returns a new Bitcoin Client
 func NewNativeClient(cfgI xc.ITask) (*NativeClient, error) {

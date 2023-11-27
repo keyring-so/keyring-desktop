@@ -100,8 +100,8 @@ func NewAmountBlockchainFromStr(str string) AmountBlockchain {
 }
 
 func (amount AmountHumanReadable) ToBlockchain(decimals int32) AmountBlockchain {
-	dec := decimal.NewFromBigInt(((decimal.Decimal)(amount)).BigInt(), decimals)
-	return AmountBlockchain(*dec.BigInt())
+	amountStr := (decimal.Decimal)(amount).Shift(decimals).String()
+	return NewAmountBlockchainFromStr(amountStr)
 }
 
 func (amount AmountHumanReadable) String() string {

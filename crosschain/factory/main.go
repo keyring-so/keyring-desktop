@@ -525,7 +525,7 @@ func NewClient(cfg ITask) (Client, error) {
 	case DriverBitcoin:
 		return bitcoin.NewClient(cfg)
 	}
-	return nil, errors.New("unsupported asset")
+	return nil, errors.New("unsupported chain")
 }
 
 func NewTxBuilder(cfg ITask) (TxBuilder, error) {
@@ -543,7 +543,7 @@ func NewTxBuilder(cfg ITask) (TxBuilder, error) {
 	case DriverBitcoin:
 		return bitcoin.NewTxBuilder(cfg)
 	}
-	return nil, errors.New("unsupported asset")
+	return nil, errors.New("unsupported chain")
 }
 
 func newSigner(cfg ITask) (Signer, error) {
@@ -559,7 +559,7 @@ func newSigner(cfg ITask) (Signer, error) {
 	case DriverBitcoin:
 		return bitcoin.NewSigner(cfg)
 	}
-	return nil, errors.New("unsupported asset")
+	return nil, errors.New("unsupported chain")
 }
 
 func newAddressBuilder(cfg ITask) (AddressBuilder, error) {
@@ -575,7 +575,7 @@ func newAddressBuilder(cfg ITask) (AddressBuilder, error) {
 	case DriverBitcoin:
 		return bitcoin.NewAddressBuilder(cfg)
 	}
-	return nil, errors.New("unsupported asset")
+	return nil, errors.New("unsupported chain")
 }
 
 func MarshalTxInput(txInput TxInput) ([]byte, error) {
@@ -630,7 +630,7 @@ func convertAmountExponent(cfgI ITask) (int32, error) {
 	if cfg.Decimals > 0 {
 		return cfg.Decimals, nil
 	}
-	return 0, errors.New("unsupported asset")
+	return 0, errors.New("unsupported chain")
 }
 
 func ConvertAmountToHuman(cfg ITask, blockchainAmount AmountBlockchain) (AmountHumanReadable, error) {
