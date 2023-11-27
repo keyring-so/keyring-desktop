@@ -73,8 +73,6 @@ type NativeClient struct {
 
 var _ xc.FullClientWithGas = &NativeClient{}
 
-// var NewClient = NewBlockchairClient
-
 func NewClient(cfgI xc.ITask) (xc.Client, error) {
 	switch cfgI.GetAssetConfig().NativeAsset {
 	case xc.BTC, xc.BCH, xc.DOGE, xc.LTC:
