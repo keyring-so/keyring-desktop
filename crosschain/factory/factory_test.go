@@ -55,7 +55,7 @@ func (s *CrosschainTestSuite) TestNewClient() {
 
 	asset, _ := s.Factory.PutAssetConfig(&xc.AssetConfig{Asset: "TEST"})
 	_, err := s.Factory.NewClient(asset)
-	require.EqualError(err, "unsupported asset")
+	require.EqualError(err, "unsupported chain")
 }
 
 func (s *CrosschainTestSuite) TestNewTxBuilder() {
@@ -67,7 +67,7 @@ func (s *CrosschainTestSuite) TestNewTxBuilder() {
 
 	asset, _ := s.Factory.PutAssetConfig(&xc.AssetConfig{Asset: "TEST"})
 	_, err := s.Factory.NewTxBuilder(asset)
-	require.EqualError(err, "unsupported asset")
+	require.EqualError(err, "unsupported chain")
 }
 
 func (s *CrosschainTestSuite) TestNewSigner() {
@@ -79,7 +79,7 @@ func (s *CrosschainTestSuite) TestNewSigner() {
 
 	asset, _ := s.Factory.PutAssetConfig(&xc.AssetConfig{Asset: "TEST"})
 	_, err := s.Factory.NewSigner(asset)
-	require.EqualError(err, "unsupported asset")
+	require.EqualError(err, "unsupported chain")
 }
 
 func (s *CrosschainTestSuite) TestNewAddressBuilder() {
@@ -91,7 +91,7 @@ func (s *CrosschainTestSuite) TestNewAddressBuilder() {
 
 	asset, _ := s.Factory.PutAssetConfig(&xc.AssetConfig{Asset: "TEST"})
 	_, err := s.Factory.NewAddressBuilder(asset)
-	require.EqualError(err, "unsupported asset")
+	require.EqualError(err, "unsupported chain")
 }
 
 // GetObject functions (excluding config)
@@ -239,7 +239,7 @@ func (s *CrosschainTestSuite) TestConvertAmountStrToBlockchain() {
 
 	asset, _ := s.Factory.PutAssetConfig(&xc.AssetConfig{Asset: "TEST"})
 	_, err := s.Factory.ConvertAmountStrToBlockchain(asset, "10.3")
-	require.EqualError(err, "unsupported asset")
+	require.EqualError(err, "unsupported chain")
 }
 
 func (s *CrosschainTestSuite) TestConvertAmountStrToBlockchainErr() {
