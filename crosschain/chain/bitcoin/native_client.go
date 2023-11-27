@@ -33,7 +33,7 @@ var (
 	// default host to connect to rpc node
 	DefaultClientHost = "http://0.0.0.0:18443"
 	// default user for rpc connection
-	DefaultClientUser = "user"
+	DefaultClientUser = "keyring"
 	// default password for rpc connection
 	DefaultClientPassword = "password"
 	// default auth header for rpc connection

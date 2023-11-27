@@ -118,10 +118,13 @@ func ReadChainConfigs(bytes []byte) []ChainConfig {
 	}
 
 	infuraApiToken := os.Getenv("INFURA_API_TOKEN")
-	if infuraApiToken != "" {
+	lbryRpcSecret := os.Getenv("LBRY_RPC_SECRET")
+	if infuraApiToken != "" || lbryRpcSecret != "" {
 		for i, c := range chainConfigs {
 			if c.RpcAuth == "env:INFURA_API_TOKEN" {
 				c.RpcAuth = infuraApiToken
+			} else if c.RpcAuth == "env:LBRY_RPC_SECRET" {
+				c.RpcAuth = lbryRpcSecret
 			}
 			chainConfigs[i] = c
 		}
