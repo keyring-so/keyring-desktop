@@ -160,6 +160,11 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		return nil, errors.New("chain not found")
 	}
 
+	var net = "mainnet"
+	if chainConfig.Testnet {
+		net = "testnet"
+	}
+
 	nativeConfig := crosschain.NativeAssetConfig{
 		NativeAsset: crosschain.NativeAsset(chainConfig.Symbol),
 		Asset:       chainConfig.Symbol,
@@ -169,6 +174,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    chainConfig.Decimals,
+		Net:         net,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeNative,
 	}
