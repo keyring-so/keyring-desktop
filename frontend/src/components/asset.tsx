@@ -3,7 +3,6 @@ import {
   Transfer,
   VerifyAddress
 } from "@/../wailsjs/go/main/App";
-import { main } from "@/../wailsjs/go/models";
 import { LogoImageSrc } from "@/components/logo";
 import {
   AccordionContent,
@@ -75,8 +74,7 @@ const AssetTransferSchema = z.object({
 const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
-  const [fee, setFee] = useState<main.FeeInfo>();
-  const [tip, setTip] = useState("");
+  const [gas, setGas] = useState("");
   const [pin, setPin] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
@@ -129,7 +127,7 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
       address,
       data.toAddr,
       data.amount,
-      tip,
+      gas,
       data.pin,
       account.id
     )
@@ -283,7 +281,6 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
                 <Button
                   onClick={() => {
                     setTransferOpen(true);
-                    setFee(undefined);
                   }}
                 >
                   Transfer
@@ -341,7 +338,7 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
                       chainName={ledger}
                       from={address}
                       to={transferForm.getValues().toAddr}
-                      setTip={setTip}
+                      setGas={setGas}
                     />
 
                     {loadingTx ? (

@@ -303,10 +303,8 @@ func (a *App) getPairingInfo(pin string, cardId int) (*types.PairingInfo, error)
 func (a *App) CalculateFee(
 	contract string,
 	chainName string,
-	from string,
-	to string,
 ) (*FeeInfo, error) {
-	utils.Sugar.Infof("Calculate fee for contract %s from %s to %s on %s network", contract, from, to, chainName)
+	utils.Sugar.Infof("Calculate fee for contract %s on %s network", contract, chainName)
 
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
 	if chainConfig == nil {
@@ -321,24 +319,26 @@ func (a *App) CalculateFee(
 		return nil, errors.New("unsupported asset")
 	}
 
-	fromAddress := crosschain.Address(from)
-	toAddress := crosschain.Address(to)
-
 	client, _ := factory.NewClient(assetConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to create a client")
 	}
 
-	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
+	fee, err := client.(crosschain.GasEstimator).EstimateGas(ctx)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to fetch tx input")
+		return nil, errors.New("failed to estimate gas fee")
+	}
+
+	gasFee, err := factory.ConvertAmountToHuman(assetConfig, fee)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to convert amount to human readable format")
 	}
 
 	feeInfo := &FeeInfo{
-		Base: input.(*evm.TxInput).BaseFee.String(),
-		Tip:  input.(*evm.TxInput).GasTipCap.String(),
+		Gas: gasFee.String(),
 	}
 
 	return feeInfo, nil
@@ -351,7 +351,7 @@ func (a *App) Transfer(
 	from string,
 	to string,
 	amount string,
-	tip string,
+	gas string,
 	pin string,
 	cardId int,
 ) (crosschain.TxHash, error) {
@@ -387,9 +387,15 @@ func (a *App) Transfer(
 		return "", errors.New("failed to create a client")
 	}
 
+	gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to convert the gas amount")
+	}
+
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
-	if tip != "" {
-		input.(*evm.TxInput).GasTipCap = crosschain.NewAmountBlockchainFromStr(tip)
+	if gas != "" {
+		input.(*evm.TxInput).GasTipCap = gasInteger
 	}
 	if err != nil {
 		utils.Sugar.Error(err)

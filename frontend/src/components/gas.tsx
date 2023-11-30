@@ -1,6 +1,5 @@
 import { CalculateFee } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
-import { GWEI } from "@/constants";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Input } from "./ui/input";
@@ -13,24 +12,24 @@ interface Props {
   chainName: string;
   from: string;
   to: string;
-  setTip: (tip: string) => void;
+  setGas: (tip: string) => void;
 }
 
-const GasFee = ({ contract, chainName, from, to, setTip }: Props) => {
+const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
   const [fee, setFee] = useState<main.FeeInfo>();
   const [loading, setLoading] = useState(false);
 
   const { toast } = useToast();
 
-  const updateTip = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const tipFee = Number(event.target.value) * GWEI;
-    setTip(tipFee.toString());
+  const updateGas = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const gasFee = Number(event.target.value);
+    setGas(gasFee.toString());
   };
 
   const queryFee = async () => {
     try {
       setLoading(true);
-      let fee = await CalculateFee(contract || "", chainName, from, to);
+      let fee = await CalculateFee(contract || "", chainName);
       setFee(fee);
     } catch (err) {
       toast({
@@ -61,14 +60,10 @@ const GasFee = ({ contract, chainName, from, to, setTip }: Props) => {
       {fee ? (
         <div>
           <div>
-            <Label>Base Fee (GWEI)</Label>
-            <Input disabled value={(Number(fee.base) / GWEI).toFixed(2)} />
-          </div>
-          <div>
-            <Label>Tip Fee (GWEI)</Label>
+            <Label>Gas Fee</Label>
             <Input
-              defaultValue={(Number(fee.tip) / GWEI).toFixed(2)}
-              onChange={updateTip}
+              defaultValue={(Number(fee.gas))}
+              onChange={updateGas}
             />
           </div>
         </div>

@@ -17,9 +17,10 @@ import (
 )
 
 type LbryClient struct {
-	http  http.Client
-	Asset *xc.AssetConfig
-	opts  ClientOptions
+	http            http.Client
+	Asset           *xc.AssetConfig
+	opts            ClientOptions
+	EstimateGasFunc xc.EstimateGasFunc
 }
 
 type ChainQueryBalance struct {
@@ -174,6 +175,10 @@ func (client *LbryClient) EstimateGas(ctx context.Context) (xc.AmountBlockchain,
 	fmt.Println("satsPerByte: ", amountDecimal)
 
 	return amount, nil
+}
+
+func (client *LbryClient) RegisterEstimateGasCallback(estimateGas xc.EstimateGasFunc) {
+	client.EstimateGasFunc = estimateGas
 }
 
 func (client *LbryClient) FetchTxInput(ctx context.Context, from xc.Address, to xc.Address) (xc.TxInput, error) {

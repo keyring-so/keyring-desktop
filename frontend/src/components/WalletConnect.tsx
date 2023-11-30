@@ -34,7 +34,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
   const [loading, setLoading] = useState(false);
   const [link, setLink] = useState("");
   const [pin, setPin] = useState("");
-  const [tip, setTip] = useState("");
+  const [gas, setGas] = useState("");
 
   const { toast } = useToast();
 
@@ -166,7 +166,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
               transaction.value,
               transaction.gas,
               transaction.data,
-              tip,
+              gas,
               pin,
               cardId
             );
@@ -361,7 +361,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
                 chainName={ledger}
                 from={transaction.from}
                 to={transaction.to}
-                setTip={setTip}
+                setGas={setGas}
               />
             </div>
 
