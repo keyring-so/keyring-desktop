@@ -3,6 +3,7 @@ package bitcoin
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -143,13 +144,21 @@ func (client *LbryClient) FetchUnspentOutputs(ctx context.Context, address xc.Ad
 				return []Output{}, err
 			}
 			amount := xc.AmountHumanReadable(amountDecimal).ToBlockchain(client.Asset.Decimals)
+			pubkeyScript, err := hex.DecodeString(output.ScriptPubKeyHex)
+			if err != nil {
+				return []Output{}, err
+			}
+			hash, err := hex.DecodeString(output.TransactionHash)
+			if err != nil {
+				return []Output{}, err
+			}
 			outputs[i] = Output{
 				Outpoint: Outpoint{
-					Hash:  []byte(output.TransactionHash),
+					Hash:  []byte(hash),
 					Index: output.Vout,
 				},
 				Value:        amount,
-				PubKeyScript: []byte(output.ScriptPubKeyHex),
+				PubKeyScript: pubkeyScript,
 			}
 		}
 
@@ -210,7 +219,15 @@ func (client *LbryClient) FetchTxInfo(ctx context.Context, txHash xc.TxHash) (xc
 }
 
 func (client *LbryClient) SubmitTx(ctx context.Context, tx xc.Tx) error {
-	panic("implement me")
+	serial, err := tx.Serialize()
+	if err != nil {
+		return fmt.Errorf("bad tx: %v", err)
+	}
+	resp := ""
+	if err := client.send(ctx, &resp, "sendrawtransaction", hex.EncodeToString(serial)); err != nil {
+		return fmt.Errorf("bad \"sendrawtransaction\": %v", err)
+	}
+	return nil
 }
 
 func (client *LbryClient) send(ctx context.Context, resp interface{}, method string, params ...interface{}) error {
