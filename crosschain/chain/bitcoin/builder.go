@@ -66,6 +66,9 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 	totalSpend := local_input.allocateMinUtxoSet(amount, 10)
 	local_input.UnspentOutputs = []Output{}
 
+	fmt.Println("totalSpend: %s", totalSpend)
+	fmt.Println("local_input: %s", local_input)
+
 	gasPrice := local_input.GasPricePerByte
 	// 255 for bitcoin, 300 for bch
 	estimatedTxBytesLength := xc.NewAmountBlockchainFromUint64(uint64(255 * len(local_input.Inputs)))

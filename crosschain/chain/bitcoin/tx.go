@@ -94,7 +94,7 @@ func (tx *Tx) Sighashes() ([]xc.TxDataToSign, error) {
 
 		var hash []byte
 		var err error
-		log.Debugf("Sighashes params: sigScript=%s IsPayToWitnessPubKeyHash(pubKeyScript)=%t", bzToString(sigScript), txscript.IsPayToWitnessPubKeyHash(pubKeyScript))
+		log.Infof("Sighashes params: sigScript=%s IsPayToWitnessPubKeyHash(pubKeyScript)=%t", bzToString(sigScript), txscript.IsPayToWitnessPubKeyHash(pubKeyScript))
 		if tx.isBch {
 			if sigScript == nil {
 				hash = CalculateBchBip143Sighash(pubKeyScript, txscript.NewTxSigHashes(tx.msgTx), txscript.SigHashAll, tx.msgTx, i, int64(value))

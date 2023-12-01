@@ -347,7 +347,7 @@ func (a *App) CalculateFee(
 func (a *App) Transfer(
 	asset string,
 	contract string,
-	nativeAsset string,
+	chainName string,
 	from string,
 	to string,
 	amount string,
@@ -355,19 +355,19 @@ func (a *App) Transfer(
 	pin string,
 	cardId int,
 ) (crosschain.TxHash, error) {
-	utils.Sugar.Infof("Transfer %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, nativeAsset)
+	utils.Sugar.Infof("Transfer %s %s %s from %s to %s on %s network", amount, asset, contract, from, to, chainName)
 	if from == "" || to == "" || amount == "" || pin == "" {
 		return "", errors.New("input can not be empty")
 	}
 
-	chainConfig := utils.GetChainConfig(a.chainConfigs, nativeAsset)
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
 	if chainConfig == nil {
 		return "", errors.New("chain configuration not found")
 	}
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, nativeAsset)
+	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, chainName)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")
@@ -387,14 +387,14 @@ func (a *App) Transfer(
 		return "", errors.New("failed to create a client")
 	}
 
-	gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to convert the gas amount")
-	}
-
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
-	if gas != "" {
+	// TODO disable custom gas fee
+	if gas != "" && false {
+		gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return "", errors.New("failed to convert the gas amount")
+		}
 		input.(*evm.TxInput).GasTipCap = gasInteger
 	}
 	if err != nil {
@@ -419,9 +419,10 @@ func (a *App) Transfer(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to create transaction")
 	}
+	utils.Sugar.Infof("tx: %s", tx)
 	sighashes, err := tx.Sighashes()
 	if err != nil {
-		utils.Sugar.Infof("Error: %s", err)
+		utils.Sugar.Error("Error: %s", err)
 		return "", errors.New("failed to get transaction hash")
 	}
 	sighash := sighashes[0]

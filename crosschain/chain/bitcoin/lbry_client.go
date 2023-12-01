@@ -10,8 +10,8 @@ import (
 	xc "keyring-desktop/crosschain"
 	"net/http"
 	"net/url"
+	"strings"
 
-	"github.com/btcsuite/btcd/btcjson"
 	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
 )
@@ -113,9 +113,13 @@ func (client *LbryClient) FetchNativeBalance(ctx context.Context, address xc.Add
 }
 
 func (client *LbryClient) FetchUnspentOutputs(ctx context.Context, address xc.Address) ([]Output, error) {
-	query := "select o.transaction_hash, o.vout, o.value, o.script_pub_key_hex, o.type from address a inner join transaction_address ta on a.id = ta.address_id inner join output o on o.transaction_id = ta.transaction_id and o.is_spent = 0 and o.type not in ('nonstandard','nulldata') and o.address_list = \"['" + string(address) + "']\" where a.address = '" + string(address) + "';"
-	url := "https://chainquery.lbry.com/api/sql" + "?query=" + url.QueryEscape(query)
+	// query := "select o.transaction_hash, o.vout, o.value, o.script_pub_key_hex, o.type from address a inner join transaction_address ta on a.id = ta.address_id inner join output o on o.transaction_id = ta.transaction_id and o.is_spent = 0 and o.type not in (\"nonstandard\",'nulldata') and o.address_list = '[\"" + string(address) + "'] where a.address = '" + string(address) + "';"
+	query := fmt.Sprintf("select o.transaction_hash, o.vout, o.value, o.script_pub_key_hex, o.type from address a inner join transaction_address ta on a.id = ta.address_id inner join output o on o.transaction_id = ta.transaction_id and o.is_spent = 0 and o.type not in (\"nonstandard\",\"nulldata\") and o.address_list = '[\"%s\"]' where a.address = \"%s\";", address, address)
+	url := "https://chainquery.lbry.com/api/sql" + "?query=" + EncodeURIComponent(url.QueryEscape(query))
 	response, _ := client.http.Get(url)
+
+	fmt.Println("url: ", string(url))
+	fmt.Println("query: ", string(query))
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -156,25 +160,25 @@ func (client *LbryClient) FetchUnspentOutputs(ctx context.Context, address xc.Ad
 }
 
 func (client *LbryClient) EstimateGas(ctx context.Context) (xc.AmountBlockchain, error) {
+	defaultGasFeePerByte := xc.NewAmountBlockchainFromUint64(2) // TODO make it configurable by user
+
+	// feeRes := btcjson.EstimateSmartFeeResult{}
+
 	// estimate using last 1 blocks
-	numBlocks := 3
-	defaultGasFeePerByte := xc.NewAmountBlockchainFromUint64(2)
+	// numBlocks := 3
+	// if err := client.send(ctx, &feeRes, "estimatesmartfee", numBlocks); err != nil {
+	// 	return defaultGasFeePerByte, fmt.Errorf("estimating smart fee: %v", err)
+	// }
 
-	feeRes := btcjson.EstimateSmartFeeResult{}
+	// if feeRes.Errors != nil && len(feeRes.Errors) > 0 {
+	// 	return defaultGasFeePerByte, fmt.Errorf("estimating smart fee: %v", feeRes.Errors[0])
+	// }
 
-	if err := client.send(ctx, &feeRes, "estimatesmartfee", numBlocks); err != nil {
-		return defaultGasFeePerByte, fmt.Errorf("estimating smart fee: %v", err)
-	}
+	// amountDecimal := decimal.NewFromFloat(*feeRes.FeeRate)
+	// amount := xc.AmountHumanReadable(amountDecimal).ToBlockchain(client.Asset.Decimals)
+	// fmt.Println("satsPerByte: ", amountDecimal)
 
-	if feeRes.Errors != nil && len(feeRes.Errors) > 0 {
-		return defaultGasFeePerByte, fmt.Errorf("estimating smart fee: %v", feeRes.Errors[0])
-	}
-
-	amountDecimal := decimal.NewFromFloat(*feeRes.FeeRate)
-	amount := xc.AmountHumanReadable(amountDecimal).ToBlockchain(client.Asset.Decimals)
-	fmt.Println("satsPerByte: ", amountDecimal)
-
-	return amount, nil
+	return defaultGasFeePerByte, nil
 }
 
 func (client *LbryClient) RegisterEstimateGasCallback(estimateGas xc.EstimateGasFunc) {
@@ -194,6 +198,9 @@ func (client *LbryClient) FetchTxInput(ctx context.Context, from xc.Address, to 
 		return nil, err
 	}
 	input.GasPricePerByte = gasPerByte
+
+	fmt.Println("unspentOutputs: ", unspentOutputs)
+	fmt.Println("gasPerByte: ", gasPerByte)
 
 	return input, nil
 }
@@ -241,4 +248,11 @@ func (client *LbryClient) send(ctx context.Context, resp interface{}, method str
 		return fmt.Errorf("decoding http response: %v", err)
 	}
 	return nil
+}
+
+func EncodeURIComponent(input string) string {
+	tmp1 := strings.ReplaceAll(input, "+", "%20")
+	tmp2 := strings.ReplaceAll(tmp1, "%28", "(")
+	tmp3 := strings.ReplaceAll(tmp2, "%29", ")")
+	return tmp3
 }

@@ -26,6 +26,9 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
     setGas(gasFee.toString());
   };
 
+  // TODO ethereum custom gas fee is broken, need to fix it
+  // TODO walletconnect custom gas fee is broken, need to fix it.
+  // TODO lbry custom gas fee is broken, need to fix it.
   const queryFee = async () => {
     try {
       setLoading(true);
@@ -62,8 +65,9 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
           <div>
             <Label>Gas Fee</Label>
             <Input
-              defaultValue={(Number(fee.gas))}
+              defaultValue={Number(fee.gas).toFixed(20).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1')}
               onChange={updateGas}
+              disabled={true}
             />
           </div>
         </div>
