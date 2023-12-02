@@ -711,6 +711,8 @@
     "path": "m/44'/140'/0'/0/0",
     "priceId": "lbry-credits",
     "driver": "bitcoin",
+    "rpcUrl": "https://rpc.lbc.xyz",
+    "rpcAuth": "env:LBRY_RPC_SECRET",
     "decimals": 8,
     "disable": false
   },

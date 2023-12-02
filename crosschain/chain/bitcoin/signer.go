@@ -5,7 +5,7 @@ import (
 
 	xc "keyring-desktop/crosschain"
 
-	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 

@@ -7,11 +7,11 @@ import (
 
 	xc "keyring-desktop/crosschain"
 
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 )
 
 const TxVersion int32 = 2
@@ -66,6 +66,9 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 	totalSpend := local_input.allocateMinUtxoSet(amount, 10)
 	local_input.UnspentOutputs = []Output{}
 
+	fmt.Println("totalSpend: %s", totalSpend)
+	fmt.Println("local_input: %s", local_input)
+
 	gasPrice := local_input.GasPricePerByte
 	// 255 for bitcoin, 300 for bch
 	estimatedTxBytesLength := xc.NewAmountBlockchainFromUint64(uint64(255 * len(local_input.Inputs)))
@@ -88,11 +91,22 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 	}
 
 	msgTx := wire.NewMsgTx(TxVersion)
-
+	prevOutFetcher := txscript.NewMultiPrevOutFetcher(nil)
 	for _, input := range local_input.Inputs {
 		hash := chainhash.Hash{}
 		copy(hash[:], input.Hash)
 		msgTx.AddTxIn(wire.NewTxIn(wire.NewOutPoint(&hash, input.Index), nil, nil))
+		pkScript, err := AddrToPkScript(string(from), txBuilder.Params)
+		if err != nil {
+			return nil, err
+		}
+		txOut := wire.NewTxOut(input.Value.Int().Int64(), pkScript)
+		outTxHash, err := chainhash.NewHash(input.Output.Outpoint.Hash)
+		if err != nil {
+			return nil, err
+		}
+		outPoint := wire.NewOutPoint(outTxHash, input.Output.Outpoint.Index)
+		prevOutFetcher.AddPrevOut(*outPoint, txOut)
 	}
 
 	// Outputs
@@ -130,6 +144,7 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 		to:     to,
 		amount: amount,
 		input:  local_input,
+		prev:   prevOutFetcher,
 
 		recipients: recipients,
 		isBch:      txBuilder.isBch,
@@ -140,4 +155,13 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 // NewTokenTransfer creates a new transfer for a token asset
 func (txBuilder TxBuilder) NewTokenTransfer(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
 	return nil, errors.New("not implemented")
+}
+
+func AddrToPkScript(addr string, network *chaincfg.Params) ([]byte, error) {
+	address, err := btcutil.DecodeAddress(addr, network)
+	if err != nil {
+		return nil, err
+	}
+
+	return txscript.PayToAddrScript(address)
 }

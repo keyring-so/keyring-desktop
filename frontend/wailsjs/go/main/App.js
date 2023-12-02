@@ -10,8 +10,8 @@ export function AddLedger(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddLedger'](arg1, arg2, arg3);
 }
 
-export function CalculateFee(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['CalculateFee'](arg1, arg2, arg3, arg4);
+export function CalculateFee(arg1, arg2) {
+  return window['go']['main']['App']['CalculateFee'](arg1, arg2);
 }
 
 export function CheckCardConnection() {

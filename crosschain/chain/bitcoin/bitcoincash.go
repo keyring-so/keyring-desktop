@@ -40,7 +40,7 @@ func CalculateBchBip143Sighash(subScript []byte, sigHashes *txscript.TxSigHashes
 	// If anyone can pay isn't active, then we can use the cached
 	// hashPrevOuts, otherwise we just write zeroes for the prev outs.
 	if hashType&txscript.SigHashAnyOneCanPay == 0 {
-		sigHash.Write(sigHashes.HashPrevOuts[:])
+		// sigHash.Write(sigHashes.HashPrevOuts[:])
 	} else {
 		sigHash.Write(zeroHash[:])
 	}
@@ -51,7 +51,7 @@ func CalculateBchBip143Sighash(subScript []byte, sigHashes *txscript.TxSigHashes
 	if hashType&txscript.SigHashAnyOneCanPay == 0 &&
 		hashType&SighashMask != txscript.SigHashSingle &&
 		hashType&SighashMask != txscript.SigHashNone {
-		sigHash.Write(sigHashes.HashSequence[:])
+		// sigHash.Write(sigHashes.HashSequence[:])
 	} else {
 		sigHash.Write(zeroHash[:])
 	}
@@ -82,7 +82,7 @@ func CalculateBchBip143Sighash(subScript []byte, sigHashes *txscript.TxSigHashes
 	// pre-image.
 	if hashType&SighashMask != txscript.SigHashSingle &&
 		hashType&SighashMask != txscript.SigHashNone {
-		sigHash.Write(sigHashes.HashOutputs[:])
+		// sigHash.Write(sigHashes.HashOutputs[:])
 	} else if hashType&SighashMask == txscript.SigHashSingle && idx < len(tx.TxOut) {
 		var b bytes.Buffer
 		wire.WriteTxOut(&b, 0, 0, tx.TxOut[idx])

@@ -118,10 +118,13 @@ func ReadChainConfigs(bytes []byte) []ChainConfig {
 	}
 
 	infuraApiToken := os.Getenv("INFURA_API_TOKEN")
-	if infuraApiToken != "" {
+	lbryRpcSecret := os.Getenv("LBRY_RPC_SECRET")
+	if infuraApiToken != "" || lbryRpcSecret != "" {
 		for i, c := range chainConfigs {
 			if c.RpcAuth == "env:INFURA_API_TOKEN" {
 				c.RpcAuth = infuraApiToken
+			} else if c.RpcAuth == "env:LBRY_RPC_SECRET" {
+				c.RpcAuth = lbryRpcSecret
 			}
 			chainConfigs[i] = c
 		}
@@ -160,6 +163,11 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		return nil, errors.New("chain not found")
 	}
 
+	var net = "mainnet"
+	if chainConfig.Testnet {
+		net = "testnet"
+	}
+
 	nativeConfig := crosschain.NativeAssetConfig{
 		NativeAsset: crosschain.NativeAsset(chainConfig.Symbol),
 		Asset:       chainConfig.Symbol,
@@ -169,6 +177,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    chainConfig.Decimals,
+		Net:         net,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeNative,
 	}

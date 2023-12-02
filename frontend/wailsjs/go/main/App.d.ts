@@ -8,7 +8,7 @@ export function AddAsset(arg1:number,arg2:string,arg3:string,arg4:string,arg5:st
 
 export function AddLedger(arg1:number,arg2:string,arg3:string):Promise<string>;
 
-export function CalculateFee(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.FeeInfo>;
+export function CalculateFee(arg1:string,arg2:string):Promise<main.FeeInfo>;
 
 export function CheckCardConnection():Promise<boolean>;
 

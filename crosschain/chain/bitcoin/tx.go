@@ -6,13 +6,13 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"math/big"
 
 	xc "keyring-desktop/crosschain"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,6 +47,7 @@ type Tx struct {
 
 	amount xc.AmountBlockchain
 	input  TxInput
+	prev   *txscript.MultiPrevOutFetcher
 	from   xc.Address
 	to     xc.Address
 	isBch  bool
@@ -91,29 +92,33 @@ func (tx *Tx) Sighashes() ([]xc.TxDataToSign, error) {
 		pubKeyScript := txin.PubKeyScript
 		sigScript := txin.SigScript
 		value := txin.Value.Uint64()
+		fmt.Println("sigScript: ", sigScript)
+		fmt.Println("value: ", value)
+		fmt.Println("pubKeyScript: ", pubKeyScript)
 
 		var hash []byte
 		var err error
-		log.Debugf("Sighashes params: sigScript=%s IsPayToWitnessPubKeyHash(pubKeyScript)=%t", bzToString(sigScript), txscript.IsPayToWitnessPubKeyHash(pubKeyScript))
+		log.Infof("Sighashes params: sigScript=%s IsPayToWitnessPubKeyHash(pubKeyScript)=%t", bzToString(sigScript), txscript.IsPayToWitnessPubKeyHash(pubKeyScript))
 		if tx.isBch {
 			if sigScript == nil {
-				hash = CalculateBchBip143Sighash(pubKeyScript, txscript.NewTxSigHashes(tx.msgTx), txscript.SigHashAll, tx.msgTx, i, int64(value))
+				hash = CalculateBchBip143Sighash(pubKeyScript, txscript.NewTxSigHashes(tx.msgTx, nil), txscript.SigHashAll, tx.msgTx, i, int64(value))
 			} else {
-				hash = CalculateBchBip143Sighash(sigScript, txscript.NewTxSigHashes(tx.msgTx), txscript.SigHashAll, tx.msgTx, i, int64(value))
+				hash = CalculateBchBip143Sighash(sigScript, txscript.NewTxSigHashes(tx.msgTx, nil), txscript.SigHashAll, tx.msgTx, i, int64(value))
 			}
 		} else {
 			if sigScript == nil {
 				if txscript.IsPayToWitnessPubKeyHash(pubKeyScript) {
 					log.Debugf("CalcWitnessSigHash with pubKeyScript: %s", base64.RawURLEncoding.EncodeToString(pubKeyScript))
-					hash, err = txscript.CalcWitnessSigHash(pubKeyScript, txscript.NewTxSigHashes(tx.msgTx), txscript.SigHashAll, tx.msgTx, i, int64(value))
+					hash, err = txscript.CalcWitnessSigHash(pubKeyScript, txscript.NewTxSigHashes(tx.msgTx, nil), txscript.SigHashAll, tx.msgTx, i, int64(value))
 				} else {
 					log.Debugf("CalcSignatureHash with pubKeyScript: %s", base64.RawURLEncoding.EncodeToString(pubKeyScript))
+					fmt.Printf("CalcSignatureHash with pubKeyScript: %s", base64.RawURLEncoding.EncodeToString(pubKeyScript))
 					hash, err = txscript.CalcSignatureHash(pubKeyScript, txscript.SigHashAll, tx.msgTx, i)
 				}
 			} else {
 				if txscript.IsPayToWitnessScriptHash(pubKeyScript) {
 					log.Debugf("CalcWitnessSigHash with sigScript: %s", base64.RawURLEncoding.EncodeToString(sigScript))
-					hash, err = txscript.CalcWitnessSigHash(sigScript, txscript.NewTxSigHashes(tx.msgTx), txscript.SigHashAll, tx.msgTx, i, int64(value))
+					hash, err = txscript.CalcWitnessSigHash(sigScript, txscript.NewTxSigHashes(tx.msgTx, tx.prev), txscript.SigHashAll, tx.msgTx, i, int64(value))
 				} else {
 					log.Debugf("CalcSignatureHash with sigScript: %s", base64.RawURLEncoding.EncodeToString(sigScript))
 					hash, err = txscript.CalcSignatureHash(sigScript, txscript.SigHashAll, tx.msgTx, i)
@@ -148,12 +153,13 @@ func (tx *Tx) AddSignatures(signatures ...xc.TxSignature) error {
 		copy(rsv[:], rsvBytes)
 
 		// Decode the signature and the pubkey script.
-		r := new(big.Int).SetBytes(rsv[:32])
-		s := new(big.Int).SetBytes(rsv[32:64])
-		signature := btcec.Signature{
-			R: r,
-			S: s,
-		}
+		// r := new(big.Int).SetBytes(rsv[:32])
+		// s := new(big.Int).SetBytes(rsv[32:64])
+		var r secp256k1.ModNScalar
+		var s secp256k1.ModNScalar
+		r.SetByteSlice(rsv[:32])
+		s.SetByteSlice(rsv[32:64])
+		signature := ecdsa.NewSignature(&r, &s)
 		pubKeyScript := tx.input.Inputs[i].Output.PubKeyScript
 		sigScript := tx.input.Inputs[i].SigScript
 

@@ -140,8 +140,7 @@ export namespace main {
 	}
 	
 	export class FeeInfo {
-	    base: string;
-	    tip: string;
+	    gas: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new FeeInfo(source);
@@ -149,8 +148,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.base = source["base"];
-	        this.tip = source["tip"];
+	        this.gas = source["gas"];
 	    }
 	}
 	export class InitCardResponse {

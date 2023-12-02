@@ -16,11 +16,11 @@ import (
 	xc "keyring-desktop/crosschain"
 
 	"github.com/btcsuite/btcd/btcjson"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/cosmos/btcutil"
 	"github.com/shopspring/decimal"
 	"go.mongodb.org/mongo-driver/mongo/address"
 )
@@ -33,7 +33,7 @@ var (
 	// default host to connect to rpc node
 	DefaultClientHost = "http://0.0.0.0:18443"
 	// default user for rpc connection
-	DefaultClientUser = "user"
+	DefaultClientUser = "keyring"
 	// default password for rpc connection
 	DefaultClientPassword = "password"
 	// default auth header for rpc connection
