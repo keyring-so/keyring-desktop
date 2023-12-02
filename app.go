@@ -402,9 +402,29 @@ func (a *App) Transfer(
 		return "", errors.New("failed to fetch tx input")
 	}
 
+	// connect to card
+	keyringCard, err := services.NewKeyringCard()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to connect to card")
+	}
+	defer keyringCard.Release()
+
+	// get pairing info
+	pairingInfo, err := a.getPairingInfo(pin, cardId)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return "", errors.New("failed to get pairing info")
+	}
+
 	// only for Cosmos-based chains
 	if inputWithPublicKey, ok := input.(crosschain.TxInputWithPublicKey); ok {
-		inputWithPublicKey.SetPublicKeyFromStr("unimplemented")
+		pubkey, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return "", errors.New("failed to get public key")
+		}
+		inputWithPublicKey.SetPublicKey(pubkey)
 	}
 	utils.Sugar.Infof("input: %+v", input)
 
@@ -428,21 +448,6 @@ func (a *App) Transfer(
 	sighash := sighashes[0]
 	utils.Sugar.Infof("transaction: %+v", tx)
 	utils.Sugar.Infof("signing: %x", sighash)
-
-	// connect to card
-	keyringCard, err := services.NewKeyringCard()
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
-	}
-	defer keyringCard.Release()
-
-	// get pairing info
-	pairingInfo, err := a.getPairingInfo(pin, cardId)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to get pairing info")
-	}
 
 	signature, err := keyringCard.Sign(sighash, chainConfig, pin, pairingInfo)
 	if err != nil {

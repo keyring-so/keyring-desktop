@@ -152,9 +152,13 @@ func (client *LbryClient) FetchUnspentOutputs(ctx context.Context, address xc.Ad
 			if err != nil {
 				return []Output{}, err
 			}
+			// reverse
+			for i, j := 0, len(hash)-1; i < j; i, j = i+1, j-1 {
+				hash[i], hash[j] = hash[j], hash[i]
+			}
 			outputs[i] = Output{
 				Outpoint: Outpoint{
-					Hash:  []byte(hash),
+					Hash:  hash,
 					Index: output.Vout,
 				},
 				Value:        amount,
