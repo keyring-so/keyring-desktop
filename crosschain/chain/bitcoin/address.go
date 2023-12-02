@@ -80,6 +80,7 @@ func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Addr
 		if err != nil {
 			return "", err
 		}
+		addressPubKey.SetFormat(btcutil.PKFCompressed)
 		address = addressPubKey.EncodeAddress()
 	} else if ab.UseScriptHash {
 		// segwith
