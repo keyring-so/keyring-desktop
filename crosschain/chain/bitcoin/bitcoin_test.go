@@ -60,25 +60,25 @@ func (s *CrosschainTestSuite) TestGetAddressFromPublicKey() {
 		fmt.Println("checking address for ", nativeAsset)
 		switch nativeAsset {
 		case xc.BTC:
-			address, err := builder.GetAddressFromPublicKey(pubkey)
+			address, _, err := builder.GetAddressFromPublicKey(pubkey)
 			require.NoError(err)
 			require.Equal(xc.Address("mhYWE7RrYCgbq4RJDaqZp8fvzVmYnPVnFD"), address)
 		case xc.BCH:
 			pubkey_bch, err := base64.RawStdEncoding.DecodeString("A3bpQsIiW5ipniaDtYXQjeU2LwtRDkfWQNlAcY3u2pu7")
 			require.NoError(err)
-			address, err := builder.GetAddressFromPublicKey(pubkey_bch)
+			address, _, err := builder.GetAddressFromPublicKey(pubkey_bch)
 			require.NoError(err)
 			require.Equal(xc.Address("bchtest:qpkxhv02hftvxe0gx654nzx3292cvfu4tqdkf49c09"), address)
 		case xc.DOGE:
-			address, err := builder.GetAddressFromPublicKey(pubkey)
+			address, _, err := builder.GetAddressFromPublicKey(pubkey)
 			require.NoError(err)
 			require.Equal(xc.Address("nWDiCL2RxZcMTvhUGRWCnPDWFWHSCfkhoz"), address)
 		case xc.LTC:
-			address, err := builder.GetAddressFromPublicKey(pubkey)
+			address, _, err := builder.GetAddressFromPublicKey(pubkey)
 			require.NoError(err)
 			require.Equal(xc.Address("mhYWE7RrYCgbq4RJDaqZp8fvzVmYnPVnFD"), address)
 		case xc.LBC:
-			address, err := builder.GetAddressFromPublicKey(pubkey)
+			address, _, err := builder.GetAddressFromPublicKey(pubkey)
 			require.NoError(err)
 			require.Equal(xc.Address("mhYWE7RrYCgbq4RJDaqZp8fvzVmYnPVnFD"), address)
 		default:

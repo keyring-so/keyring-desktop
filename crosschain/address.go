@@ -8,7 +8,7 @@ type ContractAddress Address
 
 // AddressBuilder is the interface for building addresses
 type AddressBuilder interface {
-	GetAddressFromPublicKey(publicKeyBytes []byte) (Address, error)
+	GetAddressFromPublicKey(publicKeyBytes []byte) (Address, []byte, error)
 	GetAllPossibleAddressesFromPublicKey(publicKeyBytes []byte) ([]PossibleAddress, error)
 }
 
@@ -28,6 +28,7 @@ const (
 
 // PossibleAddress is a pair of (Address, AddressType) used to derive all possible addresses from a public key
 type PossibleAddress struct {
-	Address Address
-	Type    AddressType
+	Address   Address
+	Type      AddressType
+	PublicKey []byte
 }

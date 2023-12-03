@@ -264,7 +264,7 @@ func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")
 	}
-	address, err := factory.GetAddressFromPublicKey(assetConfig, pubkey)
+	address, _, err := factory.GetAddressFromPublicKey(assetConfig, pubkey)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to get address from public key")
@@ -417,14 +417,18 @@ func (a *App) Transfer(
 		return "", errors.New("failed to get pairing info")
 	}
 
-	// only for Cosmos-based chains
 	if inputWithPublicKey, ok := input.(crosschain.TxInputWithPublicKey); ok {
-		pubkey, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
+		pubkeyRaw, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return "", errors.New("failed to get public key")
 		}
-		inputWithPublicKey.SetPublicKey(pubkey)
+		_, publicKey, err := factory.GetAddressFromPublicKey(assetConfig, pubkeyRaw)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return "", errors.New("failed to parse public key")
+		}
+		inputWithPublicKey.SetPublicKey(publicKey)
 	}
 	utils.Sugar.Infof("input: %+v", input)
 
