@@ -106,7 +106,7 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
 
   const showBalance = (balance: string | undefined) => {
     if (balance) {
-      return parseFloat(parseFloat(balance).toFixed(3));
+      return parseFloat(parseFloat(balance).toFixed(3)).toLocaleString();
     }
     if (onError) {
       return "n/a";
