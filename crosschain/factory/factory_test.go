@@ -99,7 +99,7 @@ func (s *CrosschainTestSuite) TestNewAddressBuilder() {
 func (s *CrosschainTestSuite) TestGetAddressFromPublicKey() {
 	require := s.Require()
 	for _, asset := range s.TestAssetConfigs {
-		address, _ := s.Factory.GetAddressFromPublicKey(asset, []byte{})
+		address, _, _ := s.Factory.GetAddressFromPublicKey(asset, []byte{})
 		require.NotNil(address)
 	}
 }

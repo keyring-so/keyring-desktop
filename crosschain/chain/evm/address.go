@@ -20,32 +20,33 @@ func NewAddressBuilder(asset xc.ITask) (xc.AddressBuilder, error) {
 }
 
 // GetAddressFromPublicKey returns an Address given a public key
-func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Address, error) {
+func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Address, []byte, error) {
 	var publicKey *ecdsa.PublicKey
 	var err error
 	if len(publicKeyBytes) == 33 {
 		publicKey, err = crypto.DecompressPubkey(publicKeyBytes)
 		if err != nil {
-			return xc.Address(""), errors.New("invalid k256 public key")
+			return xc.Address(""), nil, errors.New("invalid k256 public key")
 		}
 	} else {
 		publicKey, err = crypto.UnmarshalPubkey(publicKeyBytes)
 		if err != nil {
-			return xc.Address(""), err
+			return xc.Address(""), nil, err
 		}
 	}
 
 	address := crypto.PubkeyToAddress(*publicKey).Hex()
-	return xc.Address(address), nil
+	return xc.Address(address), publicKeyBytes, nil
 }
 
 // GetAllPossibleAddressesFromPublicKey returns all PossubleAddress(es) given a public key
 func (ab AddressBuilder) GetAllPossibleAddressesFromPublicKey(publicKeyBytes []byte) ([]xc.PossibleAddress, error) {
-	address, err := ab.GetAddressFromPublicKey(publicKeyBytes)
+	address, pubkey, err := ab.GetAddressFromPublicKey(publicKeyBytes)
 	return []xc.PossibleAddress{
 		{
-			Address: address,
-			Type:    xc.AddressTypeDefault,
+			Address:   address,
+			Type:      xc.AddressTypeDefault,
+			PublicKey: pubkey,
 		},
 	}, err
 }

@@ -52,21 +52,23 @@ func NewAddressBuilder(asset xc.ITask) (xc.AddressBuilder, error) {
 }
 
 // GetAddressFromPublicKey returns an Address given a public key
-func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Address, error) {
+func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Address, []byte, error) {
+	addressPubKeyBytes := []byte{}
+
 	if ab.asset.GetNativeAsset().NativeAsset == xc.BCH {
 		addressPubKey, err := NewBchAddressPubKey(publicKeyBytes, ab.params)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		prefix := AddressPrefix(ab.params)
 		hash := *addressPubKey.Hash160()
 		encoded, err := encodeBchAddress(0x00, hash[:], ab.params)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		// legacy format
 		// encoded = addressPubKey.EncodeAddress()
-		return xc.Address(prefix + ":" + encoded), nil
+		return xc.Address(prefix + ":" + encoded), addressPubKeyBytes, nil
 	}
 
 	// hack to support Taproot until btcutil is bumped
@@ -78,16 +80,17 @@ func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Addr
 		// legacy
 		addressPubKey, err := btcutil.NewAddressPubKey(publicKeyBytes, ab.params)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		addressPubKey.SetFormat(btcutil.PKFCompressed)
+		addressPubKeyBytes = addressPubKey.ScriptAddress()
 		address = addressPubKey.EncodeAddress()
 	} else if ab.UseScriptHash {
 		// segwith
 		scriptHash := btcutil.Hash160(publicKeyBytes)
 		addressPubKey, err := btcutil.NewAddressScriptHashFromHash(scriptHash, ab.params)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		address = addressPubKey.EncodeAddress()
 	} else {
@@ -95,11 +98,11 @@ func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Addr
 		witnessProg := btcutil.Hash160(publicKeyBytes)
 		addressPubKey, err := btcutil.NewAddressWitnessPubKeyHash(witnessProg, ab.params)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		address = addressPubKey.EncodeAddress()
 	}
-	return xc.Address(address), nil
+	return xc.Address(address), addressPubKeyBytes, nil
 }
 
 // GetAllPossibleAddressesFromPublicKey returns all PossubleAddress(es) given a public key

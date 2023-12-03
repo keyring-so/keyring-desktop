@@ -14,7 +14,7 @@ type TestFactory struct {
 	NewTxBuilderFunc            func(asset xc.ITask) (xc.TxBuilder, error)
 	NewSignerFunc               func(asset xc.ITask) (xc.Signer, error)
 	NewAddressBuilderFunc       func(asset xc.ITask) (xc.AddressBuilder, error)
-	GetAddressFromPublicKeyFunc func(asset xc.ITask, publicKey []byte) (xc.Address, error)
+	GetAddressFromPublicKeyFunc func(asset xc.ITask, publicKey []byte) (xc.Address, []byte, error)
 }
 
 var _ factory.FactoryContext = &TestFactory{}
@@ -63,7 +63,7 @@ func (f *TestFactory) UnmarshalTxInput(data []byte) (xc.TxInput, error) {
 }
 
 // GetAddressFromPublicKey returns an Address given a public key
-func (f *TestFactory) GetAddressFromPublicKey(asset xc.ITask, publicKey []byte) (xc.Address, error) {
+func (f *TestFactory) GetAddressFromPublicKey(asset xc.ITask, publicKey []byte) (xc.Address, []byte, error) {
 	if f.GetAddressFromPublicKeyFunc != nil {
 		return f.GetAddressFromPublicKeyFunc(asset, publicKey)
 	}

@@ -28,7 +28,7 @@ type FactoryContext interface {
 	MarshalTxInput(input TxInput) ([]byte, error)
 	UnmarshalTxInput(data []byte) (TxInput, error)
 
-	GetAddressFromPublicKey(asset ITask, publicKey []byte) (Address, error)
+	GetAddressFromPublicKey(asset ITask, publicKey []byte) (Address, []byte, error)
 	GetAllPossibleAddressesFromPublicKey(asset ITask, publicKey []byte) ([]PossibleAddress, error)
 
 	MustAmountBlockchain(asset ITask, humanAmountStr string) AmountBlockchain
@@ -307,11 +307,11 @@ func (f *Factory) UnmarshalTxInput(data []byte) (TxInput, error) {
 }
 
 // GetAddressFromPublicKey returns an Address given a public key
-func (f *Factory) GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, error) {
+func (f *Factory) GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, []byte, error) {
 	return getAddressFromPublicKey(cfg, publicKey)
 }
 
-func GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, error) {
+func GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, []byte, error) {
 	return getAddressFromPublicKey(cfg, publicKey)
 }
 
@@ -615,10 +615,10 @@ func UnmarshalTxInput(data []byte) (TxInput, error) {
 	}
 }
 
-func getAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, error) {
+func getAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, []byte, error) {
 	builder, err := newAddressBuilder(cfg)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	return builder.GetAddressFromPublicKey(publicKey)
 }
