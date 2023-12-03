@@ -417,7 +417,6 @@ func (a *App) Transfer(
 		return "", errors.New("failed to get pairing info")
 	}
 
-	// only for Cosmos-based chains
 	if inputWithPublicKey, ok := input.(crosschain.TxInputWithPublicKey); ok {
 		pubkeyRaw, err := keyringCard.ChainAddress(pin, pairingInfo, chainConfig)
 		if err != nil {
