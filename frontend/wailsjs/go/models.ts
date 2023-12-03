@@ -223,6 +223,7 @@ export namespace utils {
 	    decimals: number;
 	    testnet: boolean;
 	    disable: boolean;
+	    enableWalletConnect: boolean;
 	    tokens: TokenConfig[];
 	
 	    static createFrom(source: any = {}) {
@@ -245,6 +246,7 @@ export namespace utils {
 	        this.decimals = source["decimals"];
 	        this.testnet = source["testnet"];
 	        this.disable = source["disable"];
+	        this.enableWalletConnect = source["enableWalletConnect"];
 	        this.tokens = this.convertValues(source["tokens"], TokenConfig);
 	    }
 	

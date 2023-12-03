@@ -343,7 +343,7 @@ function Wallet() {
         </TooltipProvider>
       </div>
 
-      {chainAssets?.address && (
+      {chainAssets?.address && chainConfig?.enableWalletConnect && (
         <div className="absolute right-10 bottom-10">
           <WalletConnect
             address={chainAssets.address}

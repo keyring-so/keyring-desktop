@@ -12,6 +12,7 @@
     "chainId": 1,
     "explorer": "https://etherscan.io",
     "decimals": 18,
+    "enableWalletConnect": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -599,6 +600,7 @@
     "explorer": "https://goerli.etherscan.io",
     "decimals": 18,
     "testnet": true,
+    "enableWalletConnect": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -621,7 +623,7 @@
     "chainId": 10,
     "explorer": "https://optimistic.etherscan.io",
     "decimals": 18,
-    "testnet": false,
+    "enableWalletConnect": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -645,6 +647,7 @@
     "explorer": "https://goerli-optimism.etherscan.io",
     "decimals": 18,
     "testnet": true,
+    "enableWalletConnect": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -665,7 +668,7 @@
     "chainId": 8453,
     "explorer": "https://basescan.org",
     "decimals": 18,
-    "testnet": false,
+    "enableWalletConnect": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -687,6 +690,7 @@
     "explorer": "https://goerli.basescan.org",
     "decimals": 18,
     "testnet": true,
+    "enableWalletConnect": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -713,8 +717,7 @@
     "driver": "bitcoin",
     "rpcUrl": "https://rpc.lbc.xyz",
     "rpcAuth": "env:LBRY_RPC_SECRET",
-    "decimals": 8,
-    "disable": false
+    "decimals": 8
   },
   {
     "name": "Polygon",
