@@ -444,24 +444,26 @@ func (a *App) Transfer(
 		return "", errors.New("failed to create transaction")
 	}
 	utils.Sugar.Infof("tx: %s", tx)
+	utils.Sugar.Infof("transaction: %+v", tx)
 	sighashes, err := tx.Sighashes()
 	if err != nil {
 		utils.Sugar.Error("Error: %s", err)
 		return "", errors.New("failed to get transaction hash")
 	}
-	sighash := sighashes[0]
-	utils.Sugar.Infof("transaction: %+v", tx)
-	utils.Sugar.Infof("signing: %x", sighash)
-
-	signature, err := keyringCard.Sign(sighash, chainConfig, pin, pairingInfo)
-	if err != nil {
-		utils.Sugar.Error(err)
-		return "", errors.New("failed to sign transaction hash")
+	signatures := make([]crosschain.TxSignature, len(sighashes))
+	for i, sighash := range sighashes {
+		utils.Sugar.Infof("signing: %x", sighash)
+		signature, err := keyringCard.Sign(sighash, chainConfig, pin, pairingInfo)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return "", errors.New("failed to sign transaction hash")
+		}
+		utils.Sugar.Infof("signature: %x", signature)
+		signatures[i] = signature
 	}
-	utils.Sugar.Infof("signature: %x", signature)
 
 	// complete the tx by adding signature
-	err = tx.AddSignatures(signature)
+	err = tx.AddSignatures(signatures...)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to add signature")
