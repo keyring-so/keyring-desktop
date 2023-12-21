@@ -50,26 +50,30 @@ func (amount *AmountBlockchain) Cmp(other *AmountBlockchain) int {
 
 // Use the underlying big.Int.Add()
 func (amount *AmountBlockchain) Add(x *AmountBlockchain) AmountBlockchain {
-	sum := *amount
-	return AmountBlockchain(*sum.Int().Add(sum.Int(), x.Int()))
+	result := new(big.Int)
+	result.Add(amount.Int(), x.Int())
+	return AmountBlockchain(*result)
 }
 
 // Use the underlying big.Int.Sub()
 func (amount *AmountBlockchain) Sub(x *AmountBlockchain) AmountBlockchain {
-	diff := *amount
-	return AmountBlockchain(*diff.Int().Sub(diff.Int(), x.Int()))
+	result := new(big.Int)
+	result.Sub(amount.Int(), x.Int())
+	return AmountBlockchain(*result)
 }
 
 // Use the underlying big.Int.Mul()
 func (amount *AmountBlockchain) Mul(x *AmountBlockchain) AmountBlockchain {
-	prod := *amount
-	return AmountBlockchain(*prod.Int().Mul(prod.Int(), x.Int()))
+	result := new(big.Int)
+	result.Mul(amount.Int(), x.Int())
+	return AmountBlockchain(*result)
 }
 
 // Use the underlying big.Int.Div()
 func (amount *AmountBlockchain) Div(x *AmountBlockchain) AmountBlockchain {
-	quot := *amount
-	return AmountBlockchain(*quot.Int().Div(quot.Int(), x.Int()))
+	result := new(big.Int)
+	result.Div(amount.Int(), x.Int())
+	return AmountBlockchain(*result)
 }
 
 func (amount *AmountBlockchain) ToHuman(decimals int32) AmountHumanReadable {

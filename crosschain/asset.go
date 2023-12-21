@@ -160,11 +160,8 @@ const (
 
 var SupportedDrivers = []Driver{
 	DriverBitcoin,
-	DriverCosmos,
-	DriverCosmosEvmos,
 	DriverEVM,
 	DriverEVMLegacy,
-	DriverSolana,
 }
 
 // AssetID is an internal identifier for each asset
@@ -201,6 +198,7 @@ type AssetConfig struct {
 	ChainGasMultiplier   float64 `yaml:"chain_gas_multiplier"`
 	ExplorerURL          string  `yaml:"explorer_url"`
 	Decimals             int32   `yaml:"decimals"`
+	MaxFee               string  `yaml:"max_fee"`
 	Name                 string  `yaml:"name"`
 	IndexerUrl           string  `yaml:"indexer_url"`
 	IndexerType          string  `yaml:"indexer_type"`

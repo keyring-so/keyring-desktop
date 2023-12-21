@@ -149,14 +149,6 @@ func (f *TestFactory) MustPrivateKey(asset xc.ITask, privateKeyStr string) xc.Pr
 	return f.DefaultFactory.MustPrivateKey(asset, privateKeyStr)
 }
 
-// NewDefaultFactory creates a new Factory
-func NewDefaultFactory() TestFactory {
-	f := factory.NewDefaultFactory()
-	return TestFactory{
-		DefaultFactory: f,
-	}
-}
-
 // NewDefaultFactoryWithConfig creates a new Factory given a config map
 func NewDefaultFactoryWithConfig(cfg map[string]interface{}) TestFactory {
 	f := factory.NewDefaultFactoryWithConfig(cfg)

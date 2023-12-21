@@ -80,6 +80,7 @@ type ChainConfig struct {
 	ChainId             int64         `json:"chainId"`
 	Explore             string        `json:"explore"`
 	Decimals            int32         `json:"decimals"`
+	MaxFee              string        `json:"maxFee"`
 	Testnet             bool          `json:"testnet"`
 	Disable             bool          `json:"disable"`
 	EnableWalletConnect bool          `json:"enableWalletConnect"`
@@ -178,6 +179,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    chainConfig.Decimals,
+		MaxFee:      chainConfig.MaxFee,
 		Net:         net,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeNative,
@@ -200,6 +202,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    tokenConfig.Decimals,
+		MaxFee:      chainConfig.MaxFee,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeToken,
 		Contract:    tokenConfig.Contract,
