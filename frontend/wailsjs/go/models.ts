@@ -221,8 +221,7 @@ export namespace utils {
 	    chainId: number;
 	    explore: string;
 	    decimals: number;
-	    // Go type: decimal
-	    maxFee: any;
+	    maxFee: string;
 	    testnet: boolean;
 	    disable: boolean;
 	    enableWalletConnect: boolean;
@@ -246,7 +245,7 @@ export namespace utils {
 	        this.chainId = source["chainId"];
 	        this.explore = source["explore"];
 	        this.decimals = source["decimals"];
-	        this.maxFee = this.convertValues(source["maxFee"], null);
+	        this.maxFee = source["maxFee"];
 	        this.testnet = source["testnet"];
 	        this.disable = source["disable"];
 	        this.enableWalletConnect = source["enableWalletConnect"];

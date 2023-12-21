@@ -718,7 +718,7 @@
     "rpcUrl": "https://rpc.lbc.xyz",
     "rpcAuth": "env:LBRY_RPC_SECRET",
     "decimals": 8,
-    "maxFee": 0.01
+    "maxFee": "0.01"
   },
   {
     "name": "Polygon",
