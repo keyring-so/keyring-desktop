@@ -90,6 +90,18 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 		},
 	}
 
+	// Double check the fee is not exceed the max fee allowed
+	finalSend := amount.Add(&unspentAmountMinusTransferAndFee)
+	finalFee := totalSpend.Sub(&finalSend)
+	maxFeeAllowed := xc.AmountHumanReadable(txBuilder.Asset.MaxFee).ToBlockchain(txBuilder.Asset.Decimals)
+	zero := xc.NewAmountBlockchainFromUint64(0)
+	if finalFee.Cmp(&zero) < 0 {
+		return nil, errors.New("the transaction fee is negative")
+	}
+	if finalFee.Cmp(&maxFeeAllowed) > 0 {
+		return nil, errors.New("the transaction fee exceeds the max fee allowed")
+	}
+
 	msgTx := wire.NewMsgTx(TxVersion)
 	prevOutFetcher := txscript.NewMultiPrevOutFetcher(nil)
 	for _, input := range local_input.Inputs {

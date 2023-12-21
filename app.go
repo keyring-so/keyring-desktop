@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"keyring-desktop/database"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
@@ -441,7 +442,7 @@ func (a *App) Transfer(
 	tx, err := builder.NewTransfer(fromAddress, toAddress, amountInteger, input)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to create transaction")
+		return "", fmt.Errorf("failed to create transaction: %s", err)
 	}
 	utils.Sugar.Infof("tx: %s", tx)
 	utils.Sugar.Infof("transaction: %+v", tx)

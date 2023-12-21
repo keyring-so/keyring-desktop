@@ -5,6 +5,8 @@ import (
 	"errors"
 	"keyring-desktop/crosschain"
 	"os"
+
+	"github.com/shopspring/decimal"
 )
 
 type AppConfig struct {
@@ -68,22 +70,23 @@ type InitConfig struct {
 }
 
 type ChainConfig struct {
-	Name                string        `json:"name"`
-	Symbol              string        `json:"symbol"`
-	Img                 string        `json:"img"`
-	Path                string        `json:"path"`
-	PriceId             string        `json:"priceId"`
-	Driver              string        `json:"driver"`
-	RpcUrl              string        `json:"rpcUrl"`
-	RpcAuth             string        `json:"rpcAuth"`
-	RpcProvider         string        `json:"rpcProvider"`
-	ChainId             int64         `json:"chainId"`
-	Explore             string        `json:"explore"`
-	Decimals            int32         `json:"decimals"`
-	Testnet             bool          `json:"testnet"`
-	Disable             bool          `json:"disable"`
-	EnableWalletConnect bool          `json:"enableWalletConnect"`
-	Tokens              []TokenConfig `json:"tokens"`
+	Name                string          `json:"name"`
+	Symbol              string          `json:"symbol"`
+	Img                 string          `json:"img"`
+	Path                string          `json:"path"`
+	PriceId             string          `json:"priceId"`
+	Driver              string          `json:"driver"`
+	RpcUrl              string          `json:"rpcUrl"`
+	RpcAuth             string          `json:"rpcAuth"`
+	RpcProvider         string          `json:"rpcProvider"`
+	ChainId             int64           `json:"chainId"`
+	Explore             string          `json:"explore"`
+	Decimals            int32           `json:"decimals"`
+	MaxFee              decimal.Decimal `json:"maxFee"`
+	Testnet             bool            `json:"testnet"`
+	Disable             bool            `json:"disable"`
+	EnableWalletConnect bool            `json:"enableWalletConnect"`
+	Tokens              []TokenConfig   `json:"tokens"`
 }
 
 type TokenConfig struct {
@@ -178,6 +181,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    chainConfig.Decimals,
+		MaxFee:      chainConfig.MaxFee,
 		Net:         net,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeNative,
@@ -200,6 +204,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
 		Decimals:    tokenConfig.Decimals,
+		MaxFee:      chainConfig.MaxFee,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeToken,
 		Contract:    tokenConfig.Contract,
