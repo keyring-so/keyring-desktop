@@ -3,8 +3,6 @@ package crosschain
 import (
 	"fmt"
 	"strings"
-
-	"github.com/shopspring/decimal"
 )
 
 // Asset is an asset on a blockchain. It can be a token or native asset.
@@ -162,11 +160,8 @@ const (
 
 var SupportedDrivers = []Driver{
 	DriverBitcoin,
-	DriverCosmos,
-	DriverCosmosEvmos,
 	DriverEVM,
 	DriverEVMLegacy,
-	DriverSolana,
 }
 
 // AssetID is an internal identifier for each asset
@@ -186,27 +181,27 @@ type AssetConfig struct {
 	//     net = "mainnet"
 	//     contract = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
 	//     decimals = 6
-	Asset                string          `yaml:"asset"`
-	Driver               string          `yaml:"driver"`
-	Net                  string          `yaml:"net"`
-	URL                  string          `yaml:"url"`
-	FcdURL               string          `yaml:"fcd_url"`
-	Auth                 string          `yaml:"auth"`
-	Provider             string          `yaml:"provider"`
-	ChainID              int64           `yaml:"chain_id"`
-	ChainIDStr           string          `yaml:"chain_id_str"`
-	ChainName            string          `yaml:"chain_name"`
-	ChainPrefix          string          `yaml:"chain_prefix"`
-	ChainCoin            string          `yaml:"chain_coin"`
-	ChainCoinHDPath      uint32          `yaml:"chain_coin_hd_path"`
-	ChainGasPriceDefault float64         `yaml:"chain_gas_price_default"`
-	ChainGasMultiplier   float64         `yaml:"chain_gas_multiplier"`
-	ExplorerURL          string          `yaml:"explorer_url"`
-	Decimals             int32           `yaml:"decimals"`
-	MaxFee               decimal.Decimal `yaml:"max_fee"`
-	Name                 string          `yaml:"name"`
-	IndexerUrl           string          `yaml:"indexer_url"`
-	IndexerType          string          `yaml:"indexer_type"`
+	Asset                string  `yaml:"asset"`
+	Driver               string  `yaml:"driver"`
+	Net                  string  `yaml:"net"`
+	URL                  string  `yaml:"url"`
+	FcdURL               string  `yaml:"fcd_url"`
+	Auth                 string  `yaml:"auth"`
+	Provider             string  `yaml:"provider"`
+	ChainID              int64   `yaml:"chain_id"`
+	ChainIDStr           string  `yaml:"chain_id_str"`
+	ChainName            string  `yaml:"chain_name"`
+	ChainPrefix          string  `yaml:"chain_prefix"`
+	ChainCoin            string  `yaml:"chain_coin"`
+	ChainCoinHDPath      uint32  `yaml:"chain_coin_hd_path"`
+	ChainGasPriceDefault float64 `yaml:"chain_gas_price_default"`
+	ChainGasMultiplier   float64 `yaml:"chain_gas_multiplier"`
+	ExplorerURL          string  `yaml:"explorer_url"`
+	Decimals             int32   `yaml:"decimals"`
+	MaxFee               string  `yaml:"max_fee"`
+	Name                 string  `yaml:"name"`
+	IndexerUrl           string  `yaml:"indexer_url"`
+	IndexerType          string  `yaml:"indexer_type"`
 
 	// Tokens
 	Chain    string `yaml:"chain"`

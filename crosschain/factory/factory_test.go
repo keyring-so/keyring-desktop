@@ -25,7 +25,7 @@ func (s *CrosschainTestSuite) SetupTest() {
 		xc.ETH,
 		xc.MATIC,
 		xc.BNB,
-		xc.SOL,
+		// xc.SOL,
 		// xc.ATOM,
 	}
 	for _, native := range s.TestNativeAssets {
@@ -260,7 +260,7 @@ func (s *CrosschainTestSuite) TestConvertAmountStrToBlockchainErr() {
 func (s *CrosschainTestSuite) TestEnrichAssetConfig() {
 	require := s.Require()
 
-	assetCfgI, _ := s.Factory.GetAssetConfig("USDC", "SOL")
+	assetCfgI, _ := s.Factory.GetAssetConfig("USDC", "ETH")
 	assetCfg := assetCfgI.(*xc.TokenAssetConfig)
 	assetCfg.URL = ""
 	assetCfgEnriched, err := s.Factory.EnrichAssetConfig(assetCfg)
@@ -336,7 +336,7 @@ func (s *CrosschainTestSuite) TestGetTaskConfigEdgeCases() {
 
 func (s *CrosschainTestSuite) TestGetMultiAssetConfig() {
 	require := s.Require()
-	asset, err := s.Factory.GetMultiAssetConfig("SOL", "WSOL.SOL")
+	asset, err := s.Factory.GetMultiAssetConfig("ETH", "WETH.ETH")
 	require.Nil(err)
 	require.NotNil(asset)
 }

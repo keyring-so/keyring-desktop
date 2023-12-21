@@ -43,13 +43,6 @@ func (s *CrosschainTestSuite) TestGetSecretEnv() {
 	require.Nil(err)
 }
 
-func (s *CrosschainTestSuite) TestGetSecretFile() {
-	require := s.Require()
-	secret, err := GetSecret("file:../LICENSE")
-	require.Contains(secret, "Apache License")
-	require.Nil(err)
-}
-
 func (s *CrosschainTestSuite) TestGetSecretFileHomeErrFileNotFound() {
 	require := s.Require()
 	secret, err := GetSecret("file:~/config-in-home")

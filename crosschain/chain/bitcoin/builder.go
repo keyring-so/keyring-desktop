@@ -12,6 +12,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/shopspring/decimal"
 )
 
 const TxVersion int32 = 2
@@ -66,9 +67,6 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 	totalSpend := local_input.allocateMinUtxoSet(amount, 10)
 	local_input.UnspentOutputs = []Output{}
 
-	fmt.Println("totalSpend: %s", totalSpend)
-	fmt.Println("local_input: %s", local_input)
-
 	gasPrice := local_input.GasPricePerByte
 	// 255 for bitcoin, 300 for bch
 	estimatedTxBytesLength := xc.NewAmountBlockchainFromUint64(uint64(255 * len(local_input.Inputs)))
@@ -93,7 +91,17 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 	// Double check the fee is not exceed the max fee allowed
 	finalSend := amount.Add(&unspentAmountMinusTransferAndFee)
 	finalFee := totalSpend.Sub(&finalSend)
-	maxFeeAllowed := xc.AmountHumanReadable(txBuilder.Asset.MaxFee).ToBlockchain(txBuilder.Asset.Decimals)
+
+	maxFeeStr := txBuilder.Asset.MaxFee
+	if maxFeeStr == "" {
+		maxFeeStr = "0.01"
+	}
+	maxFeeDecimal, err := decimal.NewFromString(maxFeeStr)
+	if err != nil {
+		return nil, errors.New("the max fee is not a valid decimal")
+	}
+
+	maxFeeAllowed := xc.AmountHumanReadable(maxFeeDecimal).ToBlockchain(txBuilder.Asset.Decimals)
 	zero := xc.NewAmountBlockchainFromUint64(0)
 	if finalFee.Cmp(&zero) < 0 {
 		return nil, errors.New("the transaction fee is negative")

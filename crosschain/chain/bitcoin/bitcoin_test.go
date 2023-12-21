@@ -171,7 +171,7 @@ func (s *CrosschainTestSuite) TestNewNativeTransfer() {
 			xc.BTC,
 			xc.BCH,
 		} {
-			asset := &xc.AssetConfig{NativeAsset: native_asset, Net: "testnet"}
+			asset := &xc.AssetConfig{NativeAsset: native_asset, Net: "testnet", Decimals: 8}
 			builder, _ := NewTxBuilder(asset)
 			from := xc.Address("mpjwFvP88ZwAt3wEHY6irKkGhxcsv22BP6")
 			to := xc.Address(addr)
@@ -179,6 +179,10 @@ func (s *CrosschainTestSuite) TestNewNativeTransfer() {
 			input := &TxInput{
 				UnspentOutputs: []Output{{
 					Value: xc.NewAmountBlockchainFromUint64(1000),
+					Outpoint: Outpoint{
+						Hash:  []byte("0ebdd0e519cf4bf67ac4d924c07e3312"),
+						Index: 1,
+					},
 				}},
 				GasPricePerByte: xc.NewAmountBlockchainFromUint64(1),
 			}
@@ -239,7 +243,7 @@ func (s *CrosschainTestSuite) TestNewTokenTransfer() {
 
 func (s *CrosschainTestSuite) TestNewTransfer() {
 	require := s.Require()
-	asset := &xc.AssetConfig{NativeAsset: xc.BTC, Net: "testnet"}
+	asset := &xc.AssetConfig{NativeAsset: xc.BTC, Net: "testnet", Decimals: 8}
 	builder, _ := NewTxBuilder(asset)
 	from := xc.Address("mpjwFvP88ZwAt3wEHY6irKkGhxcsv22BP6")
 	to := xc.Address("tb1qtpqqpgadjr2q3f4wrgd6ndclqtfg7cz5evtvs0")
@@ -247,6 +251,10 @@ func (s *CrosschainTestSuite) TestNewTransfer() {
 	input := &TxInput{
 		UnspentOutputs: []Output{{
 			Value: xc.NewAmountBlockchainFromUint64(1000),
+			Outpoint: Outpoint{
+				Hash:  []byte("0ebdd0e519cf4bf67ac4d924c07e3312"),
+				Index: 1,
+			},
 		}},
 		GasPricePerByte: xc.NewAmountBlockchainFromUint64(1),
 	}
@@ -350,7 +358,7 @@ func (s *CrosschainTestSuite) TestImportPrivateKeyAndSign() {
 func (s *CrosschainTestSuite) TestTxHash() {
 	require := s.Require()
 
-	asset := &xc.AssetConfig{NativeAsset: xc.BTC, Net: "testnet"}
+	asset := &xc.AssetConfig{NativeAsset: xc.BTC, Net: "testnet", Decimals: 8}
 	builder, _ := NewTxBuilder(asset)
 	from := xc.Address("mpjwFvP88ZwAt3wEHY6irKkGhxcsv22BP6")
 	to := xc.Address("tb1qtpqqpgadjr2q3f4wrgd6ndclqtfg7cz5evtvs0")
@@ -358,6 +366,10 @@ func (s *CrosschainTestSuite) TestTxHash() {
 	input := &TxInput{
 		UnspentOutputs: []Output{{
 			Value: xc.NewAmountBlockchainFromUint64(1000),
+			Outpoint: Outpoint{
+				Hash:  []byte("0ebdd0e519cf4bf67ac4d924c07e3312"),
+				Index: 1,
+			},
 		}},
 		GasPricePerByte: xc.NewAmountBlockchainFromUint64(1),
 	}
@@ -365,7 +377,7 @@ func (s *CrosschainTestSuite) TestTxHash() {
 	require.NoError(err)
 
 	tx := tf.(*Tx)
-	require.Equal(xc.TxHash("0ebdd0e519cf4bf67ac4d924c07e3312483b09844c9f16f46c04f5fe1500c788"), tx.Hash())
+	require.Equal(xc.TxHash("1184267b5625eef9dee89f475ed8caffb7eb39e5cf36436a5f2f96591dcef06f"), tx.Hash())
 }
 
 func (s *CrosschainTestSuite) TestTxSighashes() {
@@ -378,7 +390,7 @@ func (s *CrosschainTestSuite) TestTxSighashes() {
 
 func (s *CrosschainTestSuite) TestTxAddSignature() {
 	require := s.Require()
-	asset := &xc.AssetConfig{NativeAsset: xc.BTC, Net: "testnet"}
+	asset := &xc.AssetConfig{NativeAsset: xc.BTC, Net: "testnet", Decimals: 8}
 	builder, _ := NewTxBuilder(asset)
 	from := xc.Address("mpjwFvP88ZwAt3wEHY6irKkGhxcsv22BP6")
 	to := xc.Address("tb1qtpqqpgadjr2q3f4wrgd6ndclqtfg7cz5evtvs0")
@@ -386,6 +398,10 @@ func (s *CrosschainTestSuite) TestTxAddSignature() {
 	input := TxInput{
 		UnspentOutputs: []Output{{
 			Value: xc.NewAmountBlockchainFromUint64(1000),
+			Outpoint: Outpoint{
+				Hash:  []byte("0ebdd0e519cf4bf67ac4d924c07e3312"),
+				Index: 1,
+			},
 		}},
 	}
 	err := input.SetPublicKey(xc.PublicKey{})
@@ -425,9 +441,17 @@ func (s *CrosschainTestSuite) TestTxAddSignature() {
 	input = TxInput{
 		UnspentOutputs: []Output{{
 			Value: xc.NewAmountBlockchainFromUint64(10000),
+			Outpoint: Outpoint{
+				Hash:  []byte("0ebdd0e519cf4bf67ac4d924c07e3312"),
+				Index: 1,
+			},
 		},
 			{
 				Value: xc.NewAmountBlockchainFromUint64(10000),
+				Outpoint: Outpoint{
+					Hash:  []byte("0ebdd0e519cf4bf67ac4d924c07e3313"),
+					Index: 2,
+				},
 			},
 		},
 	}
