@@ -60,7 +60,10 @@ func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Addr
 		if err != nil {
 			return "", nil, err
 		}
-		prefix := AddressPrefix(ab.params)
+		addrPrefix, err := AddressPrefix(ab.params)
+		if err != nil {
+			return "", nil, err
+		}
 		hash := *addressPubKey.Hash160()
 		encoded, err := encodeBchAddress(0x00, hash[:], ab.params)
 		if err != nil {
@@ -68,7 +71,7 @@ func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Addr
 		}
 		// legacy format
 		// encoded = addressPubKey.EncodeAddress()
-		return xc.Address(prefix + ":" + encoded), addressPubKeyBytes, nil
+		return xc.Address(addrPrefix + ":" + encoded), addressPubKeyBytes, nil
 	}
 
 	// hack to support Taproot until btcutil is bumped
@@ -194,7 +197,11 @@ func DecodeBchAddress(addr string, params *chaincfg.Params) ([]byte, error) {
 	}
 
 	decoded := DecodeBchString(string(addr))
-	if !VerifyChecksum(AddressPrefix(params), decoded) {
+	addrPrefix, err := AddressPrefix(params)
+	if err != nil {
+		return nil, err
+	}
+	if !VerifyChecksum(addrPrefix, decoded) {
 		return nil, btcutil.ErrChecksumMismatch
 	}
 
@@ -258,19 +265,19 @@ func PolyMod(v []byte) uint64 {
 }
 
 // The bch prefix is different for each network type
-func AddressPrefix(params *chaincfg.Params) string {
+func AddressPrefix(params *chaincfg.Params) (string, error) {
 	if params == nil {
-		panic(fmt.Errorf("non-exhaustive pattern: params %v", params))
+		return "", fmt.Errorf("unsupportted params %v", params.Name)
 	}
 	switch params {
 	case &chaincfg.MainNetParams:
-		return "bitcoincash"
+		return "bitcoincash", nil
 	case &chaincfg.TestNet3Params:
-		return "bchtest"
+		return "bchtest", nil
 	case &chaincfg.RegressionNetParams:
-		return "bchreg"
+		return "bchreg", nil
 	default:
-		panic(fmt.Errorf("non-exhaustive pattern: params %v", params.Name))
+		return "", fmt.Errorf("unsupportted params %v", params.Name)
 	}
 }
 
@@ -300,7 +307,11 @@ func encodeBchAddress(version byte, hash []byte, params *chaincfg.Params) (strin
 	if err != nil {
 		return "", fmt.Errorf("invalid bech32 encoding: %v", err)
 	}
-	return EncodeToBchString(AppendBchChecksum(AddressPrefix(params), data)), nil
+	addrPrefix, err := AddressPrefix(params)
+	if err != nil {
+		return "", err
+	}
+	return EncodeToBchString(AppendBchChecksum(addrPrefix, data)), nil
 }
 
 // White bch data as a bch encoded string

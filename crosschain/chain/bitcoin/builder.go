@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 
 	xc "keyring-desktop/crosschain"
 
@@ -131,6 +132,15 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 
 	// Outputs
 	for _, recipient := range recipients {
+		recipientAddr := string(recipient.To)
+		oneIndex := strings.LastIndexByte(recipientAddr, '1')
+		if oneIndex > 1 {
+			prefix := recipientAddr[:oneIndex+1]
+			hrp := recipientAddr[:oneIndex]
+			if chaincfg.IsBech32SegwitPrefix(prefix) && txBuilder.Params.Bech32HRPSegwit != hrp {
+				return nil, errors.New("invalid bech32 prefix")
+			}
+		}
 		addr, err := btcutil.DecodeAddress(string(recipient.To), txBuilder.Params)
 		fmt.Println("trying to decode ", recipient.To)
 		if err != nil {

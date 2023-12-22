@@ -42,6 +42,9 @@ func init() {
 	if err := chaincfg.Register(LtcNetworks.Regtest); err != nil {
 		// litecoin regtest is a dup of another utxo chain, it will fail..
 	}
+	if err := chaincfg.Register(LbcNetworks.Mainnet); err != nil {
+		panic(err)
+	}
 }
 
 func (n *NetworkTriple) GetParams(network string) *chaincfg.Params {
