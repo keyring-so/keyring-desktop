@@ -1,12 +1,17 @@
 import { CalculateFee } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
-import { Loader2 } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Asterisk, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
 import { useToast } from "./ui/use-toast";
-import { Slider } from "./ui/slider";
 
 interface Props {
   contract?: string;
@@ -33,7 +38,7 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
     if (!fee) return;
 
     const newFee = (Number(fee.gas) * value[0]).toFixed(fee.decimals);
-    setAdjustedFee(newFee)
+    setAdjustedFee(newFee);
     setGas(newFee);
     return;
   };
@@ -77,10 +82,29 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
       {fee ? (
         <div>
           <div>
-            <Label>Gas Price</Label>
-            <Slider className="m-3 w-2/3 bg-yellow" defaultValue={[1]} max={2} step={0.1} onValueCommit={adjustGas} />
+            <HoverCard>
+              <HoverCardTrigger>
+                <div className="flex flex-row">
+                  <Label>Gas Price</Label>
+                  <Asterisk className="-mt-1" size={16} />
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="text-sm">
+                Transaction Fee = Gas Price * Gas Limit. <br />
+                Gas Limit varies depends on blockchain and contract.
+              </HoverCardContent>
+            </HoverCard>
+            <Slider
+              className="m-3 w-2/3 bg-yellow"
+              defaultValue={[1]}
+              max={2}
+              step={0.1}
+              onValueCommit={adjustGas}
+            />
             <Input
-              value={Number(adjustedFee).toFixed(fee.decimals).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1')}
+              value={Number(adjustedFee)
+                .toFixed(fee.decimals)
+                .replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/, "$1")}
               onChange={updateGas}
               disabled={false}
             />
