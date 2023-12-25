@@ -102,9 +102,7 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
               onValueCommit={adjustGas}
             />
             <Input
-              value={Number(adjustedFee)
-                .toFixed(fee.decimals)
-                .replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/, "$1")}
+              value={Number(adjustedFee).toFixed(fee.decimals)}
               onChange={updateGas}
               disabled={false}
             />
