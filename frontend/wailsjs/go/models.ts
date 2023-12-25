@@ -141,6 +141,7 @@ export namespace main {
 	
 	export class FeeInfo {
 	    gas: string;
+	    decimals: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new FeeInfo(source);
@@ -149,6 +150,7 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.gas = source["gas"];
+	        this.decimals = source["decimals"];
 	    }
 	}
 	export class InitCardResponse {

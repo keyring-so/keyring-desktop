@@ -20,9 +20,9 @@ func (a *App) SendTransaction(
 	to string,
 	chainName string,
 	value string,
-	gas string,
+	gasLimit string,
 	data string,
-	tip string,
+	gasFee string,
 	pin string,
 	cardId int,
 ) (crosschain.TxHash, error) {
@@ -58,8 +58,8 @@ func (a *App) SendTransaction(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to fetch tx input")
 	}
-	if tip != "" {
-		input.(*evm.TxInput).GasTipCap = crosschain.NewAmountBlockchainFromStr(tip)
+	if gasFee != "" {
+		input.(*evm.TxInput).GasFeeCap = crosschain.NewAmountBlockchainFromStr(gasFee)
 	}
 
 	utils.Sugar.Infof("input: %+v", input)
@@ -83,7 +83,7 @@ func (a *App) SendTransaction(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decode value")
 	}
-	gasUint, err := hexutil.DecodeUint64(gas)
+	gasUint, err := hexutil.DecodeUint64(gasLimit)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to decode gas limit")

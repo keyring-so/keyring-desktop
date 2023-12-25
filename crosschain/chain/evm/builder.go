@@ -1,12 +1,14 @@
 package evm
 
 import (
+	"errors"
 	"math/big"
 
 	xc "keyring-desktop/crosschain"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/shopspring/decimal"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -122,6 +124,26 @@ func (txBuilder TxBuilder) buildEvmTxWithPayload(to xc.Address, value *big.Int, 
 			),
 			Signer: types.LatestSignerForChainID(chainID),
 		}, nil
+	}
+
+	// Check max fee is not exceeded
+	maxFeeStr := txBuilder.Asset.MaxFee
+	if maxFeeStr == "" {
+		maxFeeStr = "0.05"
+	}
+	maxFeeDecimal, err := decimal.NewFromString(maxFeeStr)
+	if err != nil {
+		return nil, errors.New("the max fee is not a valid decimal")
+	}
+	maxFeeAllowed := xc.AmountHumanReadable(maxFeeDecimal).ToBlockchain(txBuilder.Asset.Decimals)
+	gasLimitAmount := xc.NewAmountBlockchainFromUint64(input.GasLimit)
+	finalFee := (&input.GasFeeCap).Mul(&gasLimitAmount)
+	zero := xc.NewAmountBlockchainFromUint64(0)
+	if finalFee.Cmp(&zero) < 0 {
+		return nil, errors.New("the transaction fee is negative")
+	}
+	if finalFee.Cmp(&maxFeeAllowed) > 0 {
+		return nil, errors.New("the transaction fee exceeds the max fee allowed")
 	}
 
 	return &Tx{

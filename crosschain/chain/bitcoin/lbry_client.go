@@ -173,7 +173,7 @@ func (client *LbryClient) FetchUnspentOutputs(ctx context.Context, address xc.Ad
 }
 
 func (client *LbryClient) EstimateGas(ctx context.Context) (xc.AmountBlockchain, error) {
-	defaultGasFeePerByte := xc.NewAmountBlockchainFromUint64(2) // TODO make it configurable by user
+	defaultGasFeePerByte := xc.NewAmountBlockchainFromUint64(30) // TODO make it configurable by user
 
 	// feeRes := btcjson.EstimateSmartFeeResult{}
 

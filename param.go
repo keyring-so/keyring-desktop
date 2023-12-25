@@ -1,7 +1,8 @@
 package main
 
 type FeeInfo struct {
-	Gas string `json:"gas"`
+	Gas      string `json:"gas"`
+	Decimals int32  `json:"decimals"`
 }
 
 type AssetInfo struct {

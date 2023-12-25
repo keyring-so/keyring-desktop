@@ -381,8 +381,6 @@ func (client *Client) EstimateGas(ctx context.Context) (xc.AmountBlockchain, err
 	}
 
 	// legacy gas estimation via SuggestGasPrice
-	var baseFee uint64
-	var tip uint64
 	if client.Legacy {
 		baseFeeInt, err := client.EthClient.SuggestGasPrice(ctx)
 		if err != nil {
@@ -390,25 +388,25 @@ func (client *Client) EstimateGas(ctx context.Context) (xc.AmountBlockchain, err
 		}
 		// baseFee = baseFeeInt.Uint64()
 		return xc.NewAmountBlockchainFromUint64(baseFeeInt.Uint64()), nil
-	} else {
-		latest, err := client.EthClient.HeaderByNumber(ctx, nil)
-		if err != nil {
-			return xc.NewAmountBlockchainFromUint64(0), err
-		}
-		baseFee = latest.BaseFee.Uint64()
-
-		suggestTip, err := client.EthClient.SuggestGasTipCap(ctx)
-		if err != nil {
-			return xc.NewAmountBlockchainFromUint64(0), err
-		}
-		tip = suggestTip.Uint64()
 	}
 
-	multiplier := 2.0
+	var baseFee uint64
+	var tip uint64
+	latest, err := client.EthClient.HeaderByNumber(ctx, nil)
+	if err != nil {
+		return xc.NewAmountBlockchainFromUint64(0), err
+	}
+	baseFee = latest.BaseFee.Uint64()
+
+	suggestTip, err := client.EthClient.SuggestGasTipCap(ctx)
+	if err != nil {
+		return xc.NewAmountBlockchainFromUint64(0), err
+	}
+	tip = suggestTip.Uint64()
+	multiplier := 1.4
 	if client.Asset.ChainGasMultiplier > 0.0 {
 		multiplier = client.Asset.ChainGasMultiplier
 	}
-
 	gasPrice := (uint64)((float64)(baseFee+tip) * multiplier)
 	return xc.NewAmountBlockchainFromUint64(gasPrice), nil
 }

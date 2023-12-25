@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"keyring-desktop/crosschain"
+	"keyring-desktop/crosschain/chain/bitcoin"
 	"keyring-desktop/crosschain/chain/evm"
 	"keyring-desktop/crosschain/factory"
 
@@ -339,7 +340,8 @@ func (a *App) CalculateFee(
 	}
 
 	feeInfo := &FeeInfo{
-		Gas: gasFee.String(),
+		Gas:      gasFee.String(),
+		Decimals: chainConfig.Decimals,
 	}
 
 	return feeInfo, nil
@@ -390,13 +392,21 @@ func (a *App) Transfer(
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
 	// TODO disable custom gas fee
-	if gas != "" && false {
+	if gas != "" {
 		gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return "", errors.New("failed to convert the gas amount")
 		}
-		input.(*evm.TxInput).GasTipCap = gasInteger
+
+		switch crosschain.Driver(assetConfig.GetDriver()) {
+		case crosschain.DriverEVM:
+			input.(*evm.TxInput).GasFeeCap = gasInteger
+		case crosschain.DriverEVMLegacy:
+			input.(*evm.TxInput).GasPrice = gasInteger
+		case crosschain.DriverBitcoin:
+			input.(*bitcoin.TxInput).GasPricePerByte = gasInteger
+		}
 	}
 	if err != nil {
 		utils.Sugar.Error(err)
