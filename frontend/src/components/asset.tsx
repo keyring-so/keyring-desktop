@@ -1,8 +1,4 @@
-import {
-  RemoveAsset,
-  Transfer,
-  VerifyAddress
-} from "@/../wailsjs/go/main/App";
+import { RemoveAsset, Transfer, VerifyAddress } from "@/../wailsjs/go/main/App";
 import { LogoImageSrc } from "@/components/logo";
 import {
   AccordionContent,
@@ -97,12 +93,6 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
   const transferForm = useForm<z.infer<typeof AssetTransferSchema>>({
     resolver: zodResolver(AssetTransferSchema),
   });
-
-  const ledgerName = () => {
-    let ledgerInfo = LEDGERS.get(ledger);
-    let name = ledgerInfo ? ledgerInfo.name : "";
-    return name;
-  };
 
   const showBalance = (balance: string | undefined) => {
     if (balance) {
@@ -289,8 +279,12 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
               <SheetContent>
                 <SheetHeader>
                   <SheetTitle>
-                    Sending {symbol} on {ledgerName()} blockchain
+                    Sending {symbol} on {ledger} blockchain
                   </SheetTitle>
+                  <div className="flex flex-row gap-2 items-center">
+                    <Label className="underline">Balance</Label>
+                    <Input disabled value={balance} />
+                  </div>
                 </SheetHeader>
                 <Form {...transferForm}>
                   <form
