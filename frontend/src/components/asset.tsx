@@ -30,7 +30,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
-import { LEDGERS } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
 import { accountAtom, ledgerAtom, refreshAtom } from "@/store/state";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,6 +42,7 @@ import { z } from "zod";
 import GasFee from "./gas";
 
 type Props = {
+  ledger: string;
   symbol: string;
   balance?: string;
   address: string;
@@ -67,7 +67,7 @@ const AssetTransferSchema = z.object({
   }),
 });
 
-const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
+const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [gas, setGas] = useState("");
@@ -76,7 +76,6 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
 
-  const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
   const setRefresh = useSetAtom(refreshAtom);
 
@@ -245,7 +244,7 @@ const Asset = ({ symbol, balance, address, contract, onError }: Props) => {
 
   return (
     <div>
-      <AccordionItem value={symbol}>
+      <AccordionItem value={symbol+ledger}>
         <AccordionTrigger>
           <div
             className={`flex flex-row items-center justify-between grow

@@ -80,6 +80,9 @@ function Wallet() {
     const fn = async () => {
       if (account.id && ledger) {
         try {
+          let config = await GetChainConfig(ledger);
+          setChainConfig(config);
+
           let assets = await GetAddressAndAssets(account.id, ledger);
           setChainAssets(assets);
           if (!assets.address) {
@@ -107,19 +110,6 @@ function Wallet() {
       responseSubscribed = false;
     };
   }, [ledger, isTestnet]);
-
-  useEffect(() => {
-    GetChainConfig(ledger)
-      .then((res) => {
-        setChainConfig(res);
-      })
-      .catch((err) => {
-        toast({
-          title: "Uh oh! Something went wrong.",
-          description: `Error happens: ${err}`,
-        });
-      });
-  }, [ledger]);
 
   useEffect(() => {
     if (hasCopied) {
@@ -220,6 +210,7 @@ function Wallet() {
             <Accordion type="single" collapsible>
               {chainAssets && (
                 <Asset
+                  ledger={ledger}
                   symbol={chainAssets?.symbol}
                   balance={chainAssets.balance}
                   address={chainAssets.address}
@@ -229,6 +220,7 @@ function Wallet() {
               {chainAssets?.assets.map((userAsset) => {
                 return (
                   <Asset
+                    ledger={ledger}
                     key={userAsset.symbol}
                     symbol={userAsset.symbol}
                     balance={userAsset.balance}
