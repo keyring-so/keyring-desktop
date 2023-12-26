@@ -53,7 +53,6 @@ type Props = {
 const AssetTransferSchema = z.object({
   toAddr: z.string().trim().min(1),
   amount: z.string().trim().min(1),
-  tip: z.string().trim().min(1),
   pin: z.string().transform((val, ctx) => {
     if (val.length !== 6 || isNaN(Number(val))) {
       ctx.addIssue({
@@ -67,7 +66,14 @@ const AssetTransferSchema = z.object({
   }),
 });
 
-const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) => {
+const Asset = ({
+  ledger,
+  symbol,
+  balance,
+  address,
+  contract,
+  onError,
+}: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [gas, setGas] = useState("");
@@ -75,6 +81,7 @@ const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) =
   const [transferOpen, setTransferOpen] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [txConfirmOpen, setTxConfirmOpen] = useState(false);
 
   const account = useAtomValue(accountAtom);
   const setRefresh = useSetAtom(refreshAtom);
@@ -122,6 +129,7 @@ const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) =
     )
       .then((resp) => {
         setLoadingTx(false);
+        setTxConfirmOpen(false);
         setTransferOpen(false);
         setPin("");
         toast({
@@ -227,6 +235,64 @@ const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) =
     );
   };
 
+  const showTxConfirmDialog = () => {
+    return (
+      <Dialog
+        open={true}
+        onOpenChange={() => {
+          setTxConfirmOpen(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Transaction</DialogTitle>
+            <DialogDescription>
+              Sending <span className="font-bold underline">{symbol}</span> on{" "}
+              <span className="font-bold underline">{ledger}</span> blockchain
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-row gap-1 items-center">
+              <Label>To:</Label>
+              <Input disabled value={transferForm.getValues().toAddr} />
+              <div
+                className=""
+                onClick={() => onCopy(transferForm.getValues().toAddr)}
+              >
+                {hasCopied ? <ClipboardCheck /> : <Clipboard />}
+              </div>
+            </div>
+            <div className="flex flex-row gap-1 items-center">
+              <Label>Amount:</Label>
+              <Input disabled value={transferForm.getValues().amount} />
+            </div>
+            {gas && (
+              <div className="flex flex-row gap-1 items-center">
+                <Label>Gas:</Label>
+                <Input disabled value={gas} />
+              </div>
+            )}
+
+            {loadingTx ? (
+              <Button className="w-1/3 self-end" disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-1/3 self-end"
+                onClick={() => transfer(transferForm.getValues())}
+              >
+                Confirm
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   const removeAsset = async () => {
     try {
       setLoadingRemoveAsset(true);
@@ -244,7 +310,7 @@ const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) =
 
   return (
     <div>
-      <AccordionItem value={symbol+ledger}>
+      <AccordionItem value={symbol + ledger}>
         <AccordionTrigger>
           <div
             className={`flex flex-row items-center justify-between grow
@@ -270,6 +336,9 @@ const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) =
                 <Button
                   onClick={() => {
                     setTransferOpen(true);
+                    transferForm.reset();
+                    setGas("");
+                    setTxConfirmOpen(false);
                   }}
                 >
                   Transfer
@@ -334,22 +403,17 @@ const Asset = ({ ledger, symbol, balance, address, contract, onError }: Props) =
                       setGas={setGas}
                     />
 
-                    {loadingTx ? (
-                      <Button className="w-1/2" disabled>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Please wait
-                      </Button>
-                    ) : (
-                      <Button
-                        className="w-1/2"
-                        onClick={() => transfer(transferForm.getValues())}
-                      >
-                        Send
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      className="w-1/2"
+                      onClick={() => setTxConfirmOpen(true)}
+                    >
+                      Send
+                    </Button>
+
+                    {txConfirmOpen && showTxConfirmDialog()}
                   </form>
                 </Form>
-                <div className="flex flex-col gap-6 mt-10"></div>
               </SheetContent>
             </Sheet>
             <Button onClick={receive}>Receive</Button>

@@ -43,15 +43,13 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
     return;
   };
 
-  // TODO ethereum custom gas fee is broken, need to fix it
-  // TODO walletconnect custom gas fee is broken, need to fix it.
-  // TODO lbry custom gas fee is broken, need to fix it.
   const queryFee = async () => {
     try {
       setLoading(true);
       let fee = await CalculateFee(contract || "", chainName);
       setFee(fee);
       setAdjustedFee(fee.gas);
+      setGas(fee.gas);
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
@@ -72,6 +70,7 @@ const GasFee = ({ contract, chainName, from, to, setGas }: Props) => {
               await queryFee();
             } else {
               setFee(undefined);
+              setGas("");
               setAdjustedFee("");
             }
           }}
