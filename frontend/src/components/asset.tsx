@@ -336,6 +336,8 @@ const Asset = ({
                 <Button
                   onClick={() => {
                     setTransferOpen(true);
+                    transferForm.reset();
+                    setGas("");
                     setTxConfirmOpen(false);
                   }}
                 >
