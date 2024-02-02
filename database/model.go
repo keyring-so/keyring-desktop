@@ -26,3 +26,12 @@ type Asset struct {
 	TokenSymbol     string `db:"token_symbol"`
 	ContractAddress string `db:"contract_address"`
 }
+
+type DatabaseTokenConfig struct {
+	Id        int    `db:"config_id"`
+	ChainName string `db:"chain_name"`
+	Symbol    string `db:"symbol"`
+	PriceId   string `db:"price_id"`
+	Decimals  uint8  `db:"decimals"`
+	Contract  string `db:"contract"`
+}

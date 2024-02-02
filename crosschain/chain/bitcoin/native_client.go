@@ -339,6 +339,10 @@ func (client *NativeClient) FetchNativeBalance(ctx context.Context, address xc.A
 	return client.FetchBalance(ctx, address)
 }
 
+func (client *NativeClient) GetContractMetadata(ctx context.Context) (*xc.ContractMetadata, error) {
+	return nil, errors.New("not implemented")
+}
+
 // Older version of estimating fee for some forks of BTC (e.g. BCH).
 func (client *NativeClient) EstimateFeeLegacy(ctx context.Context, numBlocks int64) (float64, error) {
 	var resp float64

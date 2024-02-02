@@ -38,7 +38,7 @@ func (a *App) SendTransaction(
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, "", chainName)
+	assetConfig, err := utils.ConvertAssetConfig(chainConfig, "", chainName, false)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")

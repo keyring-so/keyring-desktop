@@ -13,6 +13,11 @@ const FLOAT_PRECISION = 6
 // AmountBlockchain is a big integer amount as blockchain expects it for tx.
 type AmountBlockchain big.Int
 
+type ContractMetadata struct {
+	Decimals uint8
+	Symbol   string
+}
+
 // AmountHumanReadable is a decimal amount as a human expects it for readability.
 type AmountHumanReadable decimal.Decimal
 

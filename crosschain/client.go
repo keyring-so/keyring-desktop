@@ -21,6 +21,7 @@ type GasEstimator interface {
 type ClientBalance interface {
 	// Fetch the balance of the asset that this client is configured for
 	FetchBalance(ctx context.Context, address Address) (AmountBlockchain, error)
+	GetContractMetadata(ctx context.Context) (*ContractMetadata, error)
 	FetchNativeBalance(ctx context.Context, address Address) (AmountBlockchain, error)
 }
 

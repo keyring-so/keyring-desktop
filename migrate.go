@@ -58,3 +58,34 @@ func DeleteDb() error {
 
 	return nil
 }
+
+func (a *App) mergeTokenConfig() {
+	dbTokenConfigs, err := database.QueryTokenConfigs(a.sqlite)
+	if err != nil {
+		utils.Sugar.Fatal(err)
+	}
+
+	// var mergedChainConfigs []utils.ChainConfig
+	for _, dbTokenConfig := range dbTokenConfigs {
+		for i, chainConfig := range a.chainConfigs {
+			if dbTokenConfig.ChainName == chainConfig.Name {
+				exist := false
+				for _, token := range chainConfig.Tokens {
+					if token.Contract == dbTokenConfig.Contract {
+						exist = true
+					}
+				}
+
+				if exist {
+					tokenConfig := utils.TokenConfig{
+						Symbol:   dbTokenConfig.Symbol,
+						PriceId:  dbTokenConfig.PriceId,
+						Decimals: dbTokenConfig.Decimals,
+						Contract: dbTokenConfig.Contract,
+					}
+					a.chainConfigs[i].Tokens = append(chainConfig.Tokens, tokenConfig)
+				}
+			}
+		}
+	}
+}

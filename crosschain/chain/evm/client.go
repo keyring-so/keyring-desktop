@@ -3,6 +3,7 @@ package evm
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -450,4 +451,33 @@ func (client *Client) FetchBalance(ctx context.Context, address xc.Address) (xc.
 		return zero, err
 	}
 	return xc.AmountBlockchain(*balance), nil
+}
+
+// Get the contract metadata
+func (client *Client) GetContractMetadata(ctx context.Context) (*xc.ContractMetadata, error) {
+	if client.Asset.Type == xc.AssetTypeNative {
+		return nil, errors.New("no contract metadata for native asset")
+	}
+
+	tokenAddress, _ := HexToAddress(xc.Address(client.Asset.Contract))
+	instance, err := erc20.NewErc20(tokenAddress, client.EthClient)
+	if err != nil {
+		return nil, err
+	}
+
+	decimals, err := instance.Decimals(&bind.CallOpts{})
+	if err != nil {
+		return nil, err
+	}
+	symbol, err := instance.Symbol(&bind.CallOpts{})
+	if err != nil {
+		return nil, err
+	}
+
+	metadata := xc.ContractMetadata{
+		Decimals: decimals,
+		Symbol:   symbol,
+	}
+
+	return &metadata, nil
 }

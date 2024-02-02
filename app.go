@@ -56,7 +56,9 @@ func (a *App) startup(ctx context.Context) {
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
+
 	a.chainConfigs = utils.ReadChainConfigs(registryConfig)
+	a.mergeTokenConfig()
 
 	initConfigBytes, err := resources.ReadFile("resources/init.json")
 	if err != nil {
@@ -261,7 +263,7 @@ func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
 		return "", errors.New("failed to get public key")
 	}
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, "", chain)
+	assetConfig, err := utils.ConvertAssetConfig(chainConfig, "", chain, false)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")
@@ -315,7 +317,7 @@ func (a *App) CalculateFee(
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, chainName)
+	assetConfig, err := utils.ConvertAssetConfig(chainConfig, contract, chainName, false)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("unsupported asset")
@@ -370,7 +372,7 @@ func (a *App) Transfer(
 
 	ctx := context.Background()
 
-	assetConfig, err := utils.ConvertAssetConfig(a.chainConfigs, contract, chainName)
+	assetConfig, err := utils.ConvertAssetConfig(chainConfig, contract, chainName, false)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("unsupported asset")

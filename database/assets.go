@@ -5,7 +5,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset, contract string) error {
+func SaveAsset(db *sqlx.DB, cardId int, chain, address, tokenSymbol, contract string) error {
 	var accountId int
 	err := db.Get(&accountId, "select account_id from accounts where card_id = ? and chain_name = ? and address = ?", cardId, chain, address)
 	if err != nil {
@@ -14,7 +14,7 @@ func SaveAsset(db *sqlx.DB, cardId int, chain, address, asset, contract string) 
 
 	_, err = db.Exec(
 		"insert into assets (account_id, token_symbol, contract_address) values (?, ?, ?)",
-		accountId, asset, contract,
+		accountId, tokenSymbol, contract,
 	)
 	if err != nil {
 		return err
