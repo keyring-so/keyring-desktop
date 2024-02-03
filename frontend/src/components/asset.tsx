@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
-import { accountAtom, ledgerAtom, refreshAtom } from "@/store/state";
+import { accountAtom, refreshAtom } from "@/store/state";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck, Loader2, Trash2 } from "lucide-react";
@@ -82,6 +82,7 @@ const Asset = ({
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
   const [txConfirmOpen, setTxConfirmOpen] = useState(false);
+  const [imgUrl, setImgUrl] = useState("");
 
   const account = useAtomValue(accountAtom);
   const setRefresh = useSetAtom(refreshAtom);
@@ -308,6 +309,35 @@ const Asset = ({
     }
   };
 
+  const checkImage = (path: string, callback: (exist: boolean) => void) => {
+    const img = new Image();
+    img.src = path;
+
+    if (img.complete) {
+      callback(true);
+    } else {
+      img.onload = () => {
+        callback(true);
+      };
+      
+      img.onerror = () => {
+        callback(false);
+      };
+    }
+  };
+
+  const handleImage = (path: string) => {
+    checkImage(path, (exist) => {
+      if (exist) {
+        setImgUrl(path);
+      } else {
+        setImgUrl(`/tokens/erc20_logo.png`);
+      }
+    });
+
+    return imgUrl;
+  };
+
   return (
     <div>
       <AccordionItem value={symbol + ledger}>
@@ -317,10 +347,10 @@ const Asset = ({
                         bg-secondary rounded-xl shadow-md p-2 pr-6
                         hover:bg-primary hover:text-white`}
           >
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-3">
               <img
-                className="h-12 rounded-full"
-                src={`/tokens/${symbol}_logo.png`}
+                className="w-12 rounded-full"
+                src={handleImage(`/tokens/${symbol}_logo.png`)}
               />
 
               <Label className="text-lg">{symbol}</Label>

@@ -113,6 +113,10 @@ func (client *LbryClient) FetchNativeBalance(ctx context.Context, address xc.Add
 	return client.FetchBalance(ctx, address)
 }
 
+func (client *LbryClient) GetContractMetadata(ctx context.Context) (*xc.ContractMetadata, error) {
+	return nil, errors.New("not supported")
+}
+
 func (client *LbryClient) FetchUnspentOutputs(ctx context.Context, address xc.Address) ([]Output, error) {
 	// query := "select o.transaction_hash, o.vout, o.value, o.script_pub_key_hex, o.type from address a inner join transaction_address ta on a.id = ta.address_id inner join output o on o.transaction_id = ta.transaction_id and o.is_spent = 0 and o.type not in (\"nonstandard\",'nulldata') and o.address_list = '[\"" + string(address) + "'] where a.address = '" + string(address) + "';"
 	query := fmt.Sprintf("select o.transaction_hash, o.vout, o.value, o.script_pub_key_hex, o.type from address a inner join transaction_address ta on a.id = ta.address_id inner join output o on o.transaction_id = ta.transaction_id and o.is_spent = 0 and o.type not in (\"nonstandard\",\"nulldata\") and o.address_list = '[\"%s\"]' where a.address = \"%s\";", address, address)

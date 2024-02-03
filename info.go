@@ -43,6 +43,44 @@ func (a *App) GetChainConfig(chain string) *utils.ChainConfig {
 	return utils.GetChainConfig(a.chainConfigs, chain)
 }
 
+func (a *App) AddCustomToken(cardId int, chain, address, contract, priceId string) (*ChainAssets, error) {
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
+	if chainConfig == nil {
+		return nil, errors.New("chain not found")
+	}
+
+	tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, contract)
+	if tokenConfig != nil {
+		return nil, errors.New("token is already existed, please add asset")
+	}
+
+	ctx := context.Background()
+	metadata, err := utils.GetContract(ctx, chainConfig, contract, chain)
+	utils.Sugar.Info("metadata: ", metadata)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to read metadata of contract: " + contract)
+	}
+
+	customTokenConfig := utils.TokenConfig{
+		Contract: contract,
+		Symbol:   metadata.Symbol,
+		Img:      "",
+		Decimals: metadata.Decimals,
+		PriceId:  priceId,
+	}
+
+	err = database.SaveTokenConfig(a.sqlite, chain, customTokenConfig, false)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, errors.New("failed to save token config")
+	}
+
+	a.mergeTokenConfig()
+
+	return a.AddAsset(cardId, chain, address, metadata.Symbol, contract)
+}
+
 func (a *App) GetCredentials(cardId int) (*CardCredential, error) {
 	card, err := database.QueryCard(a.sqlite, cardId)
 	if err != nil {
@@ -132,12 +170,12 @@ func (a *App) GetAssetPrices(cardId int, chain string) (*ChainAssets, error) {
 	return a.getChainAssets(cardId, chain)
 }
 
-func (a *App) AddAsset(cardId int, chain, address, asset, contract string) (*ChainAssets, error) {
-	if cardId < 0 || chain == "" || address == "" || asset == "" {
+func (a *App) AddAsset(cardId int, chain, address, tokenSymbol, contract string) (*ChainAssets, error) {
+	if cardId < 0 || chain == "" || address == "" || tokenSymbol == "" {
 		return nil, errors.New("invalid card, chain or asset")
 	}
 
-	err := database.SaveAsset(a.sqlite, cardId, chain, address, asset, contract)
+	err := database.SaveAsset(a.sqlite, cardId, chain, address, tokenSymbol, contract)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to save asset to database")
@@ -188,7 +226,7 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 	for _, asset := range assets {
 		tokenConfig := utils.GetTokenConfig(chainConfig.Tokens, asset.ContractAddress)
 
-		balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, asset.ContractAddress, chainName, selectedAccount.Address)
+		balance, err := utils.GetAssetBalance(ctx, chainConfig, asset.ContractAddress, chainName, selectedAccount.Address)
 		utils.Sugar.Info("balacne: ", balance)
 		if err != nil {
 			utils.Sugar.Error(err)
@@ -208,7 +246,7 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 		assetsInfo = append(assetsInfo, info)
 	}
 
-	balance, err := utils.GetAssetBalance(ctx, a.chainConfigs, "", chainName, selectedAccount.Address)
+	balance, err := utils.GetAssetBalance(ctx, chainConfig, "", chainName, selectedAccount.Address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)

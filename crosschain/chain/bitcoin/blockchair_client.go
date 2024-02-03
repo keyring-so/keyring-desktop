@@ -142,6 +142,10 @@ func (client *BlockchairClient) FetchNativeBalance(ctx context.Context, address 
 	return client.FetchBalance(ctx, address)
 }
 
+func (client *BlockchairClient) GetContractMetadata(ctx context.Context) (*xc.ContractMetadata, error) {
+	return nil, errors.New("not supported")
+}
+
 func (client *BlockchairClient) EstimateGasFee(ctx context.Context, numBlocks int64) (float64, error) {
 	var stats blockchairStats
 

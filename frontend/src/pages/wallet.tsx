@@ -1,4 +1,5 @@
 import { main, utils } from "@/../wailsjs/go/models";
+import WalletConnect from "@/components/WalletConnect";
 import Asset from "@/components/asset";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,15 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -38,16 +48,17 @@ import {
   Clipboard,
   ClipboardCheck,
   Loader2,
+  Plus,
   RotateCw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AddAsset,
+  AddCustomToken,
   GetAddressAndAssets,
   GetAssetPrices,
   GetChainConfig,
 } from "../../wailsjs/go/main/App";
-import WalletConnect from "@/components/WalletConnect";
 
 type SelectToken = {
   value: string;
@@ -64,6 +75,9 @@ function Wallet() {
   const [loadingAddAsset, setLoadingAddAsset] = useState(false);
   const [getBalanceErr, setGetBalanceErr] = useState(false);
   const [chainAssets, setChainAssets] = useState<main.ChainAssets>();
+  const [showTokenConfigDialog, setShowTokenConfigDialog] = useState(false);
+  const [contractAddress, setContractAddress] = useState("");
+  const [priceId, setPriceId] = useState("");
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -174,6 +188,58 @@ function Wallet() {
     return parseFloat(total.toFixed(2));
   };
 
+  const addTokenConfig = async () => {
+    try {
+      let res = await AddCustomToken(
+        account.id,
+        ledger,
+        chainAssets!.address,
+        contractAddress,
+        priceId
+      );
+      setChainAssets(res);
+      setShowTokenConfigDialog(false);
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
+  const tokenConfigDialog = () => {
+    return (
+      <Dialog open={true} onOpenChange={setShowTokenConfigDialog}>
+        <DialogContent className="sm:max-w-[525px]">
+          <DialogHeader>
+            <DialogTitle>Add Token</DialogTitle>
+            <DialogDescription>
+              <div className="mt-3 text-sm">
+              Price Id can be found on <span className="font-bold">CoinGecko</span>, for example, "ethereum" is the price id for ETH, it comes from https://www.coingecko.com/en/coins/<span className="underline font-bold">ethereum</span>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-5 mt-3">
+            <div className="flex flex-col gap-2">
+              <Label>Contract Address</Label>
+              <Input onChange={(event) => setContractAddress(event.target.value)} />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Price Id (optional)</Label>
+              <Input onChange={(event) => setPriceId(event.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={addTokenConfig}>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <div className="flex flex-col mt-20 gap-20 flex-grow items-center">
       <Tabs defaultValue="assets" className="w-[400px]">
@@ -248,7 +314,7 @@ function Wallet() {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="flex flex-col justify-start w-[200px] p-0">
                   <Command>
                     <CommandInput placeholder="Search token..." />
                     <CommandEmpty>No token found.</CommandEmpty>
@@ -293,6 +359,12 @@ function Wallet() {
                       ))}
                     </CommandGroup>
                   </Command>
+                  <div
+                    className="self-center m-1 p-2 bg-secondary rounded-full text-zinc-600 hover:bg-primary hover:text-white"
+                    onClick={() => setShowTokenConfigDialog(true)}
+                  >
+                    <Plus />
+                  </div>
                 </PopoverContent>
               </Popover>
               {loadingAddAsset ? (
@@ -344,6 +416,8 @@ function Wallet() {
           />
         </div>
       )}
+
+      {showTokenConfigDialog && tokenConfigDialog()}
     </div>
   );
 }

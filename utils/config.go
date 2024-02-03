@@ -91,7 +91,7 @@ type TokenConfig struct {
 	Symbol   string `json:"symbol"`
 	Img      string `json:"img"`
 	PriceId  string `json:"priceId"`
-	Decimals int32  `json:"decimals"`
+	Decimals uint8  `json:"decimals"`
 	Contract string `json:"contract"`
 }
 
@@ -159,12 +159,7 @@ func GetTokenConfig(configs []TokenConfig, contract string) *TokenConfig {
 	return tokenConfig
 }
 
-func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string) (crosschain.ITask, error) {
-	chainConfig := GetChainConfig(configs, chainName)
-	if chainConfig == nil {
-		return nil, errors.New("chain not found")
-	}
-
+func ConvertAssetConfig(chainConfig *ChainConfig, contract string, chainName string, allowEmptyConfig bool) (crosschain.ITask, error) {
 	var net = "mainnet"
 	if chainConfig.Testnet {
 		net = "testnet"
@@ -190,8 +185,15 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 	}
 
 	tokenConfig := GetTokenConfig(chainConfig.Tokens, contract)
+
 	if tokenConfig == nil {
-		return nil, errors.New("token not found")
+		if !allowEmptyConfig {
+			return nil, errors.New("token not found")
+
+		}
+		tokenConfig = &TokenConfig{
+			Contract: contract,
+		}
 	}
 
 	tokenAsset := crosschain.AssetConfig{
@@ -201,7 +203,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 		Auth:        chainConfig.RpcAuth,
 		Provider:    chainConfig.RpcProvider,
 		ExplorerURL: chainConfig.Explore,
-		Decimals:    tokenConfig.Decimals,
+		Decimals:    int32(tokenConfig.Decimals),
 		MaxFee:      chainConfig.MaxFee,
 		ChainID:     chainConfig.ChainId,
 		Type:        crosschain.AssetTypeToken,
@@ -211,7 +213,7 @@ func ConvertAssetConfig(configs []ChainConfig, contract string, chainName string
 	res := crosschain.TokenAssetConfig{
 		Asset:             tokenConfig.Symbol,
 		Chain:             chainName,
-		Decimals:          tokenConfig.Decimals,
+		Decimals:          int32(tokenConfig.Decimals),
 		Contract:          tokenConfig.Contract,
 		Type:              crosschain.AssetTypeToken,
 		AssetConfig:       tokenAsset,
