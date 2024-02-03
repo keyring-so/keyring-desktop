@@ -23,7 +23,7 @@ func SaveCard(db *sqlx.DB, puk, code, pairingKey, pairingIndex, name string) err
 		name, puk, code, pairingKey, pairingIndex,
 	)
 
-	if err == nil {
+	if err != nil {
 		return err
 	}
 

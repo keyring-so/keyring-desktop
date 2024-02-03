@@ -65,7 +65,6 @@ func (a *App) mergeTokenConfig() {
 		utils.Sugar.Fatal(err)
 	}
 
-	// var mergedChainConfigs []utils.ChainConfig
 	for _, dbTokenConfig := range dbTokenConfigs {
 		for i, chainConfig := range a.chainConfigs {
 			if dbTokenConfig.ChainName == chainConfig.Name {
@@ -73,10 +72,11 @@ func (a *App) mergeTokenConfig() {
 				for _, token := range chainConfig.Tokens {
 					if token.Contract == dbTokenConfig.Contract {
 						exist = true
+						break
 					}
 				}
 
-				if exist {
+				if !exist {
 					tokenConfig := utils.TokenConfig{
 						Symbol:   dbTokenConfig.Symbol,
 						PriceId:  dbTokenConfig.PriceId,
@@ -85,6 +85,8 @@ func (a *App) mergeTokenConfig() {
 					}
 					a.chainConfigs[i].Tokens = append(chainConfig.Tokens, tokenConfig)
 				}
+
+				break
 			}
 		}
 	}

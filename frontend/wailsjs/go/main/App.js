@@ -6,6 +6,10 @@ export function AddAsset(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['AddAsset'](arg1, arg2, arg3, arg4, arg5);
 }
 
+export function AddCustomToken(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['AddCustomToken'](arg1, arg2, arg3, arg4, arg5);
+}
+
 export function AddLedger(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddLedger'](arg1, arg2, arg3);
 }

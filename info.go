@@ -43,7 +43,7 @@ func (a *App) GetChainConfig(chain string) *utils.ChainConfig {
 	return utils.GetChainConfig(a.chainConfigs, chain)
 }
 
-func (a *App) AddCustomToken(cardId int, address, chain, contract, priceId string) (*ChainAssets, error) {
+func (a *App) AddCustomToken(cardId int, chain, address, contract, priceId string) (*ChainAssets, error) {
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chain)
 	if chainConfig == nil {
 		return nil, errors.New("chain not found")

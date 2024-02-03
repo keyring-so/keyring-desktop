@@ -20,9 +20,18 @@ CREATE TABLE assets (
     account_id integer not null,
     token_symbol text not null
 , contract_address text not null default "");
+CREATE TABLE token_config (
+    config_id integer primary key,
+    chain_name text not null,
+    symbol text not null,
+    price_id text not null,
+    decimals integer not null,
+    contract text not null
+);
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20230908080559'),
   ('20230908101337'),
   ('20230908101344'),
-  ('20231010033257');
+  ('20231010033257'),
+  ('20240129082929');

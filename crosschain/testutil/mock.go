@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"context"
+	"errors"
 
 	xc "keyring-desktop/crosschain"
 
@@ -43,6 +44,10 @@ func (m *MockedClient) FetchBalance(ctx context.Context, address xc.Address) (xc
 func (m *MockedClient) FetchNativeBalance(ctx context.Context, address xc.Address) (xc.AmountBlockchain, error) {
 	args := m.Called(ctx, address)
 	return args.Get(0).(xc.AmountBlockchain), args.Error(1)
+}
+
+func (client *MockedClient) GetContractMetadata(ctx context.Context) (*xc.ContractMetadata, error) {
+	return nil, errors.New("not supported")
 }
 
 func (m *MockedClient) FetchBalanceForAsset(ctx context.Context, address xc.Address, assetCfg xc.AssetConfig) (xc.AmountBlockchain, error) {

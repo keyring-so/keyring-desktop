@@ -27,7 +27,7 @@ func SaveTokenConfig(db *sqlx.DB, chainName string, token utils.TokenConfig, for
 
 	if len(configs) > 0 {
 		_, err = tx.Exec("delete from token_config where chain_name = ? and contract = ?", chainName, token.Contract)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 	}
@@ -36,7 +36,7 @@ func SaveTokenConfig(db *sqlx.DB, chainName string, token utils.TokenConfig, for
 		"insert into token_config (chain_name, symbol, price_id, decimals, contract) values (?, ?, ?, ?, ?)",
 		chainName, token.Symbol, token.PriceId, token.Decimals, token.Contract,
 	)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
