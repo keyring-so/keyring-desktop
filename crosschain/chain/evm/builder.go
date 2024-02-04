@@ -14,8 +14,9 @@ import (
 
 // TxBuilder for EVM
 type TxBuilder struct {
-	Asset  xc.AssetConfig
-	Legacy bool
+	Asset       xc.AssetConfig
+	NativeAsset xc.AssetConfig
+	Legacy      bool
 }
 
 var _ xc.TxBuilder = &TxBuilder{}
@@ -23,8 +24,9 @@ var _ xc.TxBuilder = &TxBuilder{}
 // NewTxBuilder creates a new EVM TxBuilder
 func NewTxBuilder(asset xc.ITask) (xc.TxBuilder, error) {
 	return TxBuilder{
-		Asset:  *asset.GetAssetConfig(),
-		Legacy: false,
+		Asset:       *asset.GetAssetConfig(),
+		NativeAsset: *asset.GetNativeAsset(),
+		Legacy:      false,
 	}, nil
 }
 
@@ -135,7 +137,7 @@ func (txBuilder TxBuilder) buildEvmTxWithPayload(to xc.Address, value *big.Int, 
 	if err != nil {
 		return nil, errors.New("the max fee is not a valid decimal")
 	}
-	maxFeeAllowed := xc.AmountHumanReadable(maxFeeDecimal).ToBlockchain(txBuilder.Asset.Decimals)
+	maxFeeAllowed := xc.AmountHumanReadable(maxFeeDecimal).ToBlockchain(txBuilder.NativeAsset.Decimals)
 	gasLimitAmount := xc.NewAmountBlockchainFromUint64(input.GasLimit)
 	finalFee := (&input.GasFeeCap).Mul(&gasLimitAmount)
 	zero := xc.NewAmountBlockchainFromUint64(0)

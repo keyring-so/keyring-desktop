@@ -78,7 +78,9 @@ type ChainConfig struct {
 	RpcAuth             string        `json:"rpcAuth"`
 	RpcProvider         string        `json:"rpcProvider"`
 	ChainId             int64         `json:"chainId"`
-	Explore             string        `json:"explore"`
+	Explorer            string        `json:"explorer"`
+	ExplorerTx          string        `json:"explorerTx"`
+	ExplorerAddr        string        `json:"explorerAddr"`
 	Decimals            int32         `json:"decimals"`
 	MaxFee              string        `json:"maxFee"`
 	Testnet             bool          `json:"testnet"`
@@ -172,7 +174,7 @@ func ConvertAssetConfig(chainConfig *ChainConfig, contract string, chainName str
 		URL:         chainConfig.RpcUrl,
 		Auth:        chainConfig.RpcAuth,
 		Provider:    chainConfig.RpcProvider,
-		ExplorerURL: chainConfig.Explore,
+		ExplorerURL: chainConfig.Explorer,
 		Decimals:    chainConfig.Decimals,
 		MaxFee:      chainConfig.MaxFee,
 		Net:         net,
@@ -202,7 +204,7 @@ func ConvertAssetConfig(chainConfig *ChainConfig, contract string, chainName str
 		URL:         chainConfig.RpcUrl,
 		Auth:        chainConfig.RpcAuth,
 		Provider:    chainConfig.RpcProvider,
-		ExplorerURL: chainConfig.Explore,
+		ExplorerURL: chainConfig.Explorer,
 		Decimals:    int32(tokenConfig.Decimals),
 		MaxFee:      chainConfig.MaxFee,
 		ChainID:     chainConfig.ChainId,

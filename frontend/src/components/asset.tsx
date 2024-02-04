@@ -1,4 +1,5 @@
 import { RemoveAsset, Transfer, VerifyAddress } from "@/../wailsjs/go/main/App";
+import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { LogoImageSrc } from "@/components/logo";
 import {
   AccordionContent,
@@ -36,7 +37,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Clipboard, ClipboardCheck, Loader2, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import GasFee from "./gas";
@@ -47,6 +48,8 @@ type Props = {
   balance?: string;
   address: string;
   contract?: string;
+  explorer: string;
+  explorerTx: string;
   onError?: boolean;
 };
 
@@ -72,6 +75,8 @@ const Asset = ({
   balance,
   address,
   contract,
+  explorer,
+  explorerTx,
   onError,
 }: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
@@ -82,7 +87,7 @@ const Asset = ({
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
   const [txConfirmOpen, setTxConfirmOpen] = useState(false);
-  const [imgUrl, setImgUrl] = useState("");
+  const [imgUrl, setImgUrl] = useState(`/tokens/${symbol}_logo.png`);
 
   const account = useAtomValue(accountAtom);
   const setRefresh = useSetAtom(refreshAtom);
@@ -136,7 +141,13 @@ const Asset = ({
         toast({
           title: "Send transaction successfully.",
           description: `${resp}`,
-          action: <Button onClick={() => onCopy(resp)}>Copy</Button>,
+          action: (
+            <Button
+              onClick={() => BrowserOpenURL(`${explorer}${explorerTx}/${resp}`)}
+            >
+              Open
+            </Button>
+          ),
         });
       })
       .catch((err) => {
@@ -309,33 +320,9 @@ const Asset = ({
     }
   };
 
-  const checkImage = (path: string, callback: (exist: boolean) => void) => {
-    const img = new Image();
-    img.src = path;
-
-    if (img.complete) {
-      callback(true);
-    } else {
-      img.onload = () => {
-        callback(true);
-      };
-      
-      img.onerror = () => {
-        callback(false);
-      };
-    }
-  };
-
-  const handleImage = (path: string) => {
-    checkImage(path, (exist) => {
-      if (exist) {
-        setImgUrl(path);
-      } else {
-        setImgUrl(`/tokens/erc20_logo.png`);
-      }
-    });
-
-    return imgUrl;
+  const handleImgError = (e: SyntheticEvent<HTMLImageElement>) => {
+    e.stopPropagation();
+    setImgUrl("/tokens/erc20_logo.png");
   };
 
   return (
@@ -350,7 +337,8 @@ const Asset = ({
             <div className="flex flex-row items-center gap-3">
               <img
                 className="w-12 rounded-full"
-                src={handleImage(`/tokens/${symbol}_logo.png`)}
+                src={imgUrl}
+                onError={handleImgError}
               />
 
               <Label className="text-lg">{symbol}</Label>
@@ -379,9 +367,9 @@ const Asset = ({
                   <SheetTitle>
                     Sending {symbol} on {ledger} blockchain
                   </SheetTitle>
-                  <div className="flex flex-row gap-2 items-center">
+                  <div className="flex flex-row gap-2 items-center text-lg">
                     <Label className="underline">Balance</Label>
-                    <Input disabled value={balance} />
+                    <Input className="text-lg" disabled value={balance} />
                   </div>
                 </SheetHeader>
                 <Form {...transferForm}>

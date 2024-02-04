@@ -393,6 +393,7 @@ func (a *App) Transfer(
 	}
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
+	utils.Sugar.Infof("input: %+v", input)
 	// TODO disable custom gas fee
 	if gas != "" {
 		gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
