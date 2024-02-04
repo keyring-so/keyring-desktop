@@ -16,7 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -215,14 +215,20 @@ function Wallet() {
             <DialogTitle>Add Token</DialogTitle>
             <DialogDescription>
               <div className="mt-3 text-sm">
-              Price Id can be found on <span className="font-bold">CoinGecko</span>, for example, "ethereum" is the price id for ETH, it comes from https://www.coingecko.com/en/coins/<span className="underline font-bold">ethereum</span>
+                Price Id can be found on{" "}
+                <span className="font-bold">CoinGecko</span>, for example,
+                "ethereum" is the price id for ETH, it comes from
+                https://www.coingecko.com/en/coins/
+                <span className="underline font-bold">ethereum</span>
               </div>
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 mt-3">
             <div className="flex flex-col gap-2">
               <Label>Contract Address</Label>
-              <Input onChange={(event) => setContractAddress(event.target.value)} />
+              <Input
+                onChange={(event) => setContractAddress(event.target.value)}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -280,6 +286,8 @@ function Wallet() {
                   symbol={chainAssets?.symbol}
                   balance={chainAssets.balance}
                   address={chainAssets.address}
+                  explorer={chainConfig!.explorer}
+                  explorerTx={chainConfig!.explorerTx}
                   onError={getBalanceErr}
                 />
               )}
@@ -292,6 +300,8 @@ function Wallet() {
                     balance={userAsset.balance}
                     address={chainAssets.address}
                     contract={userAsset.contractAddress}
+                    explorer={chainConfig!.explorer}
+                    explorerTx={chainConfig!.explorerTx}
                     onError={getBalanceErr}
                   />
                 );

@@ -221,7 +221,9 @@ export namespace utils {
 	    rpcAuth: string;
 	    rpcProvider: string;
 	    chainId: number;
-	    explore: string;
+	    explorer: string;
+	    explorerTx: string;
+	    explorerAddr: string;
 	    decimals: number;
 	    maxFee: string;
 	    testnet: boolean;
@@ -245,7 +247,9 @@ export namespace utils {
 	        this.rpcAuth = source["rpcAuth"];
 	        this.rpcProvider = source["rpcProvider"];
 	        this.chainId = source["chainId"];
-	        this.explore = source["explore"];
+	        this.explorer = source["explorer"];
+	        this.explorerTx = source["explorerTx"];
+	        this.explorerAddr = source["explorerAddr"];
 	        this.decimals = source["decimals"];
 	        this.maxFee = source["maxFee"];
 	        this.testnet = source["testnet"];
