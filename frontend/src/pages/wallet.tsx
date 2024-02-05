@@ -1,4 +1,12 @@
+import {
+  AddAsset,
+  AddCustomToken,
+  GetAddressAndAssets,
+  GetAssetPrices,
+  GetChainConfig,
+} from "@/../wailsjs/go/main/App";
 import { main, utils } from "@/../wailsjs/go/models";
+import { BrowserOpenURL } from "@/../wailsjs/runtime/runtime";
 import WalletConnect from "@/components/WalletConnect";
 import Asset from "@/components/asset";
 import { Accordion } from "@/components/ui/accordion";
@@ -20,6 +28,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger
+} from "@/components/ui/menubar";
 import {
   Popover,
   PopoverContent,
@@ -47,18 +62,13 @@ import {
   ChevronsUpDown,
   Clipboard,
   ClipboardCheck,
+  ExternalLink,
   Loader2,
+  MoreVertical,
   Plus,
   RotateCw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  AddAsset,
-  AddCustomToken,
-  GetAddressAndAssets,
-  GetAssetPrices,
-  GetChainConfig,
-} from "../../wailsjs/go/main/App";
 
 type SelectToken = {
   value: string;
@@ -415,6 +425,21 @@ function Wallet() {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        <Menubar className="border-none">
+          <MenubarMenu>
+            <MenubarTrigger className="px-0">
+              <MoreVertical />
+            </MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem onClick={() => BrowserOpenURL(`${chainConfig!.explorer}${chainConfig!.explorerAddr}/${chainAssets!.address}`)}>
+                <div className="flex flex-row gap-2 items-center">
+                  <ExternalLink />
+                  <Label>View on explorer</Label>
+                </div>
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
       </div>
 
       {chainAssets?.address && chainConfig?.enableWalletConnect && (
