@@ -47,8 +47,6 @@ const WalletConnect = ({
 
   const { toast } = useToast();
 
-  const { hasCopied, onCopy } = useClipboard();
-
   const chainConfigs = useAtomValue(chainConfigsAtom);
   const [walletConnectData, setWalletConnectData] = useAtom(
     walletConnectDataAtom
@@ -70,12 +68,6 @@ const WalletConnect = ({
       },
     };
   }, []);
-
-  useEffect(() => {
-    if (hasCopied) {
-      toast({ description: "Copied to clipboard!" });
-    }
-  }, [hasCopied]);
 
   const connect = async () => {
     try {
