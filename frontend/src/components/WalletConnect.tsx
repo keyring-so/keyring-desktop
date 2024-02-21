@@ -1,4 +1,5 @@
 import { SendTransaction, SignTypedData } from "@/../wailsjs/go/main/App";
+import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ETH } from "@/constants";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
@@ -27,9 +28,17 @@ interface Props {
   address: string;
   ledger: string;
   cardId: number;
+  explorer: string;
+  explorerTx: string;
 }
 
-const WalletConnect = ({ address, ledger, cardId }: Props) => {
+const WalletConnect = ({
+  address,
+  ledger,
+  cardId,
+  explorer,
+  explorerTx,
+}: Props) => {
   const [showConnect, setShowConnect] = useState(false);
   const [loading, setLoading] = useState(false);
   const [link, setLink] = useState("");
@@ -37,8 +46,6 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
   const [gas, setGas] = useState("");
 
   const { toast } = useToast();
-
-  const { hasCopied, onCopy } = useClipboard();
 
   const chainConfigs = useAtomValue(chainConfigsAtom);
   const [walletConnectData, setWalletConnectData] = useAtom(
@@ -61,12 +68,6 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
       },
     };
   }, []);
-
-  useEffect(() => {
-    if (hasCopied) {
-      toast({ description: "Copied to clipboard!" });
-    }
-  }, [hasCopied]);
 
   const connect = async () => {
     try {
@@ -193,7 +194,15 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
         toast({
           title: "Send data successfully.",
           description: `${result}`,
-          action: <Button onClick={() => onCopy(result)}>Copy</Button>,
+          action: (
+            <Button
+              onClick={() =>
+                BrowserOpenURL(`${explorer}${explorerTx}/${result}`)
+              }
+            >
+              Open
+            </Button>
+          ),
         });
         setWalletConnectData({});
       } catch (err) {
@@ -417,8 +426,7 @@ const WalletConnect = ({ address, ledger, cardId }: Props) => {
 
   const signTypedDataModal = () => {
     const metadata = walletConnectData!.requestSession!.peer.metadata;
-    const data =
-      walletConnectData!.requestEvent!.params.request.params[1];
+    const data = walletConnectData!.requestEvent!.params.request.params[1];
     const { icons, name, url } = metadata;
 
     return (

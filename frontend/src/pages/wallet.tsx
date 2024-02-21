@@ -33,7 +33,7 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarTrigger
+  MenubarTrigger,
 } from "@/components/ui/menubar";
 import {
   Popover,
@@ -431,7 +431,15 @@ function Wallet() {
               <MoreVertical />
             </MenubarTrigger>
             <MenubarContent>
-              <MenubarItem onClick={() => BrowserOpenURL(`${chainConfig!.explorer}${chainConfig!.explorerAddr}/${chainAssets!.address}`)}>
+              <MenubarItem
+                onClick={() =>
+                  BrowserOpenURL(
+                    `${chainConfig!.explorer}${chainConfig!.explorerAddr}/${
+                      chainAssets!.address
+                    }`
+                  )
+                }
+              >
                 <div className="flex flex-row gap-2 items-center">
                   <ExternalLink />
                   <Label>View on explorer</Label>
@@ -448,6 +456,8 @@ function Wallet() {
             address={chainAssets.address}
             ledger={ledger}
             cardId={account.id}
+            explorer={chainConfig!.explorer}
+            explorerTx={chainConfig!.explorerTx}
           />
         </div>
       )}
