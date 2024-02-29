@@ -87,7 +87,7 @@ const Asset = ({
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [verified, setVerified] = useState(false);
   const [txConfirmOpen, setTxConfirmOpen] = useState(false);
-  const [imgUrl, setImgUrl] = useState(`/tokens/${symbol}_logo.png`);
+  const [imgUrl, setImgUrl] = useState("");
 
   const account = useAtomValue(accountAtom);
   const setRefresh = useSetAtom(refreshAtom);
@@ -337,7 +337,7 @@ const Asset = ({
             <div className="flex flex-row items-center gap-3">
               <img
                 className="w-12 rounded-full"
-                src={imgUrl}
+                src={imgUrl ? imgUrl : `/tokens/${symbol}_logo.png`}
                 onError={handleImgError}
               />
 
