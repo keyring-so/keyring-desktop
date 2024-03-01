@@ -225,11 +225,10 @@ function Wallet() {
             <DialogTitle>Add Token</DialogTitle>
             <DialogDescription>
               <div className="mt-3 text-sm">
-                Price Id can be found on{" "}
+                Price API ID can be found on{" "}
                 <span className="font-bold">CoinGecko</span>, for example,
-                "ethereum" is the price id for ETH, it comes from
-                https://www.coingecko.com/en/coins/
-                <span className="underline font-bold">ethereum</span>
+                "ethereum" is the API ID for ETH, your can find it from the page: 
+                https://www.coingecko.com/en/coins/ethereum
               </div>
             </DialogDescription>
           </DialogHeader>
