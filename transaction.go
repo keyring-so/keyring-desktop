@@ -194,3 +194,29 @@ func (a *App) SignTypedData(
 
 	return hexutil.Encode(signature), nil
 }
+
+// func (a *App) GetTransactionHistory(
+// 	chainName string,
+// 	address string,
+// 	page int,
+// ) ([]TransactionInfo, error) {
+// 	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
+// 	if chainConfig == nil {
+// 		return nil, errors.New("chain configuration not found")
+// 	}
+
+// 	client, _ := factory.NewClient(chainConfig)
+// 	if err != nil {
+// 		utils.Sugar.Error(err)
+// 		return nil, errors.New("failed to create a client")
+// 	}
+
+// 	ctx := context.Background()
+// 	history, err := client.FetchTxHistory(ctx, crosschain.Address(address))
+// 	if err != nil {
+// 		utils.Sugar.Error(err)
+// 		return nil, errors.New("failed to fetch tx history")
+// 	}
+
+// 	return history, nil
+// }

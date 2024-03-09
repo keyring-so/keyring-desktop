@@ -48,3 +48,13 @@ type InitCardResponse struct {
 	Mnemonic string   `json:"mnemonic"`
 	CardInfo CardInfo `json:"cardInfo"`
 }
+
+type TransactionInfo struct {
+	Amount string `json:"amount"`
+	Fee    string `json:"fee"`
+	Status string `json:"status"`
+	Date   string `json:"date"`
+	TxId   string `json:"txId"`
+	From   string `json:"from"`
+	To     string `json:"to"`
+}
