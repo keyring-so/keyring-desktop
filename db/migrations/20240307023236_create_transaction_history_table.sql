@@ -4,13 +4,12 @@ create table if not exists transaction_history (
     account_id integer not null,
     chain_name text not null,
     hash text not null,
-    timestamp integer not null,
+    timestamp text not null,
+    status text not null,
     from text not null,
     to text not null,
     value text not null,
-    contract text not null default ""
-    token_symbol text not null default "",
-    token_decimal integer
+    fee text not null
 );
 
 -- migrate:down
