@@ -39,8 +39,8 @@ export namespace database {
 	    hash: string;
 	    timestamp: number;
 	    status: string;
-	    from_addr: string;
-	    to_addr: string;
+	    from: string;
+	    to: string;
 	    value: string;
 	    fee: string;
 	
@@ -56,8 +56,8 @@ export namespace database {
 	        this.hash = source["hash"];
 	        this.timestamp = source["timestamp"];
 	        this.status = source["status"];
-	        this.from_addr = source["from_addr"];
-	        this.to_addr = source["to_addr"];
+	        this.from = source["from"];
+	        this.to = source["to"];
 	        this.value = source["value"];
 	        this.fee = source["fee"];
 	    }

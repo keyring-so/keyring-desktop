@@ -401,7 +401,7 @@ function Wallet() {
           </div>
         </TabsContent>
         <TabsContent value="transactions">
-          {chainAssets && <TransactionHistory chain={ledger} address={chainAssets.address} />}
+          {chainAssets && <TransactionHistory chain={ledger} address={chainAssets.address} config={chainConfig!} />}
         </TabsContent>
       </Tabs>
 

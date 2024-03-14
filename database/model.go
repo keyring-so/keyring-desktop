@@ -43,8 +43,8 @@ type DatabaseTransactionInfo struct {
 	Hash      string `db:"hash" json:"hash"`
 	Timestamp int64  `db:"timestamp" json:"timestamp"`
 	Status    string `db:"status" json:"status"`
-	From      string `db:"from_addr" json:"from_addr"`
-	To        string `db:"to_addr" json:"to_addr"`
+	From      string `db:"from_addr" json:"from"`
+	To        string `db:"to_addr" json:"to"`
 	Value     string `db:"value" json:"value"`
 	Fee       string `db:"fee" json:"fee"`
 }
