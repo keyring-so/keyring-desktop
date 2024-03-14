@@ -86,6 +86,9 @@ type ChainConfig struct {
 	Testnet             bool          `json:"testnet"`
 	Disable             bool          `json:"disable"`
 	EnableWalletConnect bool          `json:"enableWalletConnect"`
+	TxHistoryUrl        string        `json:"txHistoryUrl"`
+	TxHistoryAuth       string        `json:"txHistoryAuth"`
+	TxHistoryProvider   string        `json:"txHistoryProvider"`
 	Tokens              []TokenConfig `json:"tokens"`
 }
 

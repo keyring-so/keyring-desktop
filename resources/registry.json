@@ -15,6 +15,9 @@
     "explorerAddr": "/address",
     "decimals": 18,
     "enableWalletConnect": true,
+    "txHistoryUrl": "https://eth.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout",
     "tokens": [
       {
         "symbol": "USDC",
@@ -605,6 +608,9 @@
     "decimals": 18,
     "testnet": true,
     "enableWalletConnect": true,
+    "txHistoryUrl": "https://eth-goerli.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout",
     "tokens": [
       {
         "symbol": "USDC",

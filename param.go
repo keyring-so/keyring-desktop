@@ -1,5 +1,7 @@
 package main
 
+import "keyring-desktop/database"
+
 type FeeInfo struct {
 	Gas      string `json:"gas"`
 	Decimals int32  `json:"decimals"`
@@ -47,4 +49,9 @@ type CardCredential struct {
 type InitCardResponse struct {
 	Mnemonic string   `json:"mnemonic"`
 	CardInfo CardInfo `json:"cardInfo"`
+}
+
+type GetTransactionHistoryResponse struct {
+	Transactions   []database.DatabaseTransactionInfo   `json:"transactions"`
+	TokenTransfers []database.DatabaseTokenTransferInfo `json:"tokenTransfers"`
 }

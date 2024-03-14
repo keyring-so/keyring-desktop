@@ -7,9 +7,13 @@ import (
 	"keyring-desktop/crosschain"
 	"keyring-desktop/crosschain/chain/evm"
 	"keyring-desktop/crosschain/factory"
+	"keyring-desktop/database"
+	"keyring-desktop/oracle"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
 	"math/big"
+	"strconv"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
@@ -193,4 +197,110 @@ func (a *App) SignTypedData(
 	utils.Sugar.Infof("signature: %x", signature)
 
 	return hexutil.Encode(signature), nil
+}
+
+func (a *App) GetTransactionHistory(
+	chainName string,
+	address string,
+	limit int,
+	page int,
+) (*GetTransactionHistoryResponse, error) {
+	go a.fetchTx(chainName, address)
+
+	txHistory, err := database.QueryTransactionHistory(a.sqlite, chainName, address, page, limit)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, err
+	}
+
+	tokenTransferHistory, err := database.QueryTokenTransferHistory(a.sqlite, chainName, address, page, limit)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return nil, err
+	}
+
+	response := GetTransactionHistoryResponse{
+		Transactions:   txHistory,
+		TokenTransfers: tokenTransferHistory,
+	}
+
+	return &response, nil
+}
+
+func (a *App) fetchTx(chainName string, address string) error {
+	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
+	if chainConfig == nil {
+		return errors.New("chain configuration not found")
+	}
+
+	txs, err := oracle.GetTxHistoryFromBlockscout(chainConfig, address)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+
+	txItems := make([]database.DatabaseTransactionInfo, len(txs.Items))
+	for i, tx := range txs.Items {
+		txTime, err := time.Parse(time.RFC3339Nano, tx.Timestamp)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return err
+		}
+		amount := crosschain.NewAmountBlockchainFromStr(tx.Value)
+		txItems[i] = database.DatabaseTransactionInfo{
+			ChainName: chainName,
+			Address:   address,
+			Hash:      tx.Hash,
+			Timestamp: txTime.Unix(),
+			Status:    tx.Status,
+			From:      tx.From.Hash,
+			To:        tx.To.Hash,
+			Value:     amount.ToHuman(chainConfig.Decimals).String(),
+			Fee:       tx.Fee.Value,
+		}
+	}
+	err = database.SaveTransactionHistory(a.sqlite, txItems)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+
+	tokenTransfers, err := oracle.GetTokenTransfersFromBlockscout(*chainConfig, address)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+
+	tokenTransferItems := make([]database.DatabaseTokenTransferInfo, len(tokenTransfers.Items))
+	for i, transfer := range tokenTransfers.Items {
+		txTime, err := time.Parse(time.RFC3339Nano, transfer.Timestamp)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return err
+		}
+		amount := crosschain.NewAmountBlockchainFromStr(transfer.Total.Value)
+		tokenDecimal, err := strconv.Atoi(transfer.Total.Decimals)
+		if err != nil {
+			return err
+		}
+		tokenTransferItems[i] = database.DatabaseTokenTransferInfo{
+			ChainName: chainName,
+			Address:   address,
+			Hash:      transfer.TxHash,
+			Timestamp: txTime.Unix(),
+			From:      transfer.From.Hash,
+			To:        transfer.To.Hash,
+			Value:     amount.ToHuman(int32(tokenDecimal)).String(),
+			Contract:  transfer.Token.Address,
+			Symbol:    transfer.Token.Symbol,
+			Type:      transfer.Token.Type,
+		}
+	}
+	err = database.SaveTokenTransferHistory(a.sqlite, tokenTransferItems)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+
+	return nil
 }

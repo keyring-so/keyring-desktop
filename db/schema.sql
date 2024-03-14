@@ -28,10 +28,38 @@ CREATE TABLE token_config (
     decimals integer not null,
     contract text not null
 );
+CREATE TABLE transaction_history (
+    tx_id integer primary key,
+    chain_name text not null,
+    address text not null,
+    hash text not null UNIQUE,
+    timestamp integer not null,
+    status text not null,
+    from_addr text not null,
+    to_addr text not null,
+    value text not null,
+    fee text not null
+);
+CREATE TABLE token_transfer_history (
+    token_tx_id integer primary key,
+    chain_name text not null,
+    address text not null,
+    hash text not null,
+    timestamp integer not null,
+    from_addr text not null,
+    to_addr text not null,
+    value text not null,
+    contract text not null default "",
+    symbol text not null default "",
+    type text not null default "",
+    UNIQUE(hash, contract) ON CONFLICT REPLACE
+);
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20230908080559'),
   ('20230908101337'),
   ('20230908101344'),
   ('20231010033257'),
-  ('20240129082929');
+  ('20240129082929'),
+  ('20240307023236'),
+  ('20240313031016');

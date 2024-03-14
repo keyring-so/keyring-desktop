@@ -35,3 +35,30 @@ type DatabaseTokenConfig struct {
 	Decimals  uint8  `db:"decimals"`
 	Contract  string `db:"contract"`
 }
+
+type DatabaseTransactionInfo struct {
+	TxId      int    `db:"tx_id" json:"txId"`
+	ChainName string `db:"chain_name" json:"chainName"`
+	Address   string `db:"address" json:"address"`
+	Hash      string `db:"hash" json:"hash"`
+	Timestamp int64  `db:"timestamp" json:"timestamp"`
+	Status    string `db:"status" json:"status"`
+	From      string `db:"from_addr" json:"from"`
+	To        string `db:"to_addr" json:"to"`
+	Value     string `db:"value" json:"value"`
+	Fee       string `db:"fee" json:"fee"`
+}
+
+type DatabaseTokenTransferInfo struct {
+	TokenTxId int    `db:"token_tx_id" json:"tokenTxId"`
+	ChainName string `db:"chain_name" json:"chainName"`
+	Address   string `db:"address" json:"address"`
+	Hash      string `db:"hash" json:"hash"`
+	Timestamp int64  `db:"timestamp" json:"timestamp"`
+	From      string `db:"from_addr" json:"from"`
+	To        string `db:"to_addr" json:"to"`
+	Value     string `db:"value" json:"value"`
+	Contract  string `db:"contract" json:"contract"`
+	Symbol    string `db:"symbol" json:"symbol"`
+	Type      string `db:"type" json:"type"`
+}

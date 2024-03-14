@@ -9,6 +9,7 @@ import { main, utils } from "@/../wailsjs/go/models";
 import { BrowserOpenURL } from "@/../wailsjs/runtime/runtime";
 import WalletConnect from "@/components/WalletConnect";
 import Asset from "@/components/asset";
+import TransactionHistory from "@/components/tx-history";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
@@ -400,7 +401,7 @@ function Wallet() {
           </div>
         </TabsContent>
         <TabsContent value="transactions">
-          <Label className="text-lg">Transaction History</Label>
+          {chainAssets && <TransactionHistory chain={ledger} address={chainAssets.address} config={chainConfig!} />}
         </TabsContent>
       </Tabs>
 
