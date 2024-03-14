@@ -5,9 +5,12 @@ import (
 )
 
 func SaveTransactionHistory(db *sqlx.DB, items []DatabaseTransactionInfo) error {
+	if len(items) == 0 {
+		return nil
+	}
 	_, err := db.NamedExec(
-		`insert or replace into transaction_history (chain_name, address, hash, timestamp, status, from, to, value, fee) 
-			values (:chain_name, :address, :hash, :timestamp, :status, :from, :to, :value, :fee)`,
+		`insert or replace into transaction_history (chain_name, address, hash, timestamp, status, from_addr, to_addr, value, fee) 
+			values (:chain_name, :address, :hash, :timestamp, :status, :from_addr, :to_addr, :value, :fee)`,
 		items,
 	)
 	if err != nil {
@@ -18,9 +21,12 @@ func SaveTransactionHistory(db *sqlx.DB, items []DatabaseTransactionInfo) error 
 }
 
 func SaveTokenTransferHistory(db *sqlx.DB, items []DatabaseTokenTransferInfo) error {
+	if len(items) == 0 {
+		return nil
+	}
 	_, err := db.NamedExec(
-		`insert or replace into token_transfer_history (chain_name, address, hash, timestamp, from, to, value, contract, symbol, type) 
-			values (:chain_name, :address, :hash, :timestamp, :from, :to, :value, :contract, :symbol, :type)`,
+		`insert or replace into token_transfer_history (chain_name, address, hash, timestamp, from_addr, to_addr, value, contract, symbol, type) 
+			values (:chain_name, :address, :hash, :timestamp, :from_addr, :to_addr, :value, :contract, :symbol, :type)`,
 		items,
 	)
 	if err != nil {

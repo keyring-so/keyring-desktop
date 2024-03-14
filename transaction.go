@@ -201,8 +201,8 @@ func (a *App) SignTypedData(
 func (a *App) GetTransactionHistory(
 	chainName string,
 	address string,
-	page int,
 	limit int,
+	page int,
 ) (*GetTransactionHistoryResponse, error) {
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
 	if chainConfig == nil {
