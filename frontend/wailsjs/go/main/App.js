@@ -70,6 +70,10 @@ export function GetCredentials(arg1) {
   return window['go']['main']['App']['GetCredentials'](arg1);
 }
 
+export function GetTransactionHistory(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['GetTransactionHistory'](arg1, arg2, arg3, arg4);
+}
+
 export function GetWalletConnectProjectId() {
   return window['go']['main']['App']['GetWalletConnectProjectId']();
 }
