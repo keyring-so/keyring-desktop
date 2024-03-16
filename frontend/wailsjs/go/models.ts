@@ -1,7 +1,6 @@
 export namespace database {
 	
 	export class DatabaseTokenTransferInfo {
-	    tokenTxId: number;
 	    chainName: string;
 	    address: string;
 	    hash: string;
@@ -19,7 +18,6 @@ export namespace database {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.tokenTxId = source["tokenTxId"];
 	        this.chainName = source["chainName"];
 	        this.address = source["address"];
 	        this.hash = source["hash"];
@@ -33,7 +31,6 @@ export namespace database {
 	    }
 	}
 	export class DatabaseTransactionInfo {
-	    txId: number;
 	    chainName: string;
 	    address: string;
 	    hash: string;
@@ -50,7 +47,6 @@ export namespace database {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.txId = source["txId"];
 	        this.chainName = source["chainName"];
 	        this.address = source["address"];
 	        this.hash = source["hash"];

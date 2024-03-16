@@ -29,7 +29,6 @@ CREATE TABLE token_config (
     contract text not null
 );
 CREATE TABLE transaction_history (
-    tx_id integer primary key,
     chain_name text not null,
     address text not null,
     hash text not null UNIQUE,
@@ -41,7 +40,6 @@ CREATE TABLE transaction_history (
     fee text not null
 );
 CREATE TABLE token_transfer_history (
-    token_tx_id integer primary key,
     chain_name text not null,
     address text not null,
     hash text not null,
