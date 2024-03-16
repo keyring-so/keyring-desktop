@@ -1,5 +1,5 @@
 import { GetTransactionHistory } from "@/../wailsjs/go/main/App";
-import { main, utils } from "@/../wailsjs/go/models";
+import { utils } from "@/../wailsjs/go/models";
 import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { useToast } from "@/components/ui/use-toast";
 import { shortenAddress, showTime } from "@/lib/utils";
@@ -15,6 +15,15 @@ import {
 import { useEffect, useState } from "react";
 import { Label } from "./ui/label";
 
+type Transaction = {
+  from: string;
+  to: string;
+  value: string;
+  timestamp: number;
+  hash: string;
+  symbol: string;
+};
+
 type Props = {
   chain: string;
   address: string;
@@ -22,8 +31,7 @@ type Props = {
 };
 
 const TransactionHistory = ({ chain, address, config }: Props) => {
-  const [txHistory, setTxHistory] =
-    useState<main.GetTransactionHistoryResponse>();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(6);
   const [total, setTotal] = useState(0);
@@ -38,10 +46,15 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
       try {
         let txHistory = await GetTransactionHistory(chain, address, 100, 0);
         if (responseSubscribed) {
-          console.log("history", txHistory);
-          setTxHistory(txHistory);
-          setTotal(txHistory.transactions.length); // TODO add tokens
-          console.log("total", total);
+          let orderedTxs = [
+            ...txHistory.transactions.map((tx) => ({
+              ...tx,
+              symbol: config.symbol,
+            })),
+            ...txHistory.tokenTransfers,
+          ].sort((a, b) => b.timestamp - a.timestamp);
+          setTransactions(orderedTxs);
+          setTotal(orderedTxs.length);
         }
       } catch (err) {
         toast({
@@ -76,7 +89,7 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
   return (
     <div>
       <div className="bg-secondary shadow overflow-hidden rounded-xl mt-8 divide-y divide-gray-200 w-[420px] ml-[-10px]">
-        {txHistory?.transactions.slice(start, end).map((tx) => (
+        {transactions.slice(start, end).map((tx) => (
           <div className="flex items-start justify-between px-4 py-4">
             <div className="flex items-center">
               {tx.from === address ? (
@@ -102,7 +115,7 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
                 )}
 
                 <div className="text-sm text-gray-500">
-                  {tx.value} {config.symbol}
+                  {Number(tx.value).toLocaleString()} {shortenAddress(tx.symbol)}
                 </div>
               </div>
             </div>

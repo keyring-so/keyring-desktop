@@ -37,7 +37,7 @@ type BlockscoutTokenTransferResponse struct {
 
 type BlockscoutTokenTransferItem struct {
 	Timestamp string `json:"timestamp"`
-	TxHash    string `json:"txHash"`
+	TxHash    string `json:"tx_hash"`
 
 	Token struct {
 		Address string `json:"address"`
