@@ -621,6 +621,35 @@
     ]
   },
   {
+    "name": "Ethereum Sepolia",
+    "symbol": "ETH",
+    "img": "/tokens/ETH_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://sepolia.infura.io/v3",
+    "rpcAuth": "env:INFURA_API_TOKEN",
+    "rpcProvider": "infura",
+    "chainId": 11155111,
+    "explorer": "https://sepolia.etherscan.io",
+    "explorerTx": "/tx",
+    "explorerAddr": "/address",
+    "decimals": 18,
+    "testnet": true,
+    "enableWalletConnect": true,
+    "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout",
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+      }
+    ]
+  },
+  {
     "name": "Optimism",
     "symbol": "ETH",
     "img": "/tokens/OP_logo.png",
