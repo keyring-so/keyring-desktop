@@ -1,6 +1,5 @@
 -- migrate:up
 create table if not exists token_transfer_history (
-    token_tx_id integer primary key,
     chain_name text not null,
     address text not null,
     hash text not null,

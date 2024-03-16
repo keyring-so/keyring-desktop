@@ -37,7 +37,6 @@ type DatabaseTokenConfig struct {
 }
 
 type DatabaseTransactionInfo struct {
-	TxId      int    `db:"tx_id" json:"txId"`
 	ChainName string `db:"chain_name" json:"chainName"`
 	Address   string `db:"address" json:"address"`
 	Hash      string `db:"hash" json:"hash"`
@@ -50,7 +49,6 @@ type DatabaseTransactionInfo struct {
 }
 
 type DatabaseTokenTransferInfo struct {
-	TokenTxId int    `db:"token_tx_id" json:"tokenTxId"`
 	ChainName string `db:"chain_name" json:"chainName"`
 	Address   string `db:"address" json:"address"`
 	Hash      string `db:"hash" json:"hash"`

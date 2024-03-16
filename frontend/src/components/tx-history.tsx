@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Label } from "./ui/label";
-import { set } from "react-hook-form";
 
 type Props = {
   chain: string;

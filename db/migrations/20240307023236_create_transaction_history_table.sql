@@ -1,6 +1,5 @@
 -- migrate:up
 create table if not exists transaction_history (
-    tx_id integer primary key,
     chain_name text not null,
     address text not null,
     hash text not null UNIQUE,
