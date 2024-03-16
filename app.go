@@ -8,6 +8,7 @@ import (
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
 	"os"
+	"time"
 
 	"keyring-desktop/crosschain"
 	"keyring-desktop/crosschain/chain/bitcoin"
@@ -491,6 +492,21 @@ func (a *App) Transfer(
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to submit transaction")
 	}
+
+	txValue := amount
+	if contract != "" {
+		txValue = "0"
+	}
+	txInfo := database.DatabaseTransactionInfo{
+		ChainName: chainName,
+		Address:   from,
+		Hash:      string(txId),
+		Timestamp: time.Now().Unix(),
+		From:      from,
+		To:        to,
+		Value:     txValue,
+	}
+	_ = database.SaveTransactionHistory(a.sqlite, []database.DatabaseTransactionInfo{txInfo})
 
 	return txId, nil
 }
