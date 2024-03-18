@@ -101,7 +101,7 @@ const TransactionHistory = () => {
         {transactions.slice(start, end).map((tx, index) => (
           <div
             key={index}
-            className="flex items-start justify-between px-4 py-4"
+            className="flex items-center justify-between px-4 py-4"
           >
             <div className="flex items-center">
               {isSent(tx) ? (
@@ -115,21 +115,19 @@ const TransactionHistory = () => {
                   color="green"
                 />
               )}
-              <div className="ml-4">
-                {isSent(tx) ? (
-                  <div className="text-sm font-medium text-gray-900">
-                    Sent {tx.to ? `to ${shortenAddress(tx.to)}` : ""}
-                  </div>
-                ) : (
-                  <div className="text-sm font-medium text-gray-900">
-                    Received {tx.from ? `from ${shortenAddress(tx.from)}` : ""}
-                  </div>
-                )}
+              <div className="flex flex-col ml-4 gap-1">
+                <div className="flex flex-row gap-2 items-start justify-start">
+                  <Label>{isSent(tx) ? "Sent" : "Received"}</Label>
 
-                <div className="text-sm text-gray-500">
-                  {Math.abs(Number(tx.value)).toLocaleString()}{" "}
-                  {shortenAddress(tx.symbol)}
+                  <Label className="text-gray-500">
+                    {Math.abs(Number(tx.value)).toLocaleString()}{" "}
+                    {shortenAddress(tx.symbol)}
+                  </Label>
                 </div>
+                <Label className="text-sm text-gray-500">
+                  {isSent(tx) && tx.to && `To: ${shortenAddress(tx.to)}`}
+                  {!isSent(tx) && tx.from && `From: ${shortenAddress(tx.from)}`}
+                </Label>
               </div>
             </div>
 
