@@ -217,6 +217,8 @@ export namespace main {
 	    }
 	}
 	export class GetTransactionHistoryResponse {
+	    chain: string;
+	    address: string;
 	    transactions: database.DatabaseTransactionInfo[];
 	    tokenTransfers: database.DatabaseTokenTransferInfo[];
 	
@@ -226,6 +228,8 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.chain = source["chain"];
+	        this.address = source["address"];
 	        this.transactions = this.convertValues(source["transactions"], database.DatabaseTransactionInfo);
 	        this.tokenTransfers = this.convertValues(source["tokenTransfers"], database.DatabaseTokenTransferInfo);
 	    }

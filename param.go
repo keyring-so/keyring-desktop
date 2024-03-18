@@ -52,6 +52,8 @@ type InitCardResponse struct {
 }
 
 type GetTransactionHistoryResponse struct {
+	Chain          string                               `json:"chain"`
+	Address        string                               `json:"address"`
 	Transactions   []database.DatabaseTransactionInfo   `json:"transactions"`
 	TokenTransfers []database.DatabaseTokenTransferInfo `json:"tokenTransfers"`
 }
