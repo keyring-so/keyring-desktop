@@ -86,13 +86,15 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
     setEnd(end - 6);
   };
 
+  const isSent = (tx: Transaction) => tx.from === address || (tx.from === "" && Number(tx.value) < 0);
+
   return (
     <div>
       <div className="bg-secondary shadow overflow-hidden rounded-xl mt-8 divide-y divide-gray-200 w-[420px] ml-[-10px]">
         {transactions.slice(start, end).map((tx) => (
           <div className="flex items-start justify-between px-4 py-4">
             <div className="flex items-center">
-              {tx.from === address ? (
+              {isSent(tx) ? (
                 <Minus
                   className="rounded-full bg-red-100 px-2 h-10 w-10"
                   color="#c23000"
@@ -104,18 +106,18 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
                 />
               )}
               <div className="ml-4">
-                {tx.from === address ? (
+                {isSent(tx) ? (
                   <div className="text-sm font-medium text-gray-900">
-                    Sent to {shortenAddress(tx.to)}
+                    Sent {tx.to ? `to ${shortenAddress(tx.to)}` : ""}
                   </div>
                 ) : (
                   <div className="text-sm font-medium text-gray-900">
-                    Received from {shortenAddress(tx.from)}
+                    Received {tx.from ? `from ${shortenAddress(tx.from)}` : ""}
                   </div>
                 )}
 
                 <div className="text-sm text-gray-500">
-                  {Number(tx.value).toLocaleString()} {shortenAddress(tx.symbol)}
+                  {Math.abs(Number(tx.value)).toLocaleString()} {shortenAddress(tx.symbol)}
                 </div>
               </div>
             </div>

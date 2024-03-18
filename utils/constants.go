@@ -45,3 +45,6 @@ func DataPath() (string, error) {
 	}
 	return configPath + "/Keyring", nil
 }
+
+const BlockScout = "blockscout"
+const LbryChainQuery = "lbry-chainquery"
