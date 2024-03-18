@@ -691,6 +691,9 @@
     "explorerAddr": "/address",
     "decimals": 18,
     "enableWalletConnect": true,
+    "txHistoryUrl": "https://base.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout",
     "tokens": [
       {
         "symbol": "USDC",
