@@ -17,6 +17,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/shopspring/decimal"
 )
 
 func (a *App) SendTransaction(
@@ -233,6 +234,56 @@ func (a *App) fetchTx(chainName string, address string) error {
 		return errors.New("chain configuration not found")
 	}
 
+	if chainConfig.TxHistoryProvider == utils.BlockScout {
+		return a.fetchTxFromBlockscout(chainConfig, address)
+	}
+
+	if chainConfig.TxHistoryProvider == utils.LbryChainQuery {
+		return a.fetchTxFromLbryChainQuery(chainConfig, address)
+	}
+
+	return errors.New("unsupported transaction history provider")
+}
+
+func (a *App) fetchTxFromLbryChainQuery(chainConfig *utils.ChainConfig, address string) error {
+	txHistory, err := oracle.GetTransactionsFromLbryExplorer(*chainConfig, address)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+
+	txItems := make([]database.DatabaseTransactionInfo, len(txHistory.Items))
+	for i, tx := range txHistory.Items {
+		// gasInteger, err = factory.ConvertAmountStrToBlockchain(chainConfig, tx.CreditAmount)
+		credit, err := decimal.NewFromString(tx.CreditAmount)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return err
+		}
+		debit, err := decimal.NewFromString(tx.DebitAmount)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return err
+		}
+
+		txItems[i] = database.DatabaseTransactionInfo{
+			ChainName: chainConfig.Name,
+			Address:   address,
+			Hash:      tx.Hash,
+			Timestamp: tx.TxTime,
+			Value:     credit.Sub(debit).String(),
+		}
+	}
+	err = database.SaveTransactionHistory(a.sqlite, txItems)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) fetchTxFromBlockscout(chainConfig *utils.ChainConfig, address string) error {
 	txs, err := oracle.GetTxHistoryFromBlockscout(chainConfig, address)
 	if err != nil {
 		utils.Sugar.Error(err)
@@ -248,7 +299,7 @@ func (a *App) fetchTx(chainName string, address string) error {
 		}
 		amount := crosschain.NewAmountBlockchainFromStr(tx.Value)
 		txItems[i] = database.DatabaseTransactionInfo{
-			ChainName: chainName,
+			ChainName: chainConfig.Name,
 			Address:   address,
 			Hash:      tx.Hash,
 			Timestamp: txTime.Unix(),
@@ -284,7 +335,7 @@ func (a *App) fetchTx(chainName string, address string) error {
 			return err
 		}
 		tokenTransferItems[i] = database.DatabaseTokenTransferInfo{
-			ChainName: chainName,
+			ChainName: chainConfig.Name,
 			Address:   address,
 			Hash:      transfer.TxHash,
 			Timestamp: txTime.Unix(),

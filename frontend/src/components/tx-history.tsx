@@ -1,9 +1,8 @@
 import { GetTransactionHistory } from "@/../wailsjs/go/main/App";
-import { utils } from "@/../wailsjs/go/models";
 import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { useToast } from "@/components/ui/use-toast";
 import { shortenAddress, showTime } from "@/lib/utils";
-import { ledgerAtom } from "@/store/state";
+import { ledgerAddressAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
 import {
   ArrowBigLeft,
@@ -24,13 +23,7 @@ type Transaction = {
   symbol: string;
 };
 
-type Props = {
-  chain: string;
-  address: string;
-  config: utils.ChainConfig;
-};
-
-const TransactionHistory = ({ chain, address, config }: Props) => {
+const TransactionHistory = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(6);
@@ -38,23 +31,35 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
 
   const { toast } = useToast();
 
-  const ledger = useAtomValue(ledgerAtom);
+  const ledgerAddress = useAtomValue(ledgerAddressAtom);
 
   useEffect(() => {
     let responseSubscribed = true;
     const fn = async () => {
       try {
-        let txHistory = await GetTransactionHistory(chain, address, 100, 0);
+        let txHistory = await GetTransactionHistory(
+          ledgerAddress.ledger,
+          ledgerAddress.address,
+          100,
+          0
+        );
         if (responseSubscribed) {
-          let orderedTxs = [
+          let mergedTxs = [
             ...txHistory.transactions.map((tx) => ({
               ...tx,
-              symbol: config.symbol,
+              symbol: ledgerAddress.config.symbol,
             })),
             ...txHistory.tokenTransfers,
-          ].sort((a, b) => b.timestamp - a.timestamp);
-          setTransactions(orderedTxs);
-          setTotal(orderedTxs.length);
+          ];
+          const txSet = new Map();
+          for (const tx of mergedTxs) {
+            txSet.set(tx.hash, tx);
+          }
+          let uniqueTxs = Array.from(txSet.values()).sort(
+            (a, b) => b.timestamp - a.timestamp
+          );
+          setTransactions(uniqueTxs);
+          setTotal(uniqueTxs.length);
         }
       } catch (err) {
         toast({
@@ -68,7 +73,7 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
     return () => {
       responseSubscribed = false;
     };
-  }, [ledger]);
+  }, [ledgerAddress]);
 
   const handleNextPage = () => {
     if (end >= total) {
@@ -86,13 +91,20 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
     setEnd(end - 6);
   };
 
+  const isSent = (tx: Transaction) =>
+    tx.from === ledgerAddress.address ||
+    (tx.from === "" && Number(tx.value) < 0);
+
   return (
     <div>
       <div className="bg-secondary shadow overflow-hidden rounded-xl mt-8 divide-y divide-gray-200 w-[420px] ml-[-10px]">
-        {transactions.slice(start, end).map((tx) => (
-          <div className="flex items-start justify-between px-4 py-4">
+        {transactions.slice(start, end).map((tx, index) => (
+          <div
+            key={index}
+            className="flex items-start justify-between px-4 py-4"
+          >
             <div className="flex items-center">
-              {tx.from === address ? (
+              {isSent(tx) ? (
                 <Minus
                   className="rounded-full bg-red-100 px-2 h-10 w-10"
                   color="#c23000"
@@ -104,18 +116,19 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
                 />
               )}
               <div className="ml-4">
-                {tx.from === address ? (
+                {isSent(tx) ? (
                   <div className="text-sm font-medium text-gray-900">
-                    Sent to {shortenAddress(tx.to)}
+                    Sent {tx.to ? `to ${shortenAddress(tx.to)}` : ""}
                   </div>
                 ) : (
                   <div className="text-sm font-medium text-gray-900">
-                    Received from {shortenAddress(tx.from)}
+                    Received {tx.from ? `from ${shortenAddress(tx.from)}` : ""}
                   </div>
                 )}
 
                 <div className="text-sm text-gray-500">
-                  {Number(tx.value).toLocaleString()} {shortenAddress(tx.symbol)}
+                  {Math.abs(Number(tx.value)).toLocaleString()}{" "}
+                  {shortenAddress(tx.symbol)}
                 </div>
               </div>
             </div>
@@ -127,7 +140,7 @@ const TransactionHistory = ({ chain, address, config }: Props) => {
               <ExternalLink
                 onClick={() =>
                   BrowserOpenURL(
-                    `${config.explorer}${config.explorerTx}/${tx.hash}`
+                    `${ledgerAddress.config.explorer}${ledgerAddress.config.explorerTx}/${tx.hash}`
                   )
                 }
               />

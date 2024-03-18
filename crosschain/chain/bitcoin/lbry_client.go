@@ -77,7 +77,10 @@ func (client *LbryClient) FetchBalance(ctx context.Context, address xc.Address) 
 
 	query := "select balance from address where address = '" + string(address) + "';"
 	url := "https://chainquery.lbry.com/api/sql" + "?query=" + url.QueryEscape(query)
-	response, _ := client.http.Get(url)
+	response, err := client.http.Get(url)
+	if err != nil {
+		return amount, err
+	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
