@@ -44,15 +44,22 @@ const TransactionHistory = () => {
           0
         );
         if (responseSubscribed) {
-          let orderedTxs = [
+          let mergedTxs = [
             ...txHistory.transactions.map((tx) => ({
               ...tx,
               symbol: ledgerAddress.config.symbol,
             })),
             ...txHistory.tokenTransfers,
-          ].sort((a, b) => b.timestamp - a.timestamp);
-          setTransactions(orderedTxs);
-          setTotal(orderedTxs.length);
+          ];
+          const txSet = new Map();
+          for (const tx of mergedTxs) {
+            txSet.set(tx.hash, tx);
+          }
+          let uniqueTxs = Array.from(txSet.values()).sort(
+            (a, b) => b.timestamp - a.timestamp
+          );
+          setTransactions(uniqueTxs);
+          setTotal(uniqueTxs.length);
         }
       } catch (err) {
         toast({
