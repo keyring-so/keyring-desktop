@@ -13,6 +13,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Label } from "./ui/label";
+import { MIN_INTERVAL } from "@/constants";
+import { EventsOff, EventsOn } from "@/../wailsjs/runtime/runtime";
+import { main } from "@/../wailsjs/go/models";
 
 type Transaction = {
   from: string;
@@ -23,43 +26,52 @@ type Transaction = {
   symbol: string;
 };
 
+interface RemoteRequestTime {
+  [key: string]: number;
+}
+
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(6);
   const [total, setTotal] = useState(0);
+  const [lastRemoteRequestTime, setLastRemoteRequestTime] = useState<RemoteRequestTime>({});
 
   const { toast } = useToast();
 
   const ledgerAddress = useAtomValue(ledgerAddressAtom);
 
   useEffect(() => {
+    EventsOn("transaction-history", (txHistory) => {
+      handleHistoryResponse(txHistory);
+    });
+
+    return () => {
+      EventsOff("transaction-history");
+    };
+  }, []);
+
+  useEffect(() => {
     let responseSubscribed = true;
     const fn = async () => {
       try {
+        const isRemote = (Date.now() - (lastRemoteRequestTime[ledgerAddress.ledger] || 0)) > MIN_INTERVAL;
+        if (isRemote) {
+          setLastRemoteRequestTime(prevState => ({
+            ...prevState,
+            [ledgerAddress.ledger]: Date.now()
+          }));
+        }
+
         let txHistory = await GetTransactionHistory(
           ledgerAddress.ledger,
           ledgerAddress.address,
           100,
-          0
+          0,
+          isRemote
         );
         if (responseSubscribed) {
-          let mergedTxs = [
-            ...txHistory.transactions.map((tx) => ({
-              ...tx,
-              symbol: ledgerAddress.config.symbol,
-            })),
-            ...txHistory.tokenTransfers,
-          ];
-          const txSet = new Map();
-          for (const tx of mergedTxs) {
-            txSet.set(tx.hash, tx);
-          }
-          let uniqueTxs = Array.from(txSet.values()).sort(
-            (a, b) => b.timestamp - a.timestamp
-          );
-          setTransactions(uniqueTxs);
-          setTotal(uniqueTxs.length);
+          handleHistoryResponse(txHistory);
         }
       } catch (err) {
         toast({
@@ -74,6 +86,28 @@ const TransactionHistory = () => {
       responseSubscribed = false;
     };
   }, [ledgerAddress]);
+
+  const handleHistoryResponse = (txHistory: main.GetTransactionHistoryResponse) => {
+    if (txHistory.chain != ledgerAddress.ledger || txHistory.address != ledgerAddress.address) {
+      return;
+    }
+    let mergedTxs = [
+      ...txHistory.transactions.map((tx) => ({
+        ...tx,
+        symbol: ledgerAddress.config.symbol,
+      })),
+      ...txHistory.tokenTransfers,
+    ];
+    const txSet = new Map();
+    for (const tx of mergedTxs) {
+      txSet.set(tx.hash, tx);
+    }
+    let uniqueTxs = Array.from(txSet.values()).sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+    setTransactions(uniqueTxs);
+    setTotal(uniqueTxs.length);
+  }
 
   const handleNextPage = () => {
     if (end >= total) {

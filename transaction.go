@@ -18,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/shopspring/decimal"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 func (a *App) SendTransaction(
@@ -205,9 +206,20 @@ func (a *App) GetTransactionHistory(
 	address string,
 	limit int,
 	page int,
+	isRemote bool,
 ) (*GetTransactionHistoryResponse, error) {
-	go a.fetchTx(chainName, address)
+	if isRemote {
+		go a.fetchRemoteTxHistory(chainName, address, limit, page)
+	}
 
+	return a.fetchLocalTxHistory(chainName, address, limit, page)
+}
+
+func (a *App) fetchLocalTxHistory(
+	chainName string,
+	address string,
+	limit int,
+	page int) (*GetTransactionHistoryResponse, error) {
 	txHistory, err := database.QueryTransactionHistory(a.sqlite, chainName, address, page, limit)
 	if err != nil {
 		utils.Sugar.Error(err)
@@ -221,6 +233,8 @@ func (a *App) GetTransactionHistory(
 	}
 
 	response := GetTransactionHistoryResponse{
+		Chain:          chainName,
+		Address:        address,
 		Transactions:   txHistory,
 		TokenTransfers: tokenTransferHistory,
 	}
@@ -228,21 +242,37 @@ func (a *App) GetTransactionHistory(
 	return &response, nil
 }
 
-func (a *App) fetchTx(chainName string, address string) error {
+func (a *App) fetchRemoteTxHistory(chainName string, address string, limit int, page int) error {
 	chainConfig := utils.GetChainConfig(a.chainConfigs, chainName)
 	if chainConfig == nil {
 		return errors.New("chain configuration not found")
 	}
 
 	if chainConfig.TxHistoryProvider == utils.BlockScout {
-		return a.fetchTxFromBlockscout(chainConfig, address)
+		err := a.fetchTxFromBlockscout(chainConfig, address)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return err
+		}
+	} else if chainConfig.TxHistoryProvider == utils.LbryChainQuery {
+		err := a.fetchTxFromLbryChainQuery(chainConfig, address)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return err
+		}
+	} else {
+		return errors.New("unsupported transaction history provider")
 	}
 
-	if chainConfig.TxHistoryProvider == utils.LbryChainQuery {
-		return a.fetchTxFromLbryChainQuery(chainConfig, address)
+	resp, err := a.fetchLocalTxHistory(chainName, address, limit, page)
+	if err != nil {
+		utils.Sugar.Error(err)
+		return err
 	}
 
-	return errors.New("unsupported transaction history provider")
+	runtime.EventsEmit(a.ctx, "transaction-history", resp)
+
+	return nil
 }
 
 func (a *App) fetchTxFromLbryChainQuery(chainConfig *utils.ChainConfig, address string) error {
