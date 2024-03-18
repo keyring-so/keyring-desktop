@@ -54,10 +54,11 @@ import { cn, shortenAddress } from "@/lib/utils";
 import {
   accountAtom,
   isTestnetAtom,
+  ledgerAddressAtom,
   ledgerAtom,
   refreshAtom,
 } from "@/store/state";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   Check,
   ChevronsUpDown,
@@ -95,6 +96,8 @@ function Wallet() {
   const isTestnet = useAtomValue(isTestnetAtom);
   const refresh = useAtomValue(refreshAtom);
 
+  const [accountAddress, setAccountAddress] = useAtom(ledgerAddressAtom);
+
   const { toast } = useToast();
 
   const { hasCopied, onCopy } = useClipboard();
@@ -110,6 +113,7 @@ function Wallet() {
 
           let assets = await GetAddressAndAssets(account.id, ledger);
           setChainAssets(assets);
+          setAccountAddress({ ledger, address: assets.address, config });
           if (!assets.address) {
             toast({
               description: `You are ready to add a new blockchain`,
@@ -228,8 +232,8 @@ function Wallet() {
               <div className="mt-3 text-sm">
                 Price API ID can be found on{" "}
                 <span className="font-bold">CoinGecko</span>, for example,
-                "ethereum" is the API ID for ETH, your can find it from the page: 
-                https://www.coingecko.com/en/coins/ethereum
+                "ethereum" is the API ID for ETH, your can find it from the
+                page: https://www.coingecko.com/en/coins/ethereum
               </div>
             </DialogDescription>
           </DialogHeader>
@@ -401,7 +405,7 @@ function Wallet() {
           </div>
         </TabsContent>
         <TabsContent value="transactions">
-          {chainAssets && <TransactionHistory chain={ledger} address={chainAssets.address} config={chainConfig!} />}
+          {chainAssets && <TransactionHistory />}
         </TabsContent>
       </Tabs>
 

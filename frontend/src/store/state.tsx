@@ -16,6 +16,8 @@ export const showSidebarItem = atom("");
 
 export const refreshAtom = atom(false);
 
+export const ledgerAddressAtom = atom({ledger: "", address: "", config: {} as utils.ChainConfig});
+
 interface Data {
   proposal?: SignClientTypes.EventArguments["session_proposal"];
   requestEvent?: SignClientTypes.EventArguments["session_request"];
