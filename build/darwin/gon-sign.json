@@ -1,0 +1,16 @@
+{
+    "source" : ["./build/bin/Keyring Wallet.app"],
+    "bundle_id" : "so.keyring.wallet",
+    "apple_id": {
+        "username": "kaichao@keyring.so",
+        "password": "@env:APPLE_PASSWORD",
+        "provider":  "VWU226A3V6"
+    },
+    "sign" :{
+        "application_identity" : "Developer ID Application: KEYRING PTE. LTD."
+    },
+    "dmg" :{
+        "output_path":  "keyring-wallet-darwin.dmg",
+        "volume_name":  "Keyring Wallet"
+    }
+}

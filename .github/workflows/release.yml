@@ -62,11 +62,29 @@ jobs:
           build-platform: ${{ matrix.platform }}
           go-version: 1.20.x
           package: false
+      - name: MacOS download gon for code signing and app notarization
+        if: runner.os == 'macOS'
+        run: |
+          brew unlink gon
+          brew install Bearer/tap/gon
+      - name: Import Code-Signing Certificates for macOS
+        if: runner.os == 'macOS'
+        uses: Apple-Actions/import-codesign-certs@v1
+        with:
+          # The certificates in a PKCS12 file encoded as a base64 string
+          p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
+          # The password used to import the PKCS12 file.
+          p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
+      - name: Sign our macOS binary
+        if: runner.os == 'macOS'
+        env:
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+        run: |
+          echo "Signing Package"
+          gon -log-level=info ./build/darwin/gon-sign.json
       - if: runner.os == 'macOS'
         shell: bash
         run: |
-          rm -rf ./build/bin/${{ matrix.output }}.app.zip
-          ditto -c -k --keepParent ./build/bin/${{matrix.output}}.app ./build/bin/keyring-desktop.app.zip
           rm -rf ./build/bin/${{ matrix.output }}.app
 
       - uses: actions/upload-artifact@v3
@@ -91,7 +109,6 @@ jobs:
         run: |
           rm -rf Keyring\ Wallet-amd64-installer.exe
           rm -rf Keyring\ Wallet.pkg
-          mv keyring-desktop.app.zip keyring-wallet-darwin.app.zip
       - run: ls -al target && ls -R target/ && file target/
       - uses: actions/upload-artifact@v3
         with:
@@ -104,12 +121,12 @@ jobs:
         with:
           files: target/*
       # upload to storj
-      - uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --delete
-        env:
-          AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SOURCE_DIR: target
+      # - uses: jakejarvis/s3-sync-action@v0.5.1
+      #   with:
+      #     args: --delete
+      #   env:
+      #     AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      #     AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     SOURCE_DIR: target

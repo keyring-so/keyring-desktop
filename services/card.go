@@ -81,7 +81,7 @@ func readCard(ctx *scard.Context) (*scard.Card, error) {
 	utils.Sugar.Infof("card found: %v", index)
 	reader := readers[index]
 
-	utils.Sugar.Infof("connectiong to card reader: %v", reader)
+	utils.Sugar.Infof("connecting to card reader: %v", reader)
 	card, err := ctx.Connect(reader, scard.ShareShared, scard.ProtocolAny)
 	if err != nil {
 		return nil, err
