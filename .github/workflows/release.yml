@@ -65,8 +65,8 @@ jobs:
       - name: MacOS download gon for code signing and app notarization
         if: runner.os == 'macOS'
         run: |
-          wget -q https://github.com/Bearer/gon/releases/download/v0.0.36/gon_macos.zip
-          unzip gon_macos.zip -d /usr/local/bin
+          brew unlink gon
+          brew install Bearer/tap/gon
       - name: Import Code-Signing Certificates for macOS
         if: runner.os == 'macOS'
         uses: Apple-Actions/import-codesign-certs@v1
@@ -98,6 +98,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    environment: 
+        name: storj
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -121,12 +123,12 @@ jobs:
         with:
           files: target/*
       # upload to storj
-      # - uses: jakejarvis/s3-sync-action@v0.5.1
-      #   with:
-      #     args: --delete
-      #   env:
-      #     AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-      #     AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     SOURCE_DIR: target
+      - uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --delete
+        env:
+          AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: target
