@@ -65,8 +65,8 @@ jobs:
       - name: MacOS download gon for code signing and app notarization
         if: runner.os == 'macOS'
         run: |
-          brew unlink gon
-          brew install Bearer/tap/gon
+          wget -q https://github.com/Bearer/gon/releases/download/v0.0.36/gon_macos.zip
+          unzip gon_macos.zip -d /usr/local/bin
       - name: Import Code-Signing Certificates for macOS
         if: runner.os == 'macOS'
         uses: Apple-Actions/import-codesign-certs@v1
