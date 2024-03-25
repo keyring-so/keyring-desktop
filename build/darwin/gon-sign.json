@@ -2,8 +2,6 @@
     "source" : ["./build/bin/Keyring Wallet.app"],
     "bundle_id" : "so.keyring.wallet",
     "apple_id": {
-        "username": "kaichao@keyring.so",
-        "provider":  "VWU226A3V6"
     },
     "sign" :{
         "application_identity" : "Developer ID Application: KEYRING PTE. LTD."
