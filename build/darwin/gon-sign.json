@@ -3,7 +3,6 @@
     "bundle_id" : "so.keyring.wallet",
     "apple_id": {
         "username": "kaichao@keyring.so",
-        "password": "@env:APPLE_PASSWORD",
         "provider":  "VWU226A3V6"
     },
     "sign" :{
