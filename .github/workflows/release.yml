@@ -111,6 +111,7 @@ jobs:
         run: |
           rm -rf Keyring\ Wallet-amd64-installer.exe
           rm -rf Keyring\ Wallet.pkg
+          rm -rf Keyring\ Wallet.app.zip
       - run: ls -al target && ls -R target/ && file target/
       - uses: actions/upload-artifact@v3
         with:
