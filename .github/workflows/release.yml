@@ -116,21 +116,47 @@ jobs:
         with:
           name: target-release
           path: target/*
-
+  
+  github-release:
+    name: Release to github
+    needs: [ collect-release ]
+    runs-on: ubuntu-latest
+    environment: github
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: target-release
+          path: target
+      - run: ls -al target && ls -R target/ && file target/
       # release assets
       - uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
-        environment: 
-          name: storj
         with:
           files: target/*
+  storj-release:
+    name: Release to storj
+    needs: [ github-release ]
+    runs-on: ubuntu-latest
+    environment: storj
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: target-release
+          path: target
+      - run: ls -al target && ls -R target/ && file target/
       # upload to storj
-      # - uses: jakejarvis/s3-sync-action@v0.5.1
-      #   with:
-      #     args: --delete
-      #   env:
-      #     AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-      #     AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     SOURCE_DIR: target
+      - uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --delete
+        env:
+          AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: target
