@@ -11,7 +11,7 @@
         "volume_name":  "Keyring Wallet",
         "window_pos": ["400", "300"],
         "window_size": ["600", "500"],
-        "icon_size" : "128",
+        "icon_size" : "100",
         "icon": ["Keyring Wallet.app", "200", "200"],
         "app_drop_link": ["400", "200"]
     }
