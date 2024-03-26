@@ -66,7 +66,8 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew unlink gon
-          brew install Bearer/tap/gon
+          wget https://github.com/kaichaosun/gon/releases/download/v0.0.1/gon
+          chmod +x ./gon
       - name: Import Code-Signing Certificates for macOS
         if: runner.os == 'macOS'
         uses: Apple-Actions/import-codesign-certs@v1
@@ -83,7 +84,7 @@ jobs:
           AC_PROVIDER: ${{ secrets.APPLE_PROVIDER }}
         run: |
           echo "Signing Package"
-          gon -log-level=info ./build/darwin/gon-sign.json
+          ./gon -log-level=info ./build/darwin/gon-sign.json
       - if: runner.os == 'macOS'
         shell: bash
         run: |
