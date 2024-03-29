@@ -731,6 +731,65 @@
     ]
   },
   {
+    "name": "zkSync Era",
+    "symbol": "ETH",
+    "img": "/tokens/zksync_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://mainnet.era.zksync.io",
+    "rpcAuth": "",
+    "rpcProvider": "",
+    "chainId": 324,
+    "explorer": "https://era.zksync.network",
+    "explorerTx": "/tx",
+    "explorerAddr": "/address",
+    "decimals": 18,
+    "enableWalletConnect": true,
+    "txHistoryUrl": "https://zksync.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout",
+    "disable": true,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4"
+      }
+    ]
+  },
+  {
+    "name": "zkSync Era Sepolia",
+    "symbol": "ETH",
+    "img": "/tokens/zksync_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "ethereum",
+    "driver": "evm",
+    "rpcUrl": "https://sepolia.era.zksync.dev",
+    "rpcAuth": "",
+    "rpcProvider": "",
+    "chainId": 300,
+    "explorer": "https://sepolia-era.zksync.network",
+    "explorerTx": "/tx",
+    "explorerAddr": "/address",
+    "decimals": 18,
+    "testnet": true,
+    "enableWalletConnect": true,
+    "txHistoryUrl": "https://zksync-sepolia.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout",
+    "disable": true,
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0xAe045DE5638162fa134807Cb558E15A3F5A7F853"
+      }
+    ]
+  },
+  {
     "name": "Bitcoin",
     "symbol": "BTC",
     "path": "m/44'/0'/0'/0/0",
