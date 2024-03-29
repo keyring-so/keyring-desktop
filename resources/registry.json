@@ -749,6 +749,7 @@
     "txHistoryUrl": "https://zksync.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout",
+    "disable": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -778,6 +779,7 @@
     "txHistoryUrl": "https://zksync-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout",
+    "disable": true,
     "tokens": [
       {
         "symbol": "USDC",

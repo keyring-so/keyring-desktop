@@ -30,7 +30,7 @@ const SidebarLedger = ({ img, icon, text, ledger, selected }: Props) => {
       {icon ? React.createElement(icon) : <img src={img} />}
       <span
         className="
-            absolute w-auto p-2 m-2 min-w-max left-16 rounded-md shadow-md
+            fixed w-auto p-2 m-2 min-w-max left-16 rounded-md shadow-md
             text-white bg-primary
             text-sm font-bold
             transition-all duration-300 scale-0 origin-left group-hover:scale-100
