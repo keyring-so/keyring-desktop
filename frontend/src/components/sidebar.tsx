@@ -4,8 +4,9 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuTrigger
+  ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   accountAtom,
   chainConfigsAtom,
@@ -123,7 +124,7 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <Divider />
 
-      <div className="flex flex-col">{chains.map(showledgerItem)}</div>
+      <ScrollArea>{chains.map(showledgerItem)}</ScrollArea>
 
       {chains.length > 0 && <Divider />}
 
