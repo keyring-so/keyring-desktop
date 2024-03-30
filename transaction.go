@@ -276,7 +276,7 @@ func (a *App) fetchRemoteTxHistory(chainName string, address string, limit int, 
 }
 
 func (a *App) fetchTxFromLbryChainQuery(chainConfig *utils.ChainConfig, address string) error {
-	txHistory, err := oracle.GetTransactionsFromLbryExplorer(*chainConfig, address)
+	txHistory, err := oracle.GetTransactionsFromLbryExplorer(a.httpClient, *chainConfig, address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return err
@@ -314,7 +314,7 @@ func (a *App) fetchTxFromLbryChainQuery(chainConfig *utils.ChainConfig, address 
 }
 
 func (a *App) fetchTxFromBlockscout(chainConfig *utils.ChainConfig, address string) error {
-	txs, err := oracle.GetTxHistoryFromBlockscout(chainConfig, address)
+	txs, err := oracle.GetTxHistoryFromBlockscout(a.httpClient, chainConfig, address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return err
@@ -346,7 +346,7 @@ func (a *App) fetchTxFromBlockscout(chainConfig *utils.ChainConfig, address stri
 		return err
 	}
 
-	tokenTransfers, err := oracle.GetTokenTransfersFromBlockscout(*chainConfig, address)
+	tokenTransfers, err := oracle.GetTokenTransfersFromBlockscout(a.httpClient, *chainConfig, address)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return err

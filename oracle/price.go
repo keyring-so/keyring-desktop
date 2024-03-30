@@ -15,7 +15,7 @@ type Price struct {
 	Usd float32 `json:"usd"`
 }
 
-func GetPrice(assets []database.Asset, config utils.ChainConfig) (map[string]Price, error) {
+func GetPrice(client *http.Client, assets []database.Asset, config utils.ChainConfig) (map[string]Price, error) {
 	ids := make([]string, len(assets)+1)
 	priceIdsMap := map[string]string{}
 
@@ -40,8 +40,16 @@ func GetPrice(assets []database.Asset, config utils.ChainConfig) (map[string]Pri
 
 	url := fmt.Sprintf("https://api.coingecko.com/api/v3/simple/price?ids=%s&vs_currencies=%s", strings.Join(ids, ","), "usd")
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		utils.Sugar.Error("Error creating request:", err)
+		return nil, err
+	}
+
+	// Perform the request
+	resp, err := client.Do(req)
+	if err != nil {
+		utils.Sugar.Error("Error making request:", err)
 		return nil, err
 	}
 

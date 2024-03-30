@@ -57,11 +57,19 @@ type BlockscoutTokenTransferItem struct {
 	} `json:"to"`
 }
 
-func GetTxHistoryFromBlockscout(config *utils.ChainConfig, address string) (*BlockscoutTxHistoryResponse, error) {
+func GetTxHistoryFromBlockscout(client *http.Client, config *utils.ChainConfig, address string) (*BlockscoutTxHistoryResponse, error) {
 	url := fmt.Sprintf("%s/addresses/%s/transactions", config.TxHistoryUrl, address)
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		utils.Sugar.Error("Error creating request:", err)
+		return nil, err
+	}
+
+	// Perform the request
+	resp, err := client.Do(req)
+	if err != nil {
+		utils.Sugar.Error("Error making request:", err)
 		return nil, err
 	}
 
@@ -81,11 +89,19 @@ func GetTxHistoryFromBlockscout(config *utils.ChainConfig, address string) (*Blo
 	return &resParsed, nil
 }
 
-func GetTokenTransfersFromBlockscout(config utils.ChainConfig, address string) (*BlockscoutTokenTransferResponse, error) {
+func GetTokenTransfersFromBlockscout(client *http.Client, config utils.ChainConfig, address string) (*BlockscoutTokenTransferResponse, error) {
 	url := fmt.Sprintf("%s/addresses/%s/token-transfers", config.TxHistoryUrl, address)
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		utils.Sugar.Error("Error creating request:", err)
+		return nil, err
+	}
+
+	// Perform the request
+	resp, err := client.Do(req)
+	if err != nil {
+		utils.Sugar.Error("Error making request:", err)
 		return nil, err
 	}
 

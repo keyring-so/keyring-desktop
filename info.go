@@ -216,7 +216,7 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 		return nil, errors.New("chain not found")
 	}
 
-	prices, err := oracle.GetPrice(assets, *chainConfig)
+	prices, err := oracle.GetPrice(a.httpClient, assets, *chainConfig)
 	if err != nil {
 		utils.Sugar.Error(err)
 	}
@@ -229,7 +229,6 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 		balance, err := utils.GetAssetBalance(ctx, chainConfig, asset.ContractAddress, chainName, selectedAccount.Address)
 		utils.Sugar.Info("balacne: ", balance)
 		if err != nil {
-			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset: " + asset.TokenSymbol)
 		}
 
@@ -248,7 +247,6 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 
 	balance, err := utils.GetAssetBalance(ctx, chainConfig, "", chainName, selectedAccount.Address)
 	if err != nil {
-		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)
 	}
 
