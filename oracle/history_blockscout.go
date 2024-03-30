@@ -66,7 +66,7 @@ func GetTxHistoryFromBlockscout(config *utils.ChainConfig, address string) (*Blo
 	}
 
 	if resp.StatusCode != 200 {
-		utils.Sugar.Infof("GetTxHistoryFromBlockscout response status: %v", resp.StatusCode)
+		utils.Sugar.Infof("GetTxHistoryFromBlockscout response status: %v %s", resp.StatusCode, url)
 		return nil, errors.New("failed to get tx history from blockscout, response status code is not 200")
 	}
 	defer resp.Body.Close()
