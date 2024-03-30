@@ -51,6 +51,7 @@ func (a *App) startup(ctx context.Context) {
 	if err != nil {
 		utils.Sugar.Fatal(err)
 	}
+	sqlDb.SetMaxOpenConns(1)
 	a.sqlite = sqlDb
 
 	registryConfig, err := resources.ReadFile("resources/registry.json")

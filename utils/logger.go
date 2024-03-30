@@ -23,8 +23,10 @@ func SetupLog() {
 		MaxBackups: 3,
 		MaxAge:     28, // days
 	})
+	encoder := zap.NewProductionEncoderConfig()
+	encoder.EncodeTime = zapcore.ISO8601TimeEncoder
 	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.NewJSONEncoder(encoder),
 		w,
 		zap.InfoLevel,
 	)
