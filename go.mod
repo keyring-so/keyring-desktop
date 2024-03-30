@@ -16,6 +16,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/kaichaosun/dbmate v0.0.3
+	github.com/rapid7/go-get-proxied v0.0.0-20240311092404-798791728c56
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0

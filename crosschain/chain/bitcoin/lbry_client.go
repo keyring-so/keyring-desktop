@@ -13,12 +13,13 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/rapid7/go-get-proxied/proxy"
 	"github.com/shopspring/decimal"
 	log "github.com/sirupsen/logrus"
 )
 
 type LbryClient struct {
-	http            http.Client
+	http            *http.Client
 	Asset           *xc.AssetConfig
 	opts            ClientOptions
 	EstimateGasFunc xc.EstimateGasFunc
@@ -53,7 +54,16 @@ func NewLbryClient(cfgI xc.ITask) (*LbryClient, error) {
 	cfg := cfgI.GetNativeAsset()
 	opts := DefaultClientOptions()
 
-	httpClient := http.Client{}
+	httpClient := &http.Client{}
+	p := proxy.NewProvider("").GetProxy("https", "")
+	if p != nil {
+		transport := &http.Transport{
+			Proxy: http.ProxyURL(p.URL()),
+		}
+		httpClient = &http.Client{
+			Transport: transport,
+		}
+	}
 	httpClient.Timeout = opts.Timeout
 
 	params, err := GetParams(cfg)

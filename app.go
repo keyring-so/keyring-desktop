@@ -7,6 +7,7 @@ import (
 	"keyring-desktop/database"
 	"keyring-desktop/services"
 	"keyring-desktop/utils"
+	"net/http"
 	"os"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"keyring-desktop/crosschain/factory"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rapid7/go-get-proxied/proxy"
 	"github.com/status-im/keycard-go/types"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -26,6 +28,7 @@ type App struct {
 	chainConfigs []utils.ChainConfig
 	initConfig   utils.InitConfig
 	sqlite       *sqlx.DB
+	httpClient   *http.Client
 }
 
 // NewApp creates a new App application struct
@@ -73,6 +76,17 @@ func (a *App) startup(ctx context.Context) {
 	a.initConfig = *initConfig
 
 	a.DataMigrate()
+
+	p := proxy.NewProvider("").GetProxy("https", "")
+	if p != nil {
+		utils.Sugar.Infof("Found proxy: %s\n", p)
+		transport := &http.Transport{
+			Proxy: http.ProxyURL(p.URL()),
+		}
+		a.httpClient = &http.Client{
+			Transport: transport,
+		}
+	}
 }
 
 // shutdown is called when app quits
