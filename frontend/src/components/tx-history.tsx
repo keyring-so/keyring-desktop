@@ -2,7 +2,7 @@ import { GetTransactionHistory } from "@/../wailsjs/go/main/App";
 import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { useToast } from "@/components/ui/use-toast";
 import { shortenAddress, showTime } from "@/lib/utils";
-import { ledgerAddressAtom } from "@/store/state";
+import { ledgerAddressAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
 import {
   ArrowBigLeft,
@@ -40,6 +40,7 @@ const TransactionHistory = () => {
   const { toast } = useToast();
 
   const ledgerAddress = useAtomValue(ledgerAddressAtom);
+  const ledger = useAtomValue(ledgerAtom)
 
   useEffect(() => {
     EventsOn("transaction-history", (txHistory) => {
@@ -88,7 +89,7 @@ const TransactionHistory = () => {
   }, [ledgerAddress]);
 
   const handleHistoryResponse = (txHistory: main.GetTransactionHistoryResponse) => {
-    if (txHistory.chain != ledgerAddress.ledger || txHistory.address != ledgerAddress.address) {
+    if (txHistory.chain != ledger || txHistory.chain != ledgerAddress.ledger || txHistory.address != ledgerAddress.address) {
       return;
     }
     let mergedTxs = [
