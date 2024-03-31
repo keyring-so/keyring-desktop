@@ -86,6 +86,8 @@ func (a *App) startup(ctx context.Context) {
 		a.httpClient = &http.Client{
 			Transport: transport,
 		}
+	} else {
+		a.httpClient = &http.Client{}
 	}
 }
 
