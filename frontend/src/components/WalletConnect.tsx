@@ -3,13 +3,14 @@ import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ETH } from "@/constants";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
-import { chainConfigsAtom, walletConnectDataAtom } from "@/store/state";
+import { chainConfigsAtom } from "@/store/state";
 import { createWeb3Wallet, web3wallet } from "@/utils/WalletConnectUtil";
-import { SignClientTypes } from "@walletconnect/types";
+import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast as sonner } from "sonner";
 import GasFee from "./gas";
 import { Button } from "./ui/button";
 import {
@@ -32,6 +33,11 @@ interface Props {
   explorerTx: string;
 }
 
+interface ReqeustData {
+  requestEvent: SignClientTypes.EventArguments["session_request"];
+  requestSession: SessionTypes.Struct;
+}
+
 const WalletConnect = ({
   address,
   ledger,
@@ -45,21 +51,24 @@ const WalletConnect = ({
   const [pin, setPin] = useState("");
   const [gas, setGas] = useState("");
   const [initialized, setInitialized] = useState(false);
+  const [requestData, setRequestData] = useState<ReqeustData>();
+  const [proposal, setProposal] =
+    useState<SignClientTypes.EventArguments["session_proposal"]>();
 
   const { toast } = useToast();
 
   const chainConfigs = useAtomValue(chainConfigsAtom);
-  const [walletConnectData, setWalletConnectData] = useAtom(
-    walletConnectDataAtom
-  );
 
   useEffect(() => {
+    let listened = true;
     const onInitialize = async () => {
       try {
         await createWeb3Wallet();
         setInitialized(true);
-        web3wallet.on("session_proposal", onSessionProposal);
-        web3wallet.on("session_request", onSessionRequest);
+        if (listened) {
+          web3wallet.on("session_proposal", onSessionProposal);
+          web3wallet.on("session_request", onSessionRequest);
+        }
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong with walletconnect.",
@@ -70,22 +79,25 @@ const WalletConnect = ({
     if (!initialized) {
       onInitialize();
     }
+    return () => {
+      listened = false;
+    };
   }, []);
 
   const onSessionProposal = (
     proposal: SignClientTypes.EventArguments["session_proposal"]
   ) => {
-    setWalletConnectData({ proposal });
+    setProposal(proposal);
   };
 
   const onSessionRequest = async (
     requestEvent: SignClientTypes.EventArguments["session_request"]
   ) => {
-    const { topic, params, verifyContext } = requestEvent;
-    const { request } = params;
+    console.log("requestEvent: ", requestEvent);
+    const { topic } = requestEvent;
     const requestSession = web3wallet.engine.signClient.session.get(topic);
 
-    setWalletConnectData({ requestEvent, requestSession });
+    setRequestData({ requestEvent, requestSession });
   };
 
   const supportedNamespaces = useMemo(() => {
@@ -125,7 +137,6 @@ const WalletConnect = ({
   };
 
   const onApprove = async () => {
-    const proposal = walletConnectData?.proposal;
     if (proposal) {
       const namespaces = buildApprovedNamespaces({
         proposal: proposal.params,
@@ -144,7 +155,7 @@ const WalletConnect = ({
           description: "Session is approved.",
         });
 
-        setWalletConnectData({});
+        setProposal(undefined);
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -157,14 +168,13 @@ const WalletConnect = ({
   };
 
   const onReject = async () => {
-    const proposal = walletConnectData?.proposal;
     if (proposal) {
       try {
         await web3wallet.rejectSession({
           id: proposal.id,
           reason: getSdkError("USER_REJECTED_METHODS"),
         });
-        setWalletConnectData({});
+        setProposal(undefined);
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -184,10 +194,8 @@ const WalletConnect = ({
   // pin string,
   // cardId int,
   const onApproveRequest = async () => {
-    const requestEvent = walletConnectData?.requestEvent;
-
-    if (requestEvent) {
-      const { topic, params, id } = requestEvent;
+    if (requestData) {
+      const { topic, params, id } = requestData.requestEvent;
       const { chainId, request } = params; // TODO check chain id is matched
       const transaction = request.params[0];
 
@@ -240,7 +248,7 @@ const WalletConnect = ({
             </Button>
           ),
         });
-        setWalletConnectData({});
+        setRequestData(undefined);
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -253,9 +261,8 @@ const WalletConnect = ({
   };
 
   const onRejectRequest = async () => {
-    const requestEvent = walletConnectData?.requestEvent;
-    if (requestEvent) {
-      const { topic, params, id } = requestEvent;
+    if (requestData) {
+      const { topic, params, id } = requestData.requestEvent;
       const response = {
         id,
         jsonrpc: "2.0",
@@ -269,7 +276,7 @@ const WalletConnect = ({
           topic,
           response,
         });
-        setWalletConnectData({});
+        setRequestData(undefined);
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -311,10 +318,10 @@ const WalletConnect = ({
   };
 
   const proposalDialog = () => {
-    const metadata = walletConnectData!.proposal!.params.proposer.metadata;
+    const metadata = proposal!.params.proposer.metadata;
     const { icons, name, url } = metadata;
     return (
-      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+      <Dialog open={true} onOpenChange={() => setProposal(undefined)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
@@ -351,13 +358,12 @@ const WalletConnect = ({
   };
 
   const sendTransactionModal = () => {
-    const metadata = walletConnectData!.requestSession!.peer.metadata;
-    const transaction =
-      walletConnectData!.requestEvent!.params.request.params[0];
+    const metadata = requestData!.requestSession!.peer.metadata;
+    const transaction = requestData!.requestEvent!.params.request.params[0];
     const { icons, name, url } = metadata;
 
     return (
-      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+      <Dialog open={true} onOpenChange={() => setRequestData(undefined)}>
         <DialogContent className="sm:max-w-[465px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
@@ -441,7 +447,7 @@ const WalletConnect = ({
 
   const unknownMethodModal = (method: string) => {
     return (
-      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+      <Dialog open={true} onOpenChange={() => setRequestData(undefined)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>WalletConnect</DialogTitle>
@@ -451,7 +457,7 @@ const WalletConnect = ({
             <Input className="w-auto" disabled value={method} />
           </div>
           <DialogFooter className="sm:justify-start">
-            <Button type="button" onClick={() => setWalletConnectData({})}>
+            <Button type="button" onClick={() => setRequestData(undefined)}>
               Close
             </Button>
           </DialogFooter>
@@ -461,12 +467,12 @@ const WalletConnect = ({
   };
 
   const signTypedDataModal = () => {
-    const metadata = walletConnectData!.requestSession!.peer.metadata;
-    const data = walletConnectData!.requestEvent!.params.request.params[1];
+    const metadata = requestData!.requestSession!.peer.metadata;
+    const data = requestData!.requestEvent!.params.request.params[1];
     const { icons, name, url } = metadata;
 
     return (
-      <Dialog open={true} onOpenChange={() => setWalletConnectData({})}>
+      <Dialog open={true} onOpenChange={() => setRequestData(undefined)}>
         <DialogContent className="sm:max-w-[465px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
@@ -517,8 +523,14 @@ const WalletConnect = ({
   };
 
   const requestDialog = () => {
-    const { params, id } = walletConnectData!.requestEvent!;
+    const { params, id } = requestData!.requestEvent!;
     const { chainId, request } = params;
+    console.log("ledger: ===", ledger, chainId, id);
+    const config = chainConfigs.find((config) => config.name == ledger);
+    if (!config || chainId != `eip155:${config.chainId}`) {
+      sonner.warning("Please choose the correct blockchain.");
+      return;
+    }
 
     switch (request.method) {
       case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
@@ -546,8 +558,8 @@ const WalletConnect = ({
       )}
 
       {showConnect && connectDialog()}
-      {walletConnectData?.proposal && proposalDialog()}
-      {walletConnectData?.requestEvent && requestDialog()}
+      {proposal && proposalDialog()}
+      {requestData && requestDialog()}
     </div>
   );
 };
