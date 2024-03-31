@@ -529,6 +529,7 @@ const WalletConnect = ({
     const config = chainConfigs.find((config) => config.name == ledger);
     if (!config || chainId != `eip155:${config.chainId}`) {
       sonner.warning("Please choose the correct blockchain.");
+      setRequestData(undefined);
       return;
     }
 

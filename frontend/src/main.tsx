@@ -11,6 +11,6 @@ const root = createRoot(container!)
 root.render(
     <React.StrictMode>
         <App/>
-        <Toaster />
+        <Toaster richColors position="bottom-center" />
     </React.StrictMode>
 )
