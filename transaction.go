@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"keyring-desktop/crosschain"
+	"keyring-desktop/crosschain/chain/bitcoin"
 	"keyring-desktop/crosschain/chain/evm"
 	"keyring-desktop/crosschain/factory"
 	"keyring-desktop/database"
@@ -65,7 +66,20 @@ func (a *App) SendTransaction(
 		return "", errors.New("failed to fetch tx input")
 	}
 	if gasFee != "" {
-		input.(*evm.TxInput).GasFeeCap = crosschain.NewAmountBlockchainFromStr(gasFee)
+		gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gasFee)
+		if err != nil {
+			utils.Sugar.Error(err)
+			return "", errors.New("failed to convert the gas amount")
+		}
+
+		switch crosschain.Driver(assetConfig.GetDriver()) {
+		case crosschain.DriverEVM:
+			input.(*evm.TxInput).GasFeeCap = gasInteger
+		case crosschain.DriverEVMLegacy:
+			input.(*evm.TxInput).GasPrice = gasInteger
+		case crosschain.DriverBitcoin:
+			input.(*bitcoin.TxInput).GasPricePerByte = gasInteger
+		}
 	}
 
 	utils.Sugar.Infof("input: %+v", input)
