@@ -3,9 +3,9 @@ import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ETH } from "@/constants";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
-import { useClipboard } from "@/hooks/useClipboard";
 import { chainConfigsAtom, walletConnectDataAtom } from "@/store/state";
-import { web3wallet } from "@/utils/WalletConnectUtil";
+import { createWeb3Wallet, web3wallet } from "@/utils/WalletConnectUtil";
+import { SignClientTypes } from "@walletconnect/types";
 import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { Loader2 } from "lucide-react";
@@ -44,6 +44,7 @@ const WalletConnect = ({
   const [link, setLink] = useState("");
   const [pin, setPin] = useState("");
   const [gas, setGas] = useState("");
+  const [initialized, setInitialized] = useState(false);
 
   const { toast } = useToast();
 
@@ -51,6 +52,41 @@ const WalletConnect = ({
   const [walletConnectData, setWalletConnectData] = useAtom(
     walletConnectDataAtom
   );
+
+  useEffect(() => {
+    const onInitialize = async () => {
+      try {
+        await createWeb3Wallet();
+        setInitialized(true);
+        web3wallet.on("session_proposal", onSessionProposal);
+        web3wallet.on("session_request", onSessionRequest);
+      } catch (err) {
+        toast({
+          title: "Uh oh! Something went wrong with walletconnect.",
+          description: `Error happens: ${err}`,
+        });
+      }
+    };
+    if (!initialized) {
+      onInitialize();
+    }
+  }, []);
+
+  const onSessionProposal = (
+    proposal: SignClientTypes.EventArguments["session_proposal"]
+  ) => {
+    setWalletConnectData({ proposal });
+  };
+
+  const onSessionRequest = async (
+    requestEvent: SignClientTypes.EventArguments["session_request"]
+  ) => {
+    const { topic, params, verifyContext } = requestEvent;
+    const { request } = params;
+    const requestSession = web3wallet.engine.signClient.session.get(topic);
+
+    setWalletConnectData({ requestEvent, requestSession });
+  };
 
   const supportedNamespaces = useMemo(() => {
     const evmChains = chainConfigs
@@ -500,12 +536,15 @@ const WalletConnect = ({
 
   return (
     <div>
-      <div
-        className="flex flex-col h-12 w-12 rounded-xl bg-primary text-white p-3 items-center justify-center"
-        onClick={() => setShowConnect(true)}
-      >
-        <img src="/walletconnect.svg" alt="WalletConnect" />
-      </div>
+      {initialized && (
+        <div
+          className="flex flex-col h-12 w-12 rounded-xl bg-primary text-white p-3 items-center justify-center"
+          onClick={() => setShowConnect(true)}
+        >
+          <img src="/walletconnect.svg" alt="WalletConnect" />
+        </div>
+      )}
+
       {showConnect && connectDialog()}
       {walletConnectData?.proposal && proposalDialog()}
       {walletConnectData?.requestEvent && requestDialog()}
