@@ -15,4 +15,9 @@ export const showSidebarItem = atom("");
 
 export const refreshAtom = atom(false);
 
-export const ledgerAddressAtom = atom({ledger: "", address: "", config: {} as utils.ChainConfig});
+export interface AccountLedgerInfo {
+    ledger: string;
+    address: string;
+    config: utils.ChainConfig;
+}
+export const ledgerAddressAtom = atom<AccountLedgerInfo | undefined>(undefined);

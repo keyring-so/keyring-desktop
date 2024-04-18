@@ -3,14 +3,13 @@ import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ETH } from "@/constants";
 import { EIP155_SIGNING_METHODS } from "@/data/wallet-connect";
-import { chainConfigsAtom } from "@/store/state";
+import { chainConfigsAtom, ledgerAddressAtom } from "@/store/state";
 import { createWeb3Wallet, web3wallet } from "@/utils/WalletConnectUtil";
 import { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils";
 import { useAtomValue } from "jotai";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { toast as sonner } from "sonner";
 import GasFee from "./gas";
 import { Button } from "./ui/button";
 import {
@@ -26,8 +25,6 @@ import { Label } from "./ui/label";
 import { useToast } from "./ui/use-toast";
 
 interface Props {
-  address: string;
-  ledger: string;
   cardId: number;
   explorer: string;
   explorerTx: string;
@@ -39,8 +36,6 @@ interface ReqeustData {
 }
 
 const WalletConnect = ({
-  address,
-  ledger,
   cardId,
   explorer,
   explorerTx,
@@ -54,10 +49,12 @@ const WalletConnect = ({
   const [requestData, setRequestData] = useState<ReqeustData>();
   const [proposal, setProposal] =
     useState<SignClientTypes.EventArguments["session_proposal"]>();
+  const [rejectDescription, setRejectDescription] = useState("");
 
   const { toast } = useToast();
 
   const chainConfigs = useAtomValue(chainConfigsAtom);
+  const accountLedgerInfo = useAtomValue(ledgerAddressAtom);
 
   useEffect(() => {
     let listened = true;
@@ -112,7 +109,7 @@ const WalletConnect = ({
         chains: evmChains,
         methods: evmMethods,
         events: ["accountsChanged", "chainChanged"],
-        accounts: evmChains.map((chain) => `${chain}:${address}`).flat(),
+        accounts: evmChains.map((chain) => `${chain}:${accountLedgerInfo!.address}`).flat(),
       },
     };
   }, []);
@@ -207,7 +204,7 @@ const WalletConnect = ({
             result = await SendTransaction(
               transaction.from,
               transaction.to,
-              ledger,
+              accountLedgerInfo!.ledger,
               transaction.value,
               transaction.gas,
               transaction.data,
@@ -220,7 +217,7 @@ const WalletConnect = ({
           case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
           case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
             result = await SignTypedData(
-              ledger,
+              accountLedgerInfo!.ledger,
               request.params[1],
               pin,
               cardId
@@ -260,7 +257,7 @@ const WalletConnect = ({
     }
   };
 
-  const onRejectRequest = async () => {
+  const rejectDataRequest = async (description: string) => {
     if (requestData) {
       const { topic, params, id } = requestData.requestEvent;
       const response = {
@@ -277,6 +274,10 @@ const WalletConnect = ({
           response,
         });
         setRequestData(undefined);
+        toast({
+          title: "The request is rejected",
+          description: description,
+        })
       } catch (err) {
         toast({
           title: "Uh oh! Something went wrong.",
@@ -368,7 +369,7 @@ const WalletConnect = ({
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
             <DialogDescription>
-              Do you want to approve this request?
+              Do you want to approve this request on {accountLedgerInfo!.ledger}?
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center gap-6">
@@ -409,7 +410,7 @@ const WalletConnect = ({
 
             <div className="self-start">
               <GasFee
-                chainName={ledger}
+                chainName={accountLedgerInfo!.ledger}
                 from={transaction.from}
                 to={transaction.to}
                 setGas={setGas}
@@ -436,7 +437,7 @@ const WalletConnect = ({
               </Button>
             )}
 
-            <Button type="submit" onClick={onRejectRequest}>
+            <Button type="submit" onClick={() => rejectDataRequest("User rejected.")}>
               Reject
             </Button>
           </DialogFooter>
@@ -477,7 +478,7 @@ const WalletConnect = ({
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
             <DialogDescription>
-              Do you want to approve this request?
+              Do you want to approve this request on {accountLedgerInfo!.ledger}?
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center gap-6">
@@ -513,7 +514,7 @@ const WalletConnect = ({
               </Button>
             )}
 
-            <Button type="submit" onClick={onRejectRequest}>
+            <Button type="submit" onClick={() => rejectDataRequest("User rejected.")}>
               Reject
             </Button>
           </DialogFooter>
@@ -525,11 +526,9 @@ const WalletConnect = ({
   const requestDialog = () => {
     const { params, id } = requestData!.requestEvent!;
     const { chainId, request } = params;
-    console.log("ledger: ===", ledger, chainId, id);
-    const config = chainConfigs.find((config) => config.name == ledger);
+    const config = chainConfigs.find((config) => config.name == accountLedgerInfo!.ledger);
     if (!config || chainId != `eip155:${config.chainId}`) {
-      sonner.warning("Please choose the correct blockchain.");
-      setRequestData(undefined);
+      rejectDataRequest("Please choose the correct blockchain.");
       return;
     }
 
