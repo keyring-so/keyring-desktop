@@ -457,8 +457,6 @@ function Wallet() {
       {chainAssets?.address && chainConfig?.enableWalletConnect && (
         <div className="absolute right-10 bottom-10">
           <WalletConnect
-            address={chainAssets.address}
-            ledger={ledger}
             cardId={account.id}
             explorer={chainConfig!.explorer}
             explorerTx={chainConfig!.explorerTx}

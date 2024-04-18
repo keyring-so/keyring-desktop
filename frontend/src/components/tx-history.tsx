@@ -55,6 +55,9 @@ const TransactionHistory = () => {
   useEffect(() => {
     let responseSubscribed = true;
     const fn = async () => {
+      if (!ledgerAddress) {
+        return;
+      }
       try {
         const isRemote = (Date.now() - (lastRemoteRequestTime[ledgerAddress.ledger] || 0)) > MIN_INTERVAL;
         if (isRemote) {
@@ -89,7 +92,7 @@ const TransactionHistory = () => {
   }, [ledgerAddress]);
 
   const handleHistoryResponse = (txHistory: main.GetTransactionHistoryResponse) => {
-    if (txHistory.chain != ledger || txHistory.chain != ledgerAddress.ledger || txHistory.address != ledgerAddress.address) {
+    if (txHistory.chain != ledger || !ledgerAddress || txHistory.chain != ledgerAddress.ledger || txHistory.address != ledgerAddress.address) {
       return;
     }
     let mergedTxs = [
@@ -127,7 +130,7 @@ const TransactionHistory = () => {
   };
 
   const isSent = (tx: Transaction) =>
-    tx.from === ledgerAddress.address ||
+    tx.from === ledgerAddress!.address ||
     (tx.from === "" && Number(tx.value) < 0);
 
   return (
@@ -173,7 +176,7 @@ const TransactionHistory = () => {
               <ExternalLink
                 onClick={() =>
                   BrowserOpenURL(
-                    `${ledgerAddress.config.explorer}${ledgerAddress.config.explorerTx}/${tx.hash}`
+                    `${ledgerAddress!.config.explorer}${ledgerAddress!.config.explorerTx}/${tx.hash}`
                   )
                 }
               />

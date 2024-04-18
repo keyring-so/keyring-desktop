@@ -112,7 +112,6 @@ func (txBuilder TxBuilder) buildEvmTxWithPayload(to xc.Address, value *big.Int, 
 		return nil, err
 	}
 	chainID := new(big.Int).SetInt64(txBuilder.Asset.ChainID)
-	// fmt.Println("chainID", chainID)
 
 	if txBuilder.Legacy {
 		return &Tx{
