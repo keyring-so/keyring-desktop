@@ -90,7 +90,6 @@ const WalletConnect = ({
   const onSessionRequest = async (
     requestEvent: SignClientTypes.EventArguments["session_request"]
   ) => {
-    console.log("requestEvent: ", requestEvent);
     const { topic } = requestEvent;
     const requestSession = web3wallet.engine.signClient.session.get(topic);
 
