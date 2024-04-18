@@ -49,7 +49,6 @@ const WalletConnect = ({
   const [requestData, setRequestData] = useState<ReqeustData>();
   const [proposal, setProposal] =
     useState<SignClientTypes.EventArguments["session_proposal"]>();
-  const [rejectDescription, setRejectDescription] = useState("");
 
   const { toast } = useToast();
 
@@ -132,7 +131,7 @@ const WalletConnect = ({
     }
   };
 
-  const onApprove = async () => {
+  const approveProposal = async () => {
     if (proposal) {
       const namespaces = buildApprovedNamespaces({
         proposal: proposal.params,
@@ -163,7 +162,7 @@ const WalletConnect = ({
     }
   };
 
-  const onReject = async () => {
+  const rejectProposal = async () => {
     if (proposal) {
       try {
         await web3wallet.rejectSession({
@@ -189,7 +188,7 @@ const WalletConnect = ({
   // tip string,
   // pin string,
   // cardId int,
-  const onApproveRequest = async () => {
+  const approveDataRequest = async () => {
     if (requestData) {
       const { topic, params, id } = requestData.requestEvent;
       const { chainId, request } = params; // TODO check chain id is matched
@@ -343,12 +342,12 @@ const WalletConnect = ({
                 Approve
               </Button>
             ) : (
-              <Button type="submit" onClick={onApprove}>
+              <Button type="submit" onClick={approveProposal}>
                 Approve
               </Button>
             )}
 
-            <Button type="submit" onClick={onReject}>
+            <Button type="submit" onClick={rejectProposal}>
               Reject
             </Button>
           </DialogFooter>
@@ -363,7 +362,7 @@ const WalletConnect = ({
     const { icons, name, url } = metadata;
 
     return (
-      <Dialog open={true} onOpenChange={() => setRequestData(undefined)}>
+      <Dialog open={true} onOpenChange={() => rejectDataRequest("User closed the request.")}>
         <DialogContent className="sm:max-w-[465px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
@@ -431,7 +430,7 @@ const WalletConnect = ({
                 Approve
               </Button>
             ) : (
-              <Button type="submit" onClick={onApproveRequest}>
+              <Button type="submit" onClick={approveDataRequest}>
                 Approve
               </Button>
             )}
@@ -472,7 +471,7 @@ const WalletConnect = ({
     const { icons, name, url } = metadata;
 
     return (
-      <Dialog open={true} onOpenChange={() => setRequestData(undefined)}>
+      <Dialog open={true} onOpenChange={() => rejectDataRequest("User closed the request.")}>
         <DialogContent className="sm:max-w-[465px]">
           <DialogHeader>
             <DialogTitle>Wallet Connect</DialogTitle>
@@ -508,7 +507,7 @@ const WalletConnect = ({
                 Approve
               </Button>
             ) : (
-              <Button type="submit" onClick={onApproveRequest}>
+              <Button type="submit" onClick={approveDataRequest}>
                 Approve
               </Button>
             )}
