@@ -23,6 +23,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/rapid7/go-get-proxied/proxy"
 )
 
 var ERC20 abi.ABI
@@ -141,7 +142,12 @@ func NewClient(cfgI xc.ITask) (*Client, error) {
 	url := configToEVMClientURL(cfgI)
 
 	// c, err := rpc.DialContext(context.Background(), url)
-	interceptor := &HttpInterceptor{http.DefaultTransport, false}
+	transport := http.DefaultTransport.(*http.Transport)
+	p := proxy.NewProvider("").GetProxy("https", "")
+	if p != nil {
+		transport.Proxy = http.ProxyURL(p.URL())
+	}
+	interceptor := &HttpInterceptor{transport, false}
 	httpClient := &http.Client{
 		Transport: interceptor,
 	}
