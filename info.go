@@ -168,7 +168,7 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 }
 
 func (a *App) GetAssetPrices(cardId int, chain string) (*ChainAssets, error) {
-	utils.Sugar.Infof("Get asset prices, %s", cardId)
+	utils.Sugar.Infof("Get asset prices, %d", cardId)
 
 	if cardId < 0 || chain == "" {
 		return nil, errors.New("invalid card or chain")
@@ -230,10 +230,12 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 
 	ctx := context.Background()
 	assetsInfo := []AssetInfo{}
-	var nativeAssetId *int
+	var nativeAssetId int
+	var nativeAssetPrice float32
 	for _, asset := range assets {
 		if asset.TokenSymbol == chainConfig.Symbol && asset.ContractAddress == "" {
-			nativeAssetId = &asset.Id
+			nativeAssetId = asset.Id
+			nativeAssetPrice = asset.Price
 			continue
 		}
 
@@ -249,6 +251,9 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 		}
 
 		price := prices[asset.TokenSymbol].Usd
+		if price == 0 {
+			price = asset.Price
+		}
 
 		bals := balance.String()
 		info := AssetInfo{
@@ -273,16 +278,19 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 	}
 
 	price := prices[chainConfig.Symbol].Usd
+	if price == 0 && nativeAssetPrice != 0 {
+		price = nativeAssetPrice
+	}
 	bals := balance.String()
 
-	if nativeAssetId == nil {
+	if nativeAssetId == 0 {
 		err = database.SaveAssetPrice(a.sqlite, cardId, chainName, selectedAccount.Address, chainConfig.Symbol, "", bals, price)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to save native asset price")
 		}
 	} else {
-		err = database.UpdateAssetPrice(a.sqlite, *nativeAssetId, bals, price)
+		err = database.UpdateAssetPrice(a.sqlite, nativeAssetId, bals, price)
 		if err != nil {
 			utils.Sugar.Error(err)
 			return nil, errors.New("failed to update native asset price")
