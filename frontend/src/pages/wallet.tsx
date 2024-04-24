@@ -49,8 +49,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
+import { MIN_INTERVAL } from "@/constants";
 import { useClipboard } from "@/hooks/useClipboard";
-import { cn, shortenAddress } from "@/lib/utils";
+import { RemoteRequestTime, cn, shortenAddress } from "@/lib/utils";
 import {
   accountAtom,
   isTestnetAtom,
@@ -85,11 +86,11 @@ function Wallet() {
     undefined
   );
   const [loadingAddAsset, setLoadingAddAsset] = useState(false);
-  const [getBalanceErr, setGetBalanceErr] = useState(false);
   const [chainAssets, setChainAssets] = useState<main.ChainAssets>();
   const [showTokenConfigDialog, setShowTokenConfigDialog] = useState(false);
   const [contractAddress, setContractAddress] = useState("");
   const [priceId, setPriceId] = useState("");
+  const [lastPriceRequestTime, setLastPriceRequestTime] = useState<RemoteRequestTime>({});
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -120,12 +121,18 @@ function Wallet() {
             });
           }
 
-          let prices = await GetAssetPrices(account.id, ledger);
-          if (responseSubscribed) {
-            setChainAssets(prices);
+          const fetchPrice = (Date.now() - (lastPriceRequestTime[ledger] || 0)) > MIN_INTERVAL;
+          if (fetchPrice) {
+            setLastPriceRequestTime(prevState => ({
+              ...prevState,
+              [ledger]: Date.now()
+            }));
+            let prices = await GetAssetPrices(account.id, ledger);
+            if (responseSubscribed) {
+              setChainAssets(prices);
+            }
           }
         } catch (err) {
-          setGetBalanceErr(true);
           toast({
             title: "Uh oh! Something went wrong.",
             description: `Error happens: ${err}`,
@@ -178,7 +185,6 @@ function Wallet() {
       setChainAssets(res);
       setSelectToken(undefined);
     } catch (err) {
-      setGetBalanceErr(true);
       setLoadingAddAsset(false);
       toast({
         title: "Uh oh! Something went wrong.",
@@ -302,7 +308,6 @@ function Wallet() {
                   address={chainAssets.address}
                   explorer={chainConfig!.explorer}
                   explorerTx={chainConfig!.explorerTx}
-                  onError={getBalanceErr}
                 />
               )}
               {chainAssets?.assets.map((userAsset) => {
@@ -316,7 +321,6 @@ function Wallet() {
                     contract={userAsset.contractAddress}
                     explorer={chainConfig!.explorer}
                     explorerTx={chainConfig!.explorerTx}
-                    onError={getBalanceErr}
                   />
                 );
               })}

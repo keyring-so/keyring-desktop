@@ -1,7 +1,7 @@
 import { GetTransactionHistory } from "@/../wailsjs/go/main/App";
 import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { useToast } from "@/components/ui/use-toast";
-import { shortenAddress, showTime } from "@/lib/utils";
+import { RemoteRequestTime, shortenAddress, showTime } from "@/lib/utils";
 import { ledgerAddressAtom, ledgerAtom } from "@/store/state";
 import { useAtomValue } from "jotai";
 import {
@@ -25,10 +25,6 @@ type Transaction = {
   hash: string;
   symbol: string;
 };
-
-interface RemoteRequestTime {
-  [key: string]: number;
-}
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

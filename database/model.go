@@ -1,6 +1,8 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Card struct {
 	Id          int `db:"card_id"`
@@ -21,10 +23,12 @@ type Account struct {
 }
 
 type Asset struct {
-	Id              int    `db:"asset_id"`
-	AccountId       int    `db:"account_id"`
-	TokenSymbol     string `db:"token_symbol"`
-	ContractAddress string `db:"contract_address"`
+	Id              int     `db:"asset_id"`
+	AccountId       int     `db:"account_id"`
+	TokenSymbol     string  `db:"token_symbol"`
+	ContractAddress string  `db:"contract_address"`
+	Balance         string  `db:"balance"`
+	Price           float32 `db:"price"`
 }
 
 type DatabaseTokenConfig struct {

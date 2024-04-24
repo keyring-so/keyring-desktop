@@ -50,7 +50,6 @@ type Props = {
   contract?: string;
   explorer: string;
   explorerTx: string;
-  onError?: boolean;
 };
 
 const AssetTransferSchema = z.object({
@@ -77,7 +76,6 @@ const Asset = ({
   contract,
   explorer,
   explorerTx,
-  onError,
 }: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
@@ -109,9 +107,6 @@ const Asset = ({
   const showBalance = (balance: string | undefined) => {
     if (balance) {
       return parseFloat(parseFloat(balance).toFixed(3)).toLocaleString();
-    }
-    if (onError) {
-      return "n/a";
     }
     return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
   };
