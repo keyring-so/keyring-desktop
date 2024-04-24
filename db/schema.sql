@@ -19,7 +19,7 @@ CREATE TABLE assets (
     asset_id integer primary key,
     account_id integer not null,
     token_symbol text not null
-, contract_address text not null default "");
+, contract_address text not null default "", balance text not null default "", price real not null default 0.0);
 CREATE TABLE token_config (
     config_id integer primary key,
     chain_name text not null,
@@ -53,6 +53,7 @@ CREATE TABLE token_transfer_history (
     type text not null default "",
     UNIQUE(hash, contract) ON CONFLICT REPLACE
 );
+CREATE UNIQUE INDEX ux_assets_token_symbol ON assets(account_id, token_symbol, contract_address);
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20230908080559'),
@@ -61,4 +62,6 @@ INSERT INTO "schema_migrations" (version) VALUES
   ('20231010033257'),
   ('20240129082929'),
   ('20240307023236'),
-  ('20240313031016');
+  ('20240313031016'),
+  ('20240424023509'),
+  ('20240424033422');

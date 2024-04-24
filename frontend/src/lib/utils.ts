@@ -45,3 +45,7 @@ export function showTime(unixTimestamp: number) {
       return `${days} day${days !== 1 ? 's' : ''} ago`;
   }
 }
+
+export interface RemoteRequestTime {
+  [key: string]: number;
+}
