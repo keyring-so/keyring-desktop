@@ -90,7 +90,8 @@ function Wallet() {
   const [showTokenConfigDialog, setShowTokenConfigDialog] = useState(false);
   const [contractAddress, setContractAddress] = useState("");
   const [priceId, setPriceId] = useState("");
-  const [lastPriceRequestTime, setLastPriceRequestTime] = useState<RemoteRequestTime>({});
+  const [lastPriceRequestTime, setLastPriceRequestTime] =
+    useState<RemoteRequestTime>({});
 
   const ledger = useAtomValue(ledgerAtom);
   const account = useAtomValue(accountAtom);
@@ -121,11 +122,12 @@ function Wallet() {
             });
           }
 
-          const fetchPrice = (Date.now() - (lastPriceRequestTime[ledger] || 0)) > MIN_INTERVAL;
+          const fetchPrice =
+            Date.now() - (lastPriceRequestTime[ledger] || 0) > MIN_INTERVAL;
           if (fetchPrice) {
-            setLastPriceRequestTime(prevState => ({
+            setLastPriceRequestTime((prevState) => ({
               ...prevState,
-              [ledger]: Date.now()
+              [ledger]: Date.now(),
             }));
             let prices = await GetAssetPrices(account.id, ledger);
             if (responseSubscribed) {
@@ -157,7 +159,7 @@ function Wallet() {
     const down = (e: KeyboardEvent) => {
       if (e.key === "r" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        window.location.reload();
+        checkAndRefresh();
       }
     };
 
@@ -170,6 +172,17 @@ function Wallet() {
       window.location.reload();
     }
   }, [refresh]);
+
+  const checkAndRefresh = () => {
+    if (Date.now() - (lastPriceRequestTime[ledger] || 0) > MIN_INTERVAL) {
+      window.location.reload();
+    } else {
+      toast({
+        title: "Please wait a moment",
+        description: `You can refresh again in ${MIN_INTERVAL / 1000} seconds`,
+      });
+    }
+  };
 
   const addAsset = async () => {
     try {
@@ -287,7 +300,7 @@ function Wallet() {
                     <TooltipTrigger>
                       <RotateCw
                         className="h-5"
-                        onClick={() => window.location.reload()}
+                        onClick={() => checkAndRefresh()}
                       />
                     </TooltipTrigger>
                     <TooltipContent>
