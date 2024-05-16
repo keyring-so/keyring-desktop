@@ -21,9 +21,10 @@ const PackageWin = "keyring-wallet-windows.exe"
 const PackageLinux = "keyring-wallet-linux"
 
 const Suffix = "Keyring Wallet.app/Contents/MacOS/Keyring Wallet"
+const GithubReleaseURL = "https://github.com/keyring-so/keyring-desktop/releases/latest/download"
 
 func genVersionFile() string {
-	url := fmt.Sprintf("https://github.com/keyring-so/keyring-desktop/releases/download/v%s/version", Version)
+	url := fmt.Sprintf("%s/version", GithubReleaseURL)
 	return url
 }
 
@@ -37,8 +38,7 @@ func genFileURL() string {
 		packageName = PackageLinux
 	}
 
-	url := fmt.Sprintf("https://github.com/keyring-so/keyring-desktop/releases/download/v%s/%s", Version, packageName)
-
+	url := fmt.Sprintf("%s/%s", GithubReleaseURL, packageName)
 	return url
 }
 
@@ -88,7 +88,7 @@ func CurrentVersion() string {
 }
 
 func CheckForUpdate() (bool, string, error) {
-	resp, err := http.Get(VersionURL)
+	resp, err := http.Get(genVersionFile())
 	if err != nil {
 		return false, "", err
 	}
