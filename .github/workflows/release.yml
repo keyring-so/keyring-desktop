@@ -61,6 +61,7 @@ jobs:
           build-name: ${{ matrix.output }}
           build-platform: ${{ matrix.platform }}
           go-version: 1.20.x
+          wails-version: v2.8.1
           package: false
       - name: MacOS download gon for code signing and app notarization
         if: runner.os == 'macOS'
