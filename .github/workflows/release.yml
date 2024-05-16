@@ -17,7 +17,7 @@ jobs:
           - os: windows-latest
             platform: windows/amd64
             output: keyring-wallet-windows.exe
-          - os: macos-latest
+          - os: macos-13
             platform: darwin/universal
             # wails bug, mac outputfile name not work
             output: Keyring\ Wallet
