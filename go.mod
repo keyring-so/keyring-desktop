@@ -118,7 +118,7 @@ require (
 replace (
 	filippo.io/edwards25519 => filippo.io/edwards25519 v1.0.0-beta.3
 	github.com/CosmWasm/wasmd => github.com/terra-money/wasmd v0.27.0-terra.1
-	github.com/fynelabs/selfupdate => /Users/kaichaosun/github/keyring-so/selfupdate
+	github.com/fynelabs/selfupdate => github.com/kaichaosun/selfupdate v0.1.0
 
 	github.com/gagliardetto/solana-go => github.com/conorpp/solana-go v1.0.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
