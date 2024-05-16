@@ -26,6 +26,10 @@ export function CheckCardInitialized() {
   return window['go']['main']['App']['CheckCardInitialized']();
 }
 
+export function CheckUpdates() {
+  return window['go']['main']['App']['CheckUpdates']();
+}
+
 export function ClearData(arg1, arg2) {
   return window['go']['main']['App']['ClearData'](arg1, arg2);
 }
@@ -36,6 +40,10 @@ export function CurrentAccount() {
 
 export function DataMigrate() {
   return window['go']['main']['App']['DataMigrate']();
+}
+
+export function DoUpdate() {
+  return window['go']['main']['App']['DoUpdate']();
 }
 
 export function EnableTestnet(arg1) {
@@ -68,6 +76,10 @@ export function GetChains(arg1) {
 
 export function GetCredentials(arg1) {
   return window['go']['main']['App']['GetCredentials'](arg1);
+}
+
+export function GetCurrentVersion() {
+  return window['go']['main']['App']['GetCurrentVersion']();
 }
 
 export function GetTransactionHistory(arg1, arg2, arg3, arg4, arg5) {

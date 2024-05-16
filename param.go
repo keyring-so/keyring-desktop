@@ -57,3 +57,9 @@ type GetTransactionHistoryResponse struct {
 	Transactions   []database.DatabaseTransactionInfo   `json:"transactions"`
 	TokenTransfers []database.DatabaseTokenTransferInfo `json:"tokenTransfers"`
 }
+
+type SelfUpdateResponse struct {
+	ShouldUpdate   bool   `json:"shouldUpdate"`
+	CurrentVersion string `json:"currentVersion"`
+	LatestVersion  string `json:"latestVersion"`
+}

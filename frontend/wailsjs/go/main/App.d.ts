@@ -16,11 +16,15 @@ export function CheckCardConnection():Promise<boolean>;
 
 export function CheckCardInitialized():Promise<boolean>;
 
+export function CheckUpdates():Promise<main.SelfUpdateResponse>;
+
 export function ClearData(arg1:number,arg2:string):Promise<void>;
 
 export function CurrentAccount():Promise<main.CardInfo>;
 
 export function DataMigrate():Promise<void>;
+
+export function DoUpdate():Promise<void>;
 
 export function EnableTestnet(arg1:boolean):Promise<void>;
 
@@ -37,6 +41,8 @@ export function GetChainConfigs():Promise<Array<utils.ChainConfig>>;
 export function GetChains(arg1:number):Promise<main.CardChainInfo>;
 
 export function GetCredentials(arg1:number):Promise<main.CardCredential>;
+
+export function GetCurrentVersion():Promise<string>;
 
 export function GetTransactionHistory(arg1:string,arg2:string,arg3:number,arg4:number,arg5:boolean):Promise<main.GetTransactionHistoryResponse>;
 

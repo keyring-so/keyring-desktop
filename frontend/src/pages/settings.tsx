@@ -1,6 +1,8 @@
 import packageJson from "@/../package.json";
 import {
+  CheckUpdates,
   ClearData,
+  DoUpdate,
   EnableTestnet,
   GetCredentials,
   Install,
@@ -119,6 +121,39 @@ const Settings = () => {
     }
   };
 
+  const checkUpdates = async () => {
+    try {
+      const res = await CheckUpdates();
+      if (res.shouldUpdate) {
+        toast({
+          title: "Update available!",
+          description: `Latest version: ${res.latestVersion}`,
+        });
+      } else {
+        toast({
+          title: "No updates available.",
+          description: `Current version: ${res.currentVersion}`,
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
+  const doUpdate = async () => {
+    try {
+      await DoUpdate();
+    } catch (err) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: `Error happens: ${err}`,
+      });
+    }
+  };
+
   const getCredentials = async () => {
     try {
       const res = await GetCredentials(account.id);
@@ -188,6 +223,12 @@ const Settings = () => {
               {packageJson.version}
             </span>
           </Label>
+          <Button className="w-[150px]" onClick={checkUpdates}>
+            Check Updates
+          </Button>
+          <Button className="w-[150px]" onClick={doUpdate}>
+            Start Update
+          </Button>
           <div className="flex items-center space-x-2">
             <Label className="font-semibold mr-2" htmlFor="testnet-mode">
               Enable test networks

@@ -11,6 +11,7 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1
 	github.com/ebfe/scard v0.0.0-20230420082256-7db3f9b7c8a7
 	github.com/ethereum/go-ethereum v1.11.5
+	github.com/fynelabs/selfupdate v0.2.0
 	github.com/hashicorp/vault/api v1.9.2
 	github.com/jinzhu/copier v0.3.5
 	github.com/jmoiron/sqlx v1.3.5
@@ -117,8 +118,8 @@ require (
 replace (
 	filippo.io/edwards25519 => filippo.io/edwards25519 v1.0.0-beta.3
 	github.com/CosmWasm/wasmd => github.com/terra-money/wasmd v0.27.0-terra.1
+	github.com/fynelabs/selfupdate => github.com/kaichaosun/selfupdate v0.1.0
 
 	github.com/gagliardetto/solana-go => github.com/conorpp/solana-go v1.0.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )

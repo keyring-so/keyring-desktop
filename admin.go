@@ -123,3 +123,33 @@ func (a *App) ResetWallet() error {
 
 	return nil
 }
+
+func (a *App) GetCurrentVersion() string {
+	return utils.CurrentVersion()
+}
+
+func (a *App) CheckUpdates() (SelfUpdateResponse, error) {
+	shouldUpdate, latest, err := utils.CheckForUpdate()
+	if err != nil {
+		utils.Sugar.Error(err)
+
+		return SelfUpdateResponse{}, errors.New("check updates failed")
+	}
+
+	res := SelfUpdateResponse{
+		ShouldUpdate:   shouldUpdate,
+		CurrentVersion: utils.CurrentVersion(),
+		LatestVersion:  latest,
+	}
+	return res, nil
+}
+
+func (a *App) DoUpdate() error {
+	err := utils.DoSelfUpdate()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("update failed")
+	}
+
+	return nil
+}
