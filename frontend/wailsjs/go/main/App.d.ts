@@ -16,11 +16,15 @@ export function CheckCardConnection():Promise<boolean>;
 
 export function CheckCardInitialized():Promise<boolean>;
 
+export function CheckUpdates():Promise<boolean>;
+
 export function ClearData(arg1:number,arg2:string):Promise<void>;
 
 export function CurrentAccount():Promise<main.CardInfo>;
 
 export function DataMigrate():Promise<void>;
+
+export function DoUpdate():Promise<void>;
 
 export function EnableTestnet(arg1:boolean):Promise<void>;
 

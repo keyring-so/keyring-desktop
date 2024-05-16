@@ -123,3 +123,32 @@ func (a *App) ResetWallet() error {
 
 	return nil
 }
+
+func (a *App) CheckUpdates() (bool, error) {
+	shouldUpdate, err := utils.CheckForUpdate()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return false, errors.New("check updates failed")
+	}
+	return shouldUpdate, nil
+}
+
+func (a *App) DoUpdate() error {
+	shouldUpdate, err := utils.CheckForUpdate()
+	if err != nil {
+		utils.Sugar.Error(err)
+		return errors.New("check updates failed")
+	}
+
+	if shouldUpdate {
+		err = utils.DoSelfUpdate()
+		if err != nil {
+			utils.Sugar.Error(err)
+			return errors.New("update failed")
+		}
+
+		return nil
+	}
+
+	return nil
+}
