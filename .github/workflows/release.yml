@@ -136,10 +136,11 @@ jobs:
           path: target
       - run: ls -al target && ls -R target/ && file target/
       # release assets
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: target/*
+          prerelease: true
   storj-release:
     name: Release to storj
     needs: [ github-release ]
