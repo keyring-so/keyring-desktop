@@ -14,18 +14,18 @@ import (
 	"github.com/fynelabs/selfupdate"
 )
 
-// https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.6/keyring-wallet-windows.exe
-// https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.6/keyring-wallet-linux
-
 const Version = "0.1.6"
 
-const PackageMac = "keyring-wallet-darwin.app.zip"
+const PackageMac = "keyring-wallet-darwin.zip"
 const PackageWin = "keyring-wallet-windows.exe"
 const PackageLinux = "keyring-wallet-linux"
 
-const VersionURL = "https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.1/version"
-
 const Suffix = "Keyring Wallet.app/Contents/MacOS/Keyring Wallet"
+
+func genVersionFile() string {
+	url := fmt.Sprintf("https://github.com/keyring-so/keyring-desktop/releases/download/v%s/version", Version)
+	return url
+}
 
 func genFileURL() string {
 	packageName := ""
@@ -57,7 +57,7 @@ func DoSelfUpdate() error {
 		trimContent = Suffix
 	}
 
-	httpSource := selfupdate.NewFileSource(nil, genFileURL(), VersionURL)
+	httpSource := selfupdate.NewFileSource(nil, genFileURL(), genVersionFile())
 	version := selfupdate.Version{Number: Version}
 
 	config := &selfupdate.Config{
