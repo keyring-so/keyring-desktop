@@ -14,11 +14,33 @@ import (
 	"github.com/fynelabs/selfupdate"
 )
 
-const Version = "0.1.5"
+// https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.6/keyring-wallet-windows.exe
+// https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.6/keyring-wallet-linux
+
+const Version = "0.1.6"
+
 const PackageMac = "keyring-wallet-darwin.app.zip"
-const FileURL = "https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.1/keyring-wallet-darwin.app.zip"
+const PackageWin = "keyring-wallet-windows.exe"
+const PackageLinux = "keyring-wallet-linux"
+
 const VersionURL = "https://github.com/keyring-so/keyring-desktop/releases/download/v0.1.1/version"
+
 const Suffix = "Keyring Wallet.app/Contents/MacOS/Keyring Wallet"
+
+func genFileURL() string {
+	packageName := ""
+	if runtime.GOOS == "darwin" {
+		packageName = PackageMac
+	} else if runtime.GOOS == "windows" {
+		packageName = PackageWin
+	} else {
+		packageName = PackageLinux
+	}
+
+	url := fmt.Sprintf("https://github.com/keyring-so/keyring-desktop/releases/download/v%s/%s", Version, packageName)
+
+	return url
+}
 
 func DoSelfUpdate() error {
 	selfupdate.LogError = log.Printf
@@ -27,16 +49,17 @@ func DoSelfUpdate() error {
 
 	fmt.Println("start")
 
-	httpSource := selfupdate.NewFileSource(nil, FileURL, VersionURL)
-	homeDir, _ := os.UserHomeDir()
 	downloadPath := ""
 	trimContent := ""
 	if runtime.GOOS == "darwin" {
+		homeDir, _ := os.UserHomeDir()
 		downloadPath = filepath.Join(homeDir, "Downloads", PackageMac)
 		trimContent = Suffix
 	}
 
+	httpSource := selfupdate.NewFileSource(nil, genFileURL(), VersionURL)
 	version := selfupdate.Version{Number: Version}
+
 	config := &selfupdate.Config{
 		Current:      &version,
 		Source:       httpSource,
@@ -60,20 +83,24 @@ func DoSelfUpdate() error {
 	return nil
 }
 
-func CheckForUpdate() (bool, error) {
+func CurrentVersion() string {
+	return Version
+}
+
+func CheckForUpdate() (bool, string, error) {
 	resp, err := http.Get(VersionURL)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return false, err
+		return false, "", err
 	}
 
 	latest := strings.TrimSpace(string(body))
 	shouldUpdate := latest > Version
 
-	return shouldUpdate, nil
+	return shouldUpdate, latest, nil
 }

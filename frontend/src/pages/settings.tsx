@@ -123,8 +123,18 @@ const Settings = () => {
 
   const checkUpdates = async () => {
     try {
-      const shouldUpdate = await CheckUpdates();
-      console.log("should update: ", shouldUpdate);
+      const res = await CheckUpdates();
+      if (res.shouldUpdate) {
+        toast({
+          title: "Update available!",
+          description: `Latest version: ${res.latestVersion}`,
+        });
+      } else {
+        toast({
+          title: "No updates available.",
+          description: `Current version: ${res.currentVersion}`,
+        });
+      }
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",

@@ -15,6 +15,6 @@
     "app_drop_link": ["400", "200"]
   },
   "zip": {
-    "output_path": "./build/bin/keyring-wallet-darwin.zip"
+    "output_path": "./build/bin/keyring-wallet-darwin.app.zip"
   }
 }

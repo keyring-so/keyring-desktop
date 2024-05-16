@@ -284,6 +284,22 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class SelfUpdateResponse {
+	    shouldUpdate: boolean;
+	    currentVersion: string;
+	    latestVersion: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SelfUpdateResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.shouldUpdate = source["shouldUpdate"];
+	        this.currentVersion = source["currentVersion"];
+	        this.latestVersion = source["latestVersion"];
+	    }
+	}
 
 }
 
