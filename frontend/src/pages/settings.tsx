@@ -5,6 +5,7 @@ import {
   DoUpdate,
   EnableTestnet,
   GetCredentials,
+  GetCurrentVersion,
   Install,
   IsTestnetEnabled,
   ResetCard,
@@ -24,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
 import { errToast } from "@/lib/utils";
@@ -38,6 +40,7 @@ const Settings = () => {
     main.CardCredential | undefined
   >(undefined);
   const [pin, setPin] = useState("");
+  const [currentVersion, setCurrentVersion] = useState("");
 
   const setShowSidebarItem = useSetAtom(showSidebarItem);
   const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
@@ -48,10 +51,13 @@ const Settings = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    (async () => {
+    const fn = async () => {
       const res = await IsTestnetEnabled();
       setIsTestnet(res);
-    })();
+      const version = await GetCurrentVersion();
+      setCurrentVersion(version);
+    };
+    fn();
   }, []);
 
   const installApplets = async () => {
@@ -128,6 +134,15 @@ const Settings = () => {
         toast({
           title: "Update available!",
           description: `Latest version: ${res.latestVersion}`,
+          action: (
+            <ToastAction
+              className="bg-green-100 hover:bg-green-300"
+              altText="Install"
+              onClick={doUpdate}
+            >
+              Install
+            </ToastAction>
+          ),
         });
       } else {
         toast({
@@ -208,28 +223,24 @@ const Settings = () => {
   );
 
   return (
-    <div className="flex flex-col mt-6 ml-20 mr-20 gap-8 items-start flex-grow">
+    <div className="flex flex-col mt-6 ml-20 mr-20 gap-8 flex-grow items-center">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold">Settings</h1>
-        <p className="text-lg">Please only change the settings when needed.</p>
       </div>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-2 w-2/3">
         <h2 className="text-xl font-semibold">App Info</h2>
-        <div className="flex flex-col gap-3 border-solid border-2 p-4 rounded-xl">
-          <Label className="font-semibold">
-            Version:{" "}
-            <span className="font-bold text-primary">
-              {packageJson.version}
-            </span>
-          </Label>
-          <Button className="w-[150px]" onClick={checkUpdates}>
-            Check Updates
-          </Button>
-          <Button className="w-[150px]" onClick={doUpdate}>
-            Start Update
-          </Button>
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col gap-6 border-solid border-2 p-4 rounded-xl">
+          <div className="flex flex-row gap-5 items-center justify-between">
+            <Label className="font-semibold">
+              Your App Version:{" "}
+              <span className="font-bold text-primary">{currentVersion}</span>
+            </Label>
+            <Button className="w-[150px]" onClick={checkUpdates}>
+              Check Updates
+            </Button>
+          </div>
+          <div className="flex items-center space-x-2 justify-between">
             <Label className="font-semibold mr-2" htmlFor="testnet-mode">
               Enable test networks
             </Label>
@@ -242,7 +253,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-2 w-2/3">
         <h2 className="text-xl font-semibold">Wallet Data</h2>
         <div className="flex flex-col gap-3 border-solid border-2 p-4 rounded-xl">
           <div className="flex flex-row gap-4 items-center justify-between">
@@ -260,7 +271,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-2 w-2/3">
         <h2 className="text-xl font-semibold">Manage Card</h2>
         <div className="border-solid border-2 p-4 rounded-xl">
           <div className="flex flex-col gap-2">
