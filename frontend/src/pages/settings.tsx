@@ -1,4 +1,3 @@
-import packageJson from "@/../package.json";
 import {
   CheckUpdates,
   ClearData,
@@ -12,6 +11,7 @@ import {
   ResetWallet,
 } from "@/../wailsjs/go/main/App";
 import { main } from "@/../wailsjs/go/models";
+import { EventsOff, EventsOn } from "@/../wailsjs/runtime/runtime";
 import { LogoImageSrc } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,15 +23,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
 import { errToast } from "@/lib/utils";
 import { accountAtom, isTestnetAtom, showSidebarItem } from "@/store/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Clipboard, ClipboardCheck } from "lucide-react";
+import { Clipboard, ClipboardCheck, Loader2, Rocket } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 
@@ -41,6 +41,9 @@ const Settings = () => {
   >(undefined);
   const [pin, setPin] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
+  const [latestVersion, setLatestVersion] = useState("");
+  const [checkVersionLoading, setCheckVersionLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const setShowSidebarItem = useSetAtom(showSidebarItem);
   const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
@@ -58,6 +61,17 @@ const Settings = () => {
       setCurrentVersion(version);
     };
     fn();
+
+    EventsOn("update-progress", (p) => {
+      const percentage = Math.floor(p * 100);
+      if (percentage > progress) {
+        setProgress(percentage)
+      }
+    });
+
+    return () => {
+      EventsOff("update-progress");
+    };
   }, []);
 
   const installApplets = async () => {
@@ -128,22 +142,11 @@ const Settings = () => {
   };
 
   const checkUpdates = async () => {
+    setCheckVersionLoading(true);
     try {
       const res = await CheckUpdates();
       if (res.shouldUpdate) {
-        toast({
-          title: "Update available!",
-          description: `Latest version: ${res.latestVersion}`,
-          action: (
-            <ToastAction
-              className="bg-green-100 hover:bg-green-300"
-              altText="Install"
-              onClick={doUpdate}
-            >
-              Install
-            </ToastAction>
-          ),
-        });
+        setLatestVersion(res.latestVersion);
       } else {
         toast({
           title: "No updates available.",
@@ -156,6 +159,7 @@ const Settings = () => {
         description: `Error happens: ${err}`,
       });
     }
+    setCheckVersionLoading(false);
   };
 
   const doUpdate = async () => {
@@ -222,6 +226,28 @@ const Settings = () => {
     </Dialog>
   );
 
+  const updateAlert = () => {
+    return (
+      <div className="flex flex-row items-center gap-3 justify-between relative w-full rounded-lg border p-4 bg-green-300">
+        <div className="flex flex-row gap-3">
+          <Rocket className="h-4 w-4" />
+          <div className="flex flex-col">
+            <h5 className="mb-1 font-medium leading-none tracking-tight">
+              Update available!
+            </h5>
+            <Label className="text-sm [&_p]:leading-relaxed">
+              Latest version: {latestVersion}
+            </Label>
+          </div>
+        </div>
+        {progress > 0 && <Progress className="w-1/3" value={progress} />}
+        <Button className="" onClick={doUpdate} disabled={progress > 0}>
+          Install
+        </Button>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col mt-6 ml-20 mr-20 gap-8 flex-grow items-center">
       <div className="flex flex-col gap-4">
@@ -231,13 +257,23 @@ const Settings = () => {
       <div className="flex flex-col gap-2 w-2/3">
         <h2 className="text-xl font-semibold">App Info</h2>
         <div className="flex flex-col gap-6 border-solid border-2 p-4 rounded-xl">
+          {latestVersion && updateAlert()}
           <div className="flex flex-row gap-5 items-center justify-between">
             <Label className="font-semibold">
               Your App Version:{" "}
               <span className="font-bold text-primary">{currentVersion}</span>
             </Label>
-            <Button className="w-[150px]" onClick={checkUpdates}>
-              Check Updates
+
+            <Button
+              className="w-[150px]"
+              onClick={checkUpdates}
+              disabled={checkVersionLoading}
+            >
+              {checkVersionLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                "Check Updates"
+              )}
             </Button>
           </div>
           <div className="flex items-center space-x-2 justify-between">
