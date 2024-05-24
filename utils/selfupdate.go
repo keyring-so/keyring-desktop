@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,12 +10,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/fynelabs/selfupdate"
+	appruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-const Version = "0.1.6"
+const Version = "0.1.7"
 
 const PackageMac = "keyring-wallet-darwin.zip"
 const PackageWin = "keyring-wallet-windows.exe"
@@ -42,7 +43,7 @@ func genFileURL() string {
 	return url
 }
 
-func DoSelfUpdate() error {
+func DoSelfUpdate(ctx context.Context) error {
 	selfupdate.LogError = log.Printf
 	selfupdate.LogInfo = log.Printf
 	selfupdate.LogDebug = log.Printf
@@ -63,12 +64,15 @@ func DoSelfUpdate() error {
 	config := &selfupdate.Config{
 		Current:      &version,
 		Source:       httpSource,
-		Schedule:     selfupdate.Schedule{FetchOnStart: true, Interval: time.Minute * time.Duration(60)},
+		Schedule:     selfupdate.Schedule{FetchOnStart: true},
 		PublicKey:    nil,
 		DownloadPath: downloadPath,
 		TrimContent:  trimContent,
 
-		ProgressCallback:       func(f float64, err error) { fmt.Println("Download", f) },
+		ProgressCallback: func(f float64, err error) {
+			fmt.Println("Download", f)
+			appruntime.EventsEmit(ctx, "update-progress", f)
+		},
 		RestartConfirmCallback: func() bool { return true },
 		UpgradeConfirmCallback: func(_ string) bool { return true },
 		ExitCallback:           func(_ error) { os.Exit(1) },

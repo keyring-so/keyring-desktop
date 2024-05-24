@@ -145,7 +145,7 @@ func (a *App) CheckUpdates() (SelfUpdateResponse, error) {
 }
 
 func (a *App) DoUpdate() error {
-	err := utils.DoSelfUpdate()
+	err := utils.DoSelfUpdate(a.ctx)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return errors.New("update failed")

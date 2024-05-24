@@ -114,7 +114,7 @@ jobs:
           rm -rf Keyring\ Wallet-amd64-installer.exe
           rm -rf Keyring\ Wallet.pkg
           rm -rf Keyring\ Wallet.app.zip
-          touch version && echo "0.1.6" >> version
+          touch version && echo "0.1.7" >> version
       - run: ls -al target && ls -R target/ && file target/
       - uses: actions/upload-artifact@v3
         with:
