@@ -6,6 +6,7 @@ import {
 import { accountAtom } from "@/store/state";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSetAtom } from "jotai";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -37,7 +38,6 @@ import {
 import { Input } from "./ui/input";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
 
 const InitCardSchema = z.object({
@@ -71,19 +71,9 @@ const LoadSecretWordsSchema = z.object({
     }
     return val;
   }),
-  words: z.string().transform((val, ctx) => {
-    const formatted = val.trim().replace(/\s+/g, " ");
-    const length = formatted.split(" ").length;
-    if (length < 12 || length > 24) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "The secret phrase should consist of 12 to 24 words.",
-      });
-
-      return z.NEVER;
-    }
-    return formatted;
-  }),
+  mnemonics: z.array(
+    z.object({ word: z.string() })
+  ),
 });
 
 type Props = {
@@ -92,6 +82,7 @@ type Props = {
 
 const InitializeDialog = ({ handleClose }: Props) => {
   const [mnemonic, setMnemonic] = useState("");
+  const [moreWords, setMoreWords] = useState(false);
 
   const setAccount = useSetAtom(accountAtom);
 
@@ -141,8 +132,21 @@ const InitializeDialog = ({ handleClose }: Props) => {
   };
 
   const loadWords = async (data: z.infer<typeof LoadSecretWordsSchema>) => {
+    console.log(data);
+    const mnemonicLength = data.mnemonics.length;
+    if (mnemonicLength < 12 || mnemonicLength > 24) {
+      toast({
+        title: "Invalid data.",
+        description: "Secret phrase must have 12, 15, 18, 21 or 24 words.",
+      });
+    }
     try {
-      const res = await LoadSecrePhrase(data.pin, data.name, data.words);
+      const words = data.mnemonics
+        .map((item) => item.word.trim())
+        .join(" ")
+        .trim();
+        console.log(words);
+      const res = await LoadSecrePhrase(data.pin, data.name, words);
       setAccount(res.cardInfo);
       toast({
         title: "Success!",
@@ -154,6 +158,28 @@ const InitializeDialog = ({ handleClose }: Props) => {
         description: `Error happens: ${err}`,
       });
     }
+  };
+
+  const word = (index: number) => {
+    if (index > 11 && !moreWords) return;
+    return (
+      <div className="flex flex-row items-center gap-1 justify-end" key={index}>
+        <span>{index + 1}.</span>
+        <Input
+          className="bg-secondary w-[90px]"
+          autoCorrect="off"
+          {...loadForm.register(`mnemonics.${index}.word`)}
+        />
+      </div>
+    );
+  };
+
+  const mnemonicFields = () => {
+    return (
+      <div className="grid grid-cols-4 items-center gap-2">
+        {Array.from({ length: 24 }).map((_, i) => word(i))}
+      </div>
+    );
   };
 
   const mnemonicDialog = () => {
@@ -195,7 +221,7 @@ const InitializeDialog = ({ handleClose }: Props) => {
   return (
     <div>
       <Dialog open={true} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[525px]">
           <DialogHeader>
             <DialogTitle>
               The card is empty, do you want to initalize it?
@@ -211,45 +237,52 @@ const InitializeDialog = ({ handleClose }: Props) => {
           <Tabs defaultValue="no-mnemonic" className="">
             <TabsList className="grid h-auto p-1 grid-cols-2 bg-gray-200 rounded-lg">
               <TabsTrigger className="text-md rounded-lg" value="no-mnemonic">
-                Generate
+                Create
               </TabsTrigger>
               <TabsTrigger className="text-md rounded-lg" value="has-mnemonic">
-                Load
+                Import
               </TabsTrigger>
             </TabsList>
             <TabsContent value="has-mnemonic">
               <Form {...loadForm}>
                 <form
                   onSubmit={loadForm.handleSubmit(loadWords)}
-                  className="space-y-6 mt-4"
+                  className="space-y-2 mt-4"
                 >
                   <FormField
                     control={loadForm.control}
-                    name="words"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
+                    name="mnemonics"
+                    render={() => (
+                      <FormItem className="space-y-3 flex flex-col">
                         <FormLabel>Input your secret phrase</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="col-span-3 w-2/3"
-                            onChange={field.onChange}
-                            autoCorrect="off"
-                          />
-                        </FormControl>
+                        <FormControl>{mnemonicFields()}</FormControl>
+                        <div className="self-center">
+                          {!moreWords ? (
+                            <ChevronDown
+                              className="bg-primary text-primary-foreground rounded-full"
+                              onClick={() => setMoreWords(true)}
+                            />
+                          ) : (
+                            <ChevronUp
+                              className="bg-primary text-primary-foreground rounded-full"
+                              onClick={() => setMoreWords(false)}
+                            />
+                          )}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  ></FormField>
                   <FormField
                     control={loadForm.control}
                     name="pin"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Input your PIN</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between">
+                        <FormLabel>Input your PIN:</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            className="col-span-3 w-2/3"
+                            className="w-2/3"
                             onChange={field.onChange}
                           />
                         </FormControl>
@@ -261,11 +294,11 @@ const InitializeDialog = ({ handleClose }: Props) => {
                     control={loadForm.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Name the card</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between">
+                        <FormLabel>Name the card:</FormLabel>
                         <FormControl>
                           <Input
-                            className="col-span-3 w-2/3"
+                            className="w-2/3"
                             onChange={field.onChange}
                             autoCorrect="off"
                           />
@@ -282,7 +315,7 @@ const InitializeDialog = ({ handleClose }: Props) => {
               <Form {...initForm}>
                 <form
                   onSubmit={initForm.handleSubmit(initCard)}
-                  className="space-y-6 mt-4"
+                  className="space-y-5 mt-4"
                 >
                   <FormField
                     control={initForm.control}
