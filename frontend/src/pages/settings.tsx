@@ -16,10 +16,13 @@ import { LogoImageSrc } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,7 +68,7 @@ const Settings = () => {
     EventsOn("update-progress", (p) => {
       const percentage = Math.floor(p * 100);
       if (percentage > progress) {
-        setProgress(percentage)
+        setProgress(percentage);
       }
     });
 
@@ -325,21 +328,55 @@ const Settings = () => {
               </TabsList>
               <TabsContent value="unpair">
                 <div className="flex flex-col gap-4">
-                  <Label className="mt-2">Unpair card and clear app data</Label>
-                  <div className="flex flex-row gap-2 items-center justify-start">
-                    <Label htmlFor="pin" className="text-right">
-                      PIN
-                    </Label>
-                    <Input
-                      id="pin"
-                      type="password"
-                      className="w-fit"
-                      onChange={(e) => setPin(e.target.value)}
-                    />
-                  </div>
-                  <Button className="w-fit" onClick={unpairAndClearData}>
-                    Unpair
-                  </Button>
+                  <Label className="mt-2 text-sm">
+                    Unpair will remove the pairing information on this device.
+                    Only unpair if you have other paired devices.
+                  </Label>
+                  <Dialog>
+                    <DialogTrigger className="self-start">
+                      <Button>Unpair</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. This will permanently
+                          remove the pairing information on this device. Make
+                          sure you have other paired devices, otherwise you will
+                          lose access to your card.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="flex flex-row gap-2 items-center justify-start">
+                        <Label htmlFor="pin" className="text-right">
+                          PIN
+                        </Label>
+                        <Input
+                          id="pin"
+                          type="password"
+                          className="w-fit"
+                          onChange={(e) => setPin(e.target.value)}
+                        />
+                      </div>
+
+                      <DialogFooter className="">
+                        <DialogClose asChild>
+                          <Button
+                            type="button"
+                            className="bg-gray-200 text-primary hover:bg-gray-300"
+                          >
+                            Close
+                          </Button>
+                        </DialogClose>
+                        <Button
+                          className="bg-red-500 hover:bg-red-600 text-secondary"
+                          onClick={unpairAndClearData}
+                        >
+                          Unpair
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </TabsContent>
               <TabsContent value="reset">
