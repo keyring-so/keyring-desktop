@@ -132,7 +132,6 @@ const InitializeDialog = ({ handleClose }: Props) => {
   };
 
   const loadWords = async (data: z.infer<typeof LoadSecretWordsSchema>) => {
-    console.log(data);
     const mnemonicLength = data.mnemonics.length;
     if (mnemonicLength < 12 || mnemonicLength > 24) {
       toast({
@@ -145,7 +144,6 @@ const InitializeDialog = ({ handleClose }: Props) => {
         .map((item) => item.word.trim())
         .join(" ")
         .trim();
-        console.log(words);
       const res = await LoadSecrePhrase(data.pin, data.name, words);
       setAccount(res.cardInfo);
       toast({
