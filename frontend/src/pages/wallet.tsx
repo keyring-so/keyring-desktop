@@ -125,12 +125,12 @@ function Wallet() {
           const fetchPrice =
             Date.now() - (lastPriceRequestTime[ledger] || 0) > MIN_INTERVAL;
           if (fetchPrice) {
-            setLastPriceRequestTime((prevState) => ({
-              ...prevState,
-              [ledger]: Date.now(),
-            }));
-            let prices = await GetAssetPrices(account.id, ledger);
             if (responseSubscribed) {
+              setLastPriceRequestTime((prevState) => ({
+                ...prevState,
+                [ledger]: Date.now(),
+              }));
+              let prices = await GetAssetPrices(account.id, ledger);
               setChainAssets(prices);
             }
           }
