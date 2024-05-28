@@ -71,9 +71,7 @@ const LoadSecretWordsSchema = z.object({
     }
     return val;
   }),
-  mnemonics: z.array(
-    z.object({ word: z.string() })
-  ),
+  mnemonics: z.array(z.object({ word: z.string() })),
 });
 
 type Props = {
@@ -313,7 +311,7 @@ const InitializeDialog = ({ handleClose }: Props) => {
               <Form {...initForm}>
                 <form
                   onSubmit={initForm.handleSubmit(initCard)}
-                  className="space-y-5 mt-4"
+                  className="space-y-3 mt-4"
                 >
                   <FormField
                     control={initForm.control}
@@ -355,12 +353,12 @@ const InitializeDialog = ({ handleClose }: Props) => {
                     control={initForm.control}
                     name="pin"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Input your PIN</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between">
+                        <FormLabel>Input your PIN:</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            className="col-span-3 w-2/3"
+                            className="w-2/3"
                             onChange={field.onChange}
                           />
                         </FormControl>
@@ -372,11 +370,11 @@ const InitializeDialog = ({ handleClose }: Props) => {
                     control={initForm.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Name the card</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between">
+                        <FormLabel>Name the card:</FormLabel>
                         <FormControl>
                           <Input
-                            className="col-span-3 w-2/3"
+                            className="w-2/3"
                             onChange={field.onChange}
                             autoCorrect="off"
                           />
