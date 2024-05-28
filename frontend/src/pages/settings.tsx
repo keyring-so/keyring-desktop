@@ -16,10 +16,13 @@ import { LogoImageSrc } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,7 +68,7 @@ const Settings = () => {
     EventsOn("update-progress", (p) => {
       const percentage = Math.floor(p * 100);
       if (percentage > progress) {
-        setProgress(percentage)
+        setProgress(percentage);
       }
     });
 
@@ -248,6 +251,62 @@ const Settings = () => {
     );
   };
 
+  const SettingTab = (
+    desc: string,
+    btnDesc: string,
+    confirmDesc: string,
+    confirmHandle: () => void,
+    requirePin: boolean = true
+  ) => {
+    return (
+      <div className="flex flex-col gap-4">
+        <Label className="mt-2 text-sm">{desc}</Label>
+        <Dialog>
+          <DialogTrigger className="self-start">
+            <Button>{btnDesc}</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure?</DialogTitle>
+              <DialogDescription>{confirmDesc}</DialogDescription>
+            </DialogHeader>
+
+            {requirePin && (
+              <div className="flex flex-row gap-2 items-center justify-start">
+                <Label htmlFor="pin" className="text-right">
+                  PIN
+                </Label>
+                <Input
+                  id="pin"
+                  type="password"
+                  className="w-fit"
+                  onChange={(e) => setPin(e.target.value)}
+                />
+              </div>
+            )}
+
+            <DialogFooter className="">
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  className="bg-gray-200 text-primary hover:bg-gray-300"
+                >
+                  Close
+                </Button>
+              </DialogClose>
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-secondary"
+                onClick={confirmHandle}
+              >
+                {btnDesc}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col mt-6 ml-20 mr-20 gap-8 flex-grow items-center">
       <div className="flex flex-col gap-4">
@@ -324,50 +383,40 @@ const Settings = () => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="unpair">
-                <div className="flex flex-col gap-4">
-                  <Label className="mt-2">Unpair card and clear app data</Label>
-                  <div className="flex flex-row gap-2 items-center justify-start">
-                    <Label htmlFor="pin" className="text-right">
-                      PIN
-                    </Label>
-                    <Input
-                      id="pin"
-                      type="password"
-                      className="w-fit"
-                      onChange={(e) => setPin(e.target.value)}
-                    />
-                  </div>
-                  <Button className="w-fit" onClick={unpairAndClearData}>
-                    Unpair
-                  </Button>
-                </div>
+                {SettingTab(
+                  `Unpair will remove the pairing information on this device.
+                  Only unpair if you have other paired devices.`,
+                  "Unpair",
+                  `This action cannot be undone. This will permanently
+                  remove the pairing information on this device. Make
+                  sure you have other paired devices, otherwise you will
+                  lose access to your card.`,
+                  unpairAndClearData
+                )}
               </TabsContent>
               <TabsContent value="reset">
-                <div className="flex flex-col gap-4">
-                  <Label className="mt-2">Reset card and clear app data</Label>
-                  <div className="flex flex-row gap-2 items-center justify-start">
-                    <Label htmlFor="pin" className="text-right">
-                      PIN
-                    </Label>
-                    <Input
-                      id="pin"
-                      type="password"
-                      className="w-fit"
-                      onChange={(e) => setPin(e.target.value)}
-                    />
-                  </div>
-                  <Button className="w-fit" onClick={resetCardAndWallet}>
-                    Reset
-                  </Button>
-                </div>
+                {SettingTab(
+                  `Reset will delete the private key on the connected card.
+                  Only reset the card if you have the recovery phrase.`,
+                  "Reset",
+                  `This action cannot be undone. This will permanently
+                  remove the private key on the hardware wallet. Make
+                  sure you have the recovery phrase, otherwise you will
+                  lose access to your crypto assets.`,
+                  resetCardAndWallet
+                )}
               </TabsContent>
               <TabsContent value="install">
-                <div className="flex flex-col gap-4">
-                  <Label className="mt-2">Install applets on your card</Label>
-                  <Button className="w-fit" onClick={installApplets}>
-                    Install Applets
-                  </Button>
-                </div>
+                {SettingTab(
+                  `Install applets will delete the private key and existing applets on the connected card.
+                  Only install the new applets if you have the recovery phrase.`,
+                  "Install Applets",
+                  `This action cannot be undone. 
+                  It will clear your existing private key and install new applets on your card. 
+                  Make sure you have the recovery phrase, otherwise you will lose access to your crypto assets.`,
+                  installApplets,
+                  false
+                )}
               </TabsContent>
             </Tabs>
           </div>
