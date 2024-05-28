@@ -201,7 +201,7 @@ const InitializeDialog = ({ handleClose }: Props) => {
           <div className="grid grid-cols-4 items-center gap-4">
             {mnemonic.split(" ").map((word, index) => {
               return (
-                <div>
+                <div key={index}>
                   <span>{index + 1}. </span>
                   <span className="underline font-medium">{word}</span>
                 </div>
