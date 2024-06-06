@@ -17,7 +17,7 @@ func (a *App) ResetCard(cardId int, pin string) error {
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return errors.New("failed to connect to card")
+		return utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -52,7 +52,7 @@ func (a *App) ClearData(cardId int, pin string) error {
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return errors.New("failed to connect to card")
+		return utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 

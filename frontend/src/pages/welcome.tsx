@@ -108,31 +108,41 @@ function WelcomePage() {
               Choose one from the below list.
             </DialogDescription>
           </DialogHeader>
-          <div className="ml-20 flex flex-col gap-2">
-            <Select onValueChange={setLedgerCandidate}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a blockchain" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {chainConfigs.map((chainConfig) => {
-                    return (
-                      !chainConfig.disable &&
-                      (allowTestnet ? true : !chainConfig.testnet) && (
-                        <SelectItem value={chainConfig.name}>
-                          {chainConfig.name}
-                        </SelectItem>
-                      )
-                    );
-                  })}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-row gap-3 items-center justify-between">
+              <Label>Blockchain:</Label>
+              <Select onValueChange={setLedgerCandidate}>
+                <SelectTrigger className="w-2/3">
+                  <SelectValue placeholder="Select a blockchain" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {chainConfigs.map((chainConfig) => {
+                      return (
+                        !chainConfig.disable &&
+                        (allowTestnet ? true : !chainConfig.testnet) && (
+                          <SelectItem value={chainConfig.name}>
+                            <div className="flex flex-row items-center gap-2">
+                              <img
+                                className="w-7 rounded-full"
+                                src={`/tokens/${chainConfig.symbol}_logo.png`}
+                              />
+                              <Label>{chainConfig.name}</Label>
+                            </div>
+                          </SelectItem>
+                        )
+                      );
+                    })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <div>
-              <Label>PIN</Label>
+            <div className="flex flex-row gap-3 items-center justify-between">
+              <Label>PIN:</Label>
               <Input
                 type="password"
+                className="w-2/3"
                 onChange={(event) => setPin(event.target.value)}
               />
             </div>

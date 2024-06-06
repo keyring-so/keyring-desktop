@@ -292,7 +292,7 @@ const WalletConnect = ({
           <DialogHeader>
             <DialogTitle>WalletConnect</DialogTitle>
             <DialogDescription>
-              Copy the connection link from DApp.
+              Copy the connection link from DApp, for example: <span className="underline block mt-2 font-bold text-primary">wc:60d2229a92ad6af...27058d0e5cb78</span>
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-row items-center justify-center gap-4">

@@ -247,6 +247,7 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 		balance, err := utils.GetAssetBalance(ctx, chainConfig, asset.ContractAddress, chainName, selectedAccount.Address)
 		utils.Sugar.Info("balacne: ", balance)
 		if err != nil {
+			utils.Sugar.Error(err)
 			return nil, errors.New("failed to read balance of asset: " + asset.TokenSymbol)
 		}
 
@@ -274,6 +275,7 @@ func (a *App) getChainAssets(cardId int, chainName string) (*ChainAssets, error)
 
 	balance, err := utils.GetAssetBalance(ctx, chainConfig, "", chainName, selectedAccount.Address)
 	if err != nil {
+		utils.Sugar.Error(err)
 		return nil, errors.New("failed to read balance of asset: " + chainConfig.Symbol)
 	}
 

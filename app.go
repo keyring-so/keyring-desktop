@@ -119,7 +119,7 @@ func (a *App) Pair(pin, puk, code, cardName string) (*CardInfo, error) {
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to connect to card")
+		return nil, utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -223,7 +223,7 @@ func (a *App) AddLedger(cardId int, chain string, pin string) (string, error) {
 	address, err := a.getAddrFromCard(cardId, chain, pin)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to get address from card")
+		return "", err
 	}
 
 	// save slected chain and address
@@ -245,7 +245,7 @@ func (a *App) VerifyAddress(cardId int, chain string, pin string) (string, error
 	address, err := a.getAddrFromCard(cardId, chain, pin)
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to get address from card")
+		return "", err
 	}
 
 	return address, nil
@@ -264,7 +264,7 @@ func (a *App) getAddrFromCard(cardId int, chain, pin string) (string, error) {
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return "", utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -438,7 +438,7 @@ func (a *App) Transfer(
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return "", utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -544,7 +544,7 @@ func (a *App) CheckCardInitialized() (bool, error) {
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return false, errors.New("failed to connect to card")
+		return false, utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -576,7 +576,7 @@ func (a *App) Initialize(pin string, cardName string, checkSumSize int) (*InitCa
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to connect to card")
+		return nil, utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -632,7 +632,7 @@ func (a *App) LoadSecrePhrase(pin string, cardName string, mnemonic string) (*In
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return nil, errors.New("failed to connect to card")
+		return nil, utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -694,7 +694,7 @@ func (a *App) Install() error {
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return errors.New("failed to connect to card")
+		return utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
