@@ -15,7 +15,7 @@ import (
 	appruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-const Version = "0.1.7"
+const Version = "0.1.8"
 
 const PackageMac = "keyring-wallet-darwin.zip"
 const PackageWin = "keyring-wallet-windows.exe"
