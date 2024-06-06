@@ -126,7 +126,7 @@ func (a *App) SendTransaction(
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return "", utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 
@@ -194,7 +194,7 @@ func (a *App) SignTypedData(
 	keyringCard, err := services.NewKeyringCard()
 	if err != nil {
 		utils.Sugar.Error(err)
-		return "", errors.New("failed to connect to card")
+		return "", utils.ErrCardNotConnected
 	}
 	defer keyringCard.Release()
 

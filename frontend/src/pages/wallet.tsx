@@ -69,7 +69,7 @@ import {
   Loader2,
   MoreVertical,
   Plus,
-  RotateCw,
+  RefreshCw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -179,7 +179,7 @@ function Wallet() {
     } else {
       toast({
         title: "Please wait a moment",
-        description: `You can refresh again in ${MIN_INTERVAL / 1000} seconds`,
+        description: `Refresh will be available in ${MIN_INTERVAL / 1000} seconds`,
       });
     }
   };
@@ -298,7 +298,7 @@ function Wallet() {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <RotateCw
+                      <RefreshCw
                         className="h-5"
                         onClick={() => checkAndRefresh()}
                       />

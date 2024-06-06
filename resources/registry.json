@@ -813,7 +813,8 @@
     "maxFee": "0.01",
     "txHistoryUrl": "https://chainquery.lbry.com/api/sql",
     "txHistoryAuth": "",
-    "txHistoryProvider": "lbry-chainquery"
+    "txHistoryProvider": "lbry-chainquery",
+    "disable": true
   },
   {
     "name": "Polygon",
