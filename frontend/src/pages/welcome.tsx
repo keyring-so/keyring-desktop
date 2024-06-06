@@ -22,6 +22,7 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -117,10 +118,11 @@ function WelcomePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
+                    <SelectLabel>Mainnet</SelectLabel>
                     {chainConfigs.map((chainConfig) => {
                       return (
                         !chainConfig.disable &&
-                        (allowTestnet ? true : !chainConfig.testnet) && (
+                        !chainConfig.testnet && (
                           <SelectItem value={chainConfig.name}>
                             <div className="flex flex-row items-center gap-2">
                               <img
@@ -134,6 +136,27 @@ function WelcomePage() {
                       );
                     })}
                   </SelectGroup>
+                  {allowTestnet && (
+                    <SelectGroup>
+                      <SelectLabel>Testnet</SelectLabel>
+                      {chainConfigs.map((chainConfig) => {
+                        return (
+                          !chainConfig.disable &&
+                          chainConfig.testnet && (
+                            <SelectItem value={chainConfig.name}>
+                              <div className="flex flex-row items-center gap-2">
+                                <img
+                                  className="w-7 rounded-full"
+                                  src={`/tokens/${chainConfig.symbol}_logo.png`}
+                                />
+                                <Label>{chainConfig.name}</Label>
+                              </div>
+                            </SelectItem>
+                          )
+                        );
+                      })}
+                    </SelectGroup>
+                  )}
                 </SelectContent>
               </Select>
             </div>
