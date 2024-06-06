@@ -36,7 +36,7 @@ import {
   showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue } from "jotai";
-import { Plus } from "lucide-react";
+import { FlaskRound, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import Accounts from "./accounts";
 import Settings from "./settings";
@@ -123,11 +123,11 @@ function WelcomePage() {
                       return (
                         !chainConfig.disable &&
                         !chainConfig.testnet && (
-                          <SelectItem value={chainConfig.name}>
+                          <SelectItem key={chainConfig.name} value={chainConfig.name}>
                             <div className="flex flex-row items-center gap-2">
                               <img
                                 className="w-7 rounded-full"
-                                src={`/tokens/${chainConfig.symbol}_logo.png`}
+                                src={`${chainConfig.img}`}
                               />
                               <Label>{chainConfig.name}</Label>
                             </div>
@@ -143,12 +143,15 @@ function WelcomePage() {
                         return (
                           !chainConfig.disable &&
                           chainConfig.testnet && (
-                            <SelectItem value={chainConfig.name}>
+                            <SelectItem key={chainConfig.name} value={chainConfig.name}>
                               <div className="flex flex-row items-center gap-2">
-                                <img
-                                  className="w-7 rounded-full"
-                                  src={`/tokens/${chainConfig.symbol}_logo.png`}
-                                />
+                                <div className="relative">
+                                  <img
+                                    className="w-7 rounded-full"
+                                    src={`${chainConfig.img}`}
+                                  />
+                                  <FlaskRound className="absolute top-0 right-0 h-3 w-3 text-primary-foreground" />
+                                </div>
                                 <Label>{chainConfig.name}</Label>
                               </div>
                             </SelectItem>
