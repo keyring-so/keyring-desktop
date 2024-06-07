@@ -314,7 +314,7 @@ const Settings = () => {
       </div>
 
       <div className="flex flex-col gap-2 w-2/3">
-        <h2 className="text-xl font-semibold">App Info</h2>
+        <h2 className="text-xl font-semibold">General</h2>
         <div className="flex flex-col gap-6 border-solid border-2 p-4 rounded-xl">
           {latestVersion && updateAlert()}
           <div className="flex flex-row gap-5 items-center justify-between">
@@ -335,6 +335,12 @@ const Settings = () => {
               )}
             </Button>
           </div>
+          <div className="flex flex-row items-center justify-between">
+            <Label className="font-semibold">Connect card to a new device</Label>
+            <Button className="w-[150px]" onClick={getCredentials}>
+              Get credentials
+            </Button>
+          </div>
           <div className="flex items-center space-x-2 justify-between">
             <Label className="font-semibold mr-2" htmlFor="testnet-mode">
               Enable test networks
@@ -349,25 +355,7 @@ const Settings = () => {
       </div>
 
       <div className="flex flex-col gap-2 w-2/3">
-        <h2 className="text-xl font-semibold">Wallet Data</h2>
-        <div className="flex flex-col gap-3 border-solid border-2 p-4 rounded-xl">
-          <div className="flex flex-row gap-4 items-center justify-between">
-            <Label>Connect card to a new device</Label>
-            <Button className="w-[150px]" onClick={getCredentials}>
-              Get credentials
-            </Button>
-          </div>
-          <div className="flex flex-row gap-4 items-center justify-between">
-            <Label>Clear database</Label>
-            <Button className="w-[150px]" onClick={walletReset}>
-              Clear Data
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2 w-2/3">
-        <h2 className="text-xl font-semibold">Manage Card</h2>
+        <h2 className="text-xl font-semibold">Advanced</h2>
         <div className="border-solid border-2 p-4 rounded-xl">
           <div className="flex flex-col gap-2">
             <Tabs defaultValue="unpair" className="w-[400px]">
