@@ -131,7 +131,9 @@ function Wallet() {
                 [ledger]: Date.now(),
               }));
               let prices = await GetAssetPrices(account.id, ledger);
-              setChainAssets(prices);
+              if (responseSubscribed) {
+                setChainAssets(prices);
+              }
             }
           }
         } catch (err) {
