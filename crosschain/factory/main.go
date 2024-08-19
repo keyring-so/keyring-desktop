@@ -15,6 +15,7 @@ import (
 	. "keyring-desktop/crosschain"
 	"keyring-desktop/crosschain/chain/bitcoin"
 	"keyring-desktop/crosschain/chain/evm"
+	"keyring-desktop/crosschain/chain/substrate"
 	"keyring-desktop/crosschain/config"
 )
 
@@ -550,6 +551,8 @@ func newAddressBuilder(cfg ITask) (AddressBuilder, error) {
 	// 	return aptos.NewAddressBuilder(cfg)
 	case DriverBitcoin:
 		return bitcoin.NewAddressBuilder(cfg)
+	case DriverSubstrate:
+		return substrate.NewAddressBuilder(cfg)
 	}
 	return nil, errors.New("unsupported chain")
 }

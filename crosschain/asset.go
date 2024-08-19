@@ -151,6 +151,7 @@ type Driver string
 const (
 	DriverAptos       = Driver("aptos")
 	DriverBitcoin     = Driver("bitcoin")
+	DriverSubstrate   = Driver("substrate")
 	DriverCosmos      = Driver("cosmos")
 	DriverCosmosEvmos = Driver("evmos")
 	DriverEVM         = Driver("evm")

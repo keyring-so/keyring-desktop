@@ -829,6 +829,26 @@
     "disable": true
   },
   {
+    "name": "Substrate Dev",
+    "symbol": "DEV",
+    "img": "/tokens/ETH_logo.png",
+    "path": "m/44'/354'/0'/0/0",
+    "priceId": "polkadot",
+    "driver": "substrate",
+    "rpcUrl": "https://sepolia.infura.io/v3",
+    "rpcAuth": "env:INFURA_API_TOKEN",
+    "rpcProvider": "infura",
+    "chainId": 42,
+    "explorer": "https://sepolia.etherscan.io",
+    "explorerTx": "/tx",
+    "explorerAddr": "/address",
+    "decimals": 18,
+    "testnet": true,
+    "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout"
+  },
+  {
     "name": "Polygon",
     "symbol": "MATIC",
     "path": "m/44'/60'/0'/0/0",
