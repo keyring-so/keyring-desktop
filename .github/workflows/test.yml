@@ -27,6 +27,8 @@ jobs:
       run: |
         mkdir frontend/dist
         touch frontend/dist/temp
+    - name: Install libpcsclite
+      run: sudo apt install libpcsclite-dev
     - name: Test
       run: go test ./...
 
