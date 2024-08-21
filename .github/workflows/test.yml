@@ -23,10 +23,11 @@ jobs:
       with:
         go-version-file: go.mod
 
+    - name: Fix empty in dist
+      run: |
+        mkdir frontend/dist
+        touch frontend/dist/temp
     - name: Test
       uses: robherley/go-test-action@v0
-      with:
-        omit: |
-          frontend
 
   
