@@ -28,6 +28,6 @@ jobs:
         mkdir frontend/dist
         touch frontend/dist/temp
     - name: Test
-      uses: robherley/go-test-action@v0
+      run: go test ./...
 
   
