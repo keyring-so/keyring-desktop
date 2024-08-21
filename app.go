@@ -197,6 +197,10 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 			lastSelectedChain = account.ChainName
 		}
 		chainConfig := utils.GetChainConfig(a.chainConfigs, account.ChainName)
+		if chainConfig == nil {
+			utils.Sugar.Errorf("Chain configuration not found: %s", account.ChainName)
+			continue
+		}
 		chainDetail := ChainDetail{
 			Name:    chainConfig.Name,
 			Symbol:  chainConfig.Symbol,
