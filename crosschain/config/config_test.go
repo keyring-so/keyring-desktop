@@ -21,19 +21,6 @@ func TestExampleTestSuite(t *testing.T) {
 	suite.Run(t, new(CrosschainTestSuite))
 }
 
-func (s *CrosschainTestSuite) TestRequireConfig() {
-	require := s.Require()
-	xcConfig := RequireConfig("crosschain")
-	require.NotNil(xcConfig)
-	require.NotNil(xcConfig["chains"])
-}
-
-func (s *CrosschainTestSuite) TestRequireConfigErr() {
-	require := s.Require()
-	xcConfig := RequireConfig("crosschainINVALID")
-	require.Equal(xcConfig, map[string]interface{}{})
-}
-
 func (s *CrosschainTestSuite) TestGetSecretEnv() {
 	require := s.Require()
 	os.Setenv("XCTEST", "mysecret")

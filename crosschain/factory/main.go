@@ -58,8 +58,6 @@ type Factory struct {
 	AllPipelines []*PipelineConfig
 }
 
-var _ FactoryContext = &Factory{}
-
 func (f *Factory) GetAllAssets() []ITask {
 	tasks := []ITask{}
 	f.AllAssets.Range(func(key, value any) bool {
@@ -287,7 +285,7 @@ func (f *Factory) NewTxBuilder(cfg ITask) (TxBuilder, error) {
 }
 
 // NewSigner creates a new Signer
-func (f *Factory) NewSigner(cfg ITask) (Signer, error) {
+func NewSigner(cfg ITask) (Signer, error) {
 	return newSigner(cfg)
 }
 
@@ -316,7 +314,7 @@ func GetAddressFromPublicKey(cfg ITask, publicKey []byte) (Address, []byte, erro
 }
 
 // GetAllPossibleAddressesFromPublicKey returns all PossibleAddress(es) given a public key
-func (f *Factory) GetAllPossibleAddressesFromPublicKey(cfg ITask, publicKey []byte) ([]PossibleAddress, error) {
+func GetAllPossibleAddressesFromPublicKey(cfg ITask, publicKey []byte) ([]PossibleAddress, error) {
 	builder, err := newAddressBuilder(cfg)
 	if err != nil {
 		return []PossibleAddress{}, err
@@ -382,13 +380,13 @@ func (f *Factory) Config() interface{} {
 }
 
 // MustAddress coverts a string to Address, panic if error
-func (f *Factory) MustAddress(cfg ITask, addressStr string) Address {
+func MustAddress(cfg ITask, addressStr string) Address {
 	return Address(addressStr)
 }
 
 // MustAmountBlockchain coverts a string into AmountBlockchain, panic if error
-func (f *Factory) MustAmountBlockchain(cfg ITask, humanAmountStr string) AmountBlockchain {
-	res, err := f.ConvertAmountStrToBlockchain(cfg, humanAmountStr)
+func MustAmountBlockchain(cfg ITask, humanAmountStr string) AmountBlockchain {
+	res, err := ConvertAmountStrToBlockchain(cfg, humanAmountStr)
 	if err != nil {
 		panic(err)
 	}
@@ -396,8 +394,8 @@ func (f *Factory) MustAmountBlockchain(cfg ITask, humanAmountStr string) AmountB
 }
 
 // MustPrivateKey coverts a string into PrivateKey, panic if error
-func (f *Factory) MustPrivateKey(cfg ITask, privateKeyStr string) PrivateKey {
-	signer, err := f.NewSigner(cfg)
+func MustPrivateKey(cfg ITask, privateKeyStr string) PrivateKey {
+	signer, err := NewSigner(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -469,28 +467,6 @@ func pipelinesFromConfig(configMap map[string]interface{}) []*PipelineConfig {
 		pipeline.AllowList = parseAllowList(pipeline.Allow)
 	}
 	return mainConfig.AllPipelines
-}
-
-// NewDefaultFactory creates a new Factory
-func NewDefaultFactory() *Factory {
-	// Use our config file loader
-	cfg := config.RequireConfig("crosschain")
-	return NewDefaultFactoryWithConfig(cfg)
-}
-
-// NewDefaultFactoryWithConfig creates a new Factory given a config map
-func NewDefaultFactoryWithConfig(cfg map[string]interface{}) *Factory {
-	assetsList := assetsFromConfig(cfg)
-	assetsMap := AssetsToMap(assetsList)
-
-	tasksList := tasksFromConfig(cfg)
-	pipelinesList := pipelinesFromConfig(cfg)
-
-	return &Factory{
-		AllAssets:    assetsMap,
-		AllTasks:     tasksList,
-		AllPipelines: pipelinesList,
-	}
 }
 
 // AssetsToMap loads chains config without config file

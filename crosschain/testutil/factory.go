@@ -148,11 +148,3 @@ func (f *TestFactory) MustAmountBlockchain(asset xc.ITask, humanAmountStr string
 func (f *TestFactory) MustPrivateKey(asset xc.ITask, privateKeyStr string) xc.PrivateKey {
 	return f.DefaultFactory.MustPrivateKey(asset, privateKeyStr)
 }
-
-// NewDefaultFactoryWithConfig creates a new Factory given a config map
-func NewDefaultFactoryWithConfig(cfg map[string]interface{}) TestFactory {
-	f := factory.NewDefaultFactoryWithConfig(cfg)
-	return TestFactory{
-		DefaultFactory: f,
-	}
-}
