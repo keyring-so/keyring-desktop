@@ -25,5 +25,8 @@ jobs:
 
     - name: Test
       uses: robherley/go-test-action@v0
+      with:
+        omit: |
+          frontend
 
   
