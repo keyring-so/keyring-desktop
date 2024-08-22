@@ -838,7 +838,7 @@
     "rpcUrl": "https://sepolia.infura.io/v3",
     "rpcAuth": "env:INFURA_API_TOKEN",
     "rpcProvider": "infura",
-    "chainId": 42,
+    "chainPrefix": 42,
     "explorer": "https://sepolia.etherscan.io",
     "explorerTx": "/tx",
     "explorerAddr": "/address",
