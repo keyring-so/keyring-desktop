@@ -409,6 +409,7 @@ const WalletConnect = ({
             <div className="self-start">
               <GasFee
                 chainName={accountLedgerInfo!.ledger}
+                nativeSymbol="ETH" //TODO: get from chainConfig
                 from={transaction.from}
                 to={transaction.to}
                 setGas={setGas}

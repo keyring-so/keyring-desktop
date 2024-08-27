@@ -5,6 +5,7 @@ import "keyring-desktop/database"
 type FeeInfo struct {
 	Gas      string `json:"gas"`
 	Decimals int32  `json:"decimals"`
+	GasLimit uint64 `json:"gasLimit"`
 }
 
 type AssetInfo struct {

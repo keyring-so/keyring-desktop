@@ -205,6 +205,7 @@ export namespace main {
 	export class FeeInfo {
 	    gas: string;
 	    decimals: number;
+	    gasLimit: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new FeeInfo(source);
@@ -214,6 +215,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.gas = source["gas"];
 	        this.decimals = source["decimals"];
+	        this.gasLimit = source["gasLimit"];
 	    }
 	}
 	export class GetTransactionHistoryResponse {
@@ -340,6 +342,8 @@ export namespace utils {
 	    explorerTx: string;
 	    explorerAddr: string;
 	    decimals: number;
+	    gasLimit: number;
+	    tokenGasLimit: number;
 	    maxFee: string;
 	    testnet: boolean;
 	    disable: boolean;
@@ -369,6 +373,8 @@ export namespace utils {
 	        this.explorerTx = source["explorerTx"];
 	        this.explorerAddr = source["explorerAddr"];
 	        this.decimals = source["decimals"];
+	        this.gasLimit = source["gasLimit"];
+	        this.tokenGasLimit = source["tokenGasLimit"];
 	        this.maxFee = source["maxFee"];
 	        this.testnet = source["testnet"];
 	        this.disable = source["disable"];

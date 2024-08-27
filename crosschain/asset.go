@@ -170,6 +170,9 @@ type AssetID string
 
 // AssetConfig is the model used to represent an asset read from config file or db
 type AssetConfig struct {
+	GasLimit      uint64
+	TokenGasLimit uint64
+
 	// 	[[silochain.beta.chains]]
 	//     asset = "eth"
 	//     net = "mainnet"

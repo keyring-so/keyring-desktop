@@ -82,6 +82,8 @@ type ChainConfig struct {
 	ExplorerTx          string        `json:"explorerTx"`
 	ExplorerAddr        string        `json:"explorerAddr"`
 	Decimals            int32         `json:"decimals"`
+	GasLimit            uint64        `json:"gasLimit"`
+	TokenGasLimit       uint64        `json:"tokenGasLimit"`
 	MaxFee              string        `json:"maxFee"`
 	Testnet             bool          `json:"testnet"`
 	Disable             bool          `json:"disable"`
@@ -171,6 +173,9 @@ func ConvertAssetConfig(chainConfig *ChainConfig, contract string, chainName str
 	}
 
 	nativeConfig := crosschain.NativeAssetConfig{
+		GasLimit:      chainConfig.GasLimit,
+		TokenGasLimit: chainConfig.TokenGasLimit,
+
 		NativeAsset: crosschain.NativeAsset(chainConfig.Symbol),
 		Asset:       chainConfig.Symbol,
 		Driver:      chainConfig.Driver,

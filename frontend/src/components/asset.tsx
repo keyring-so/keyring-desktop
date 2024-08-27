@@ -45,6 +45,7 @@ import GasFee from "./gas";
 type Props = {
   ledger: string;
   symbol: string;
+  nativeSymbol: string;
   balance?: string;
   address: string;
   contract?: string;
@@ -71,6 +72,7 @@ const AssetTransferSchema = z.object({
 const Asset = ({
   ledger,
   symbol,
+  nativeSymbol,
   balance,
   address,
   contract,
@@ -411,6 +413,7 @@ const Asset = ({
 
                     <GasFee
                       chainName={ledger}
+                      nativeSymbol={nativeSymbol}
                       from={address}
                       to={transferForm.getValues().toAddr}
                       setGas={setGas}

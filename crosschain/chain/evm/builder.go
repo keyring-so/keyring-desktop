@@ -59,6 +59,9 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 	txInput := input.(*TxInput)
 
 	txInput.GasLimit = 90_000
+	if txBuilder.NativeAsset.GasLimit > 0 {
+		txInput.GasLimit = txBuilder.NativeAsset.GasLimit
+	}
 
 	return txBuilder.buildEvmTxWithPayload(to, amount.Int(), []byte{}, txInput)
 }
@@ -70,6 +73,10 @@ func (txBuilder TxBuilder) NewTokenTransfer(from xc.Address, to xc.Address, amou
 	txInput.GasLimit = 350_000
 	if txBuilder.Asset.NativeAsset == xc.OasisROSE {
 		txInput.GasLimit = 500_000
+	}
+
+	if txBuilder.NativeAsset.TokenGasLimit > 0 {
+		txInput.GasLimit = txBuilder.NativeAsset.TokenGasLimit
 	}
 
 	zero := xc.NewAmountBlockchainFromUint64(0)

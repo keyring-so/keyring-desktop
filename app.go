@@ -363,9 +363,24 @@ func (a *App) CalculateFee(
 		return nil, errors.New("failed to convert amount to human readable format")
 	}
 
+	var gasLimit uint64 = 90000
+	if chainConfig.GasLimit > 0 {
+		gasLimit = chainConfig.GasLimit
+	}
+
+	var tokenGasLimit uint64 = 200000
+	if chainConfig.TokenGasLimit > 0 {
+		tokenGasLimit = chainConfig.TokenGasLimit
+	}
+
+	if contract != "" {
+		gasLimit = tokenGasLimit
+	}
+
 	feeInfo := &FeeInfo{
 		Gas:      gasFee.String(),
 		Decimals: chainConfig.Decimals,
+		GasLimit: gasLimit,
 	}
 
 	return feeInfo, nil

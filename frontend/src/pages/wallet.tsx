@@ -319,6 +319,7 @@ function Wallet() {
                 <Asset
                   ledger={ledger}
                   symbol={chainAssets?.symbol}
+                  nativeSymbol={chainAssets?.symbol}
                   balance={chainAssets.balance}
                   address={chainAssets.address}
                   explorer={chainConfig!.explorer}
@@ -331,6 +332,7 @@ function Wallet() {
                     ledger={ledger}
                     key={userAsset.symbol}
                     symbol={userAsset.symbol}
+                    nativeSymbol={chainAssets?.symbol}
                     balance={userAsset.balance}
                     address={chainAssets.address}
                     contract={userAsset.contractAddress}
