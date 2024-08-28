@@ -20,6 +20,7 @@ interface Props {
   from: string;
   to: string;
   setGas: (tip: string) => void;
+  setFee: (fee: string) => void;
 }
 
 const GasFee = ({
@@ -29,6 +30,7 @@ const GasFee = ({
   from,
   to,
   setGas,
+  setFee,
 }: Props) => {
   const [feeInfo, setFeeInfo] = useState<main.FeeInfo>();
   const [adjustedGas, setAdjustedGas] = useState<string>("");
@@ -48,6 +50,7 @@ const GasFee = ({
     const gasFee = newFee / feeInfo!.gasLimit;
     setAdjustedGas(gasFee.toString());
     setGas(gasFee.toString());
+    setFee(newFee.toString());
     return;
   };
 
@@ -58,6 +61,7 @@ const GasFee = ({
       setFeeInfo(feeInfo);
       setAdjustedGas(feeInfo.gas);
       setGas(feeInfo.gas);
+      setFee((Number(feeInfo.gas) * feeInfo.gasLimit).toString());
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
@@ -79,6 +83,7 @@ const GasFee = ({
             } else {
               setFeeInfo(undefined);
               setGas("");
+              setFee("");
               setAdjustedGas("");
             }
           }}
@@ -118,7 +123,7 @@ const GasFee = ({
             </HoverCard>
             <div className="flex flex-row mt-2 justify-center items-center">
               <div className="flex flex-row text-sm text-primary items-center justify-center gap-1">
-                <Badge className="border-spacing-7">{nativeSymbol}</Badge>
+                <Badge>{nativeSymbol}</Badge>
                 <Label className="text-sm text-primary">
                 {(Number(adjustedGas) * feeInfo.gasLimit).toFixed(
                   feeInfo.decimals

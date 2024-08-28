@@ -431,7 +431,6 @@ func (a *App) Transfer(
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
 	utils.Sugar.Infof("input: %+v", input)
-	// TODO disable custom gas fee
 	if gas != "" {
 		gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
 		if err != nil {
@@ -442,6 +441,10 @@ func (a *App) Transfer(
 		switch crosschain.Driver(assetConfig.GetDriver()) {
 		case crosschain.DriverEVM:
 			input.(*evm.TxInput).GasFeeCap = gasInteger
+			tipCap := input.(*evm.TxInput).GasFeeCap.Sub(&input.(*evm.TxInput).BaseFee)
+			if tipCap.Cmp(&input.(*evm.TxInput).GasTipCap) > 0 {
+				input.(*evm.TxInput).GasTipCap = tipCap
+			}
 		case crosschain.DriverEVMLegacy:
 			input.(*evm.TxInput).GasPrice = gasInteger
 		case crosschain.DriverBitcoin:

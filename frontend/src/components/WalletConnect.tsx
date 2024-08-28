@@ -45,6 +45,7 @@ const WalletConnect = ({
   const [link, setLink] = useState("");
   const [pin, setPin] = useState("");
   const [gas, setGas] = useState("");
+  const [txFee, setTxFee] = useState("");
   const [initialized, setInitialized] = useState(false);
   const [requestData, setRequestData] = useState<ReqeustData>();
   const [proposal, setProposal] =
@@ -409,10 +410,11 @@ const WalletConnect = ({
             <div className="self-start">
               <GasFee
                 chainName={accountLedgerInfo!.ledger}
-                nativeSymbol="ETH" //TODO: get from chainConfig
+                nativeSymbol={accountLedgerInfo!.config.symbol}
                 from={transaction.from}
                 to={transaction.to}
                 setGas={setGas}
+                setFee={setTxFee}
               />
             </div>
 
