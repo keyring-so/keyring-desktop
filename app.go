@@ -363,9 +363,24 @@ func (a *App) CalculateFee(
 		return nil, errors.New("failed to convert amount to human readable format")
 	}
 
+	var gasLimit uint64 = 90000
+	if chainConfig.GasLimit > 0 {
+		gasLimit = chainConfig.GasLimit
+	}
+
+	var tokenGasLimit uint64 = 200000
+	if chainConfig.TokenGasLimit > 0 {
+		tokenGasLimit = chainConfig.TokenGasLimit
+	}
+
+	if contract != "" {
+		gasLimit = tokenGasLimit
+	}
+
 	feeInfo := &FeeInfo{
 		Gas:      gasFee.String(),
 		Decimals: chainConfig.Decimals,
+		GasLimit: gasLimit,
 	}
 
 	return feeInfo, nil
@@ -416,7 +431,6 @@ func (a *App) Transfer(
 
 	input, err := client.FetchTxInput(ctx, fromAddress, toAddress)
 	utils.Sugar.Infof("input: %+v", input)
-	// TODO disable custom gas fee
 	if gas != "" {
 		gasInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, gas)
 		if err != nil {
@@ -427,6 +441,10 @@ func (a *App) Transfer(
 		switch crosschain.Driver(assetConfig.GetDriver()) {
 		case crosschain.DriverEVM:
 			input.(*evm.TxInput).GasFeeCap = gasInteger
+			tipCap := input.(*evm.TxInput).GasFeeCap.Sub(&input.(*evm.TxInput).BaseFee)
+			if tipCap.Cmp(&input.(*evm.TxInput).GasTipCap) > 0 {
+				input.(*evm.TxInput).GasTipCap = tipCap
+			}
 		case crosschain.DriverEVMLegacy:
 			input.(*evm.TxInput).GasPrice = gasInteger
 		case crosschain.DriverBitcoin:

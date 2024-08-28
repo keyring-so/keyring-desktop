@@ -45,6 +45,7 @@ const WalletConnect = ({
   const [link, setLink] = useState("");
   const [pin, setPin] = useState("");
   const [gas, setGas] = useState("");
+  const [txFee, setTxFee] = useState("");
   const [initialized, setInitialized] = useState(false);
   const [requestData, setRequestData] = useState<ReqeustData>();
   const [proposal, setProposal] =
@@ -387,7 +388,7 @@ const WalletConnect = ({
                 <Input value={transaction.to} disabled></Input>
               </div>
               <div className="flex flex-row gap-2 items-center justify-center">
-                <Label className="w-[50px]">Gas:</Label>
+                <Label className="w-[80px]">GasLimit:</Label>
                 <Input
                   value={BigInt(transaction.gas).toString()}
                   disabled
@@ -409,9 +410,11 @@ const WalletConnect = ({
             <div className="self-start">
               <GasFee
                 chainName={accountLedgerInfo!.ledger}
+                nativeSymbol={accountLedgerInfo!.config.symbol}
                 from={transaction.from}
                 to={transaction.to}
                 setGas={setGas}
+                setFee={setTxFee}
               />
             </div>
 

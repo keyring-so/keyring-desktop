@@ -41,10 +41,12 @@ import { SyntheticEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import GasFee from "./gas";
+import { Badge } from "./ui/badge";
 
 type Props = {
   ledger: string;
   symbol: string;
+  nativeSymbol: string;
   balance?: string;
   address: string;
   contract?: string;
@@ -71,6 +73,7 @@ const AssetTransferSchema = z.object({
 const Asset = ({
   ledger,
   symbol,
+  nativeSymbol,
   balance,
   address,
   contract,
@@ -80,6 +83,7 @@ const Asset = ({
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
   const [gas, setGas] = useState("");
+  const [txFee, setTxFee] = useState("");
   const [pin, setPin] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
@@ -273,10 +277,11 @@ const Asset = ({
               <Label>Amount:</Label>
               <Input disabled value={transferForm.getValues().amount} />
             </div>
-            {gas && (
+            {txFee && (
               <div className="flex flex-row gap-1 items-center">
-                <Label>Gas:</Label>
-                <Input disabled value={gas} />
+                <Label>Fee:</Label>
+                <Badge>{nativeSymbol}</Badge>
+                <Input disabled value={txFee} />
               </div>
             )}
 
@@ -351,6 +356,7 @@ const Asset = ({
                     setTransferOpen(true);
                     transferForm.reset();
                     setGas("");
+                    setTxFee("");
                     setTxConfirmOpen(false);
                   }}
                 >
@@ -411,9 +417,11 @@ const Asset = ({
 
                     <GasFee
                       chainName={ledger}
+                      nativeSymbol={nativeSymbol}
                       from={address}
                       to={transferForm.getValues().toAddr}
                       setGas={setGas}
+                      setFee={setTxFee}
                     />
 
                     <Button
