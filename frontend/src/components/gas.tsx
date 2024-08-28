@@ -121,8 +121,8 @@ const GasFee = ({
                 </div>
               </HoverCardContent>
             </HoverCard>
-            <div className="flex flex-row mt-2 justify-center items-center">
-              <div className="flex flex-row text-sm text-primary items-center justify-center gap-1">
+            <div className="grid grid-cols-2 mt-2 gap-10 justify-center">
+              <div className="flex flex-row text-sm text-primary items-center justify-start gap-1">
                 <Badge>{nativeSymbol}</Badge>
                 <Label className="text-sm text-primary">
                 {(Number(adjustedGas) * feeInfo.gasLimit).toFixed(
@@ -131,7 +131,7 @@ const GasFee = ({
               </Label>
               </div>
               <Slider
-                className="m-3 w-2/3 bg-yellow"
+                className="ml-3 mr-3 w-auto"
                 defaultValue={[1]}
                 max={2}
                 step={0.1}

@@ -388,7 +388,7 @@ const WalletConnect = ({
                 <Input value={transaction.to} disabled></Input>
               </div>
               <div className="flex flex-row gap-2 items-center justify-center">
-                <Label className="w-[50px]">Gas:</Label>
+                <Label className="w-[80px]">GasLimit:</Label>
                 <Input
                   value={BigInt(transaction.gas).toString()}
                   disabled
