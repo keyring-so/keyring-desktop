@@ -42,11 +42,6 @@ const GasFee = ({
     if (!feeInfo) return;
 
     const newFee = Number(feeInfo.gas) * feeInfo.gasLimit * value[0];
-    console.log("newFee", newFee);
-    console.log("feeInfo.gas", feeInfo.gas);
-    console.log("feeInfo.feeInfo.gasLimit", feeInfo.gasLimit);
-    console.log("value[0]", value[0]);
-
     const gasFee = newFee / feeInfo!.gasLimit;
     setAdjustedGas(gasFee.toString());
     setGas(gasFee.toString());
