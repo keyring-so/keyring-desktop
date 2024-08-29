@@ -50,7 +50,7 @@ const Settings = () => {
 
   const setShowSidebarItem = useSetAtom(showSidebarItem);
   const [isTestnet, setIsTestnet] = useAtom(isTestnetAtom);
-  const account = useAtomValue(accountAtom);
+  const [account, setAccount] = useAtom(accountAtom);
 
   const { hasCopied, onCopy } = useClipboard();
 
@@ -101,7 +101,7 @@ const Settings = () => {
         description: "Card and wallet is reset.",
       });
       setShowSidebarItem("");
-      window.location.reload();
+      setAccount({ id: -1, name: "" });
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",
@@ -118,7 +118,7 @@ const Settings = () => {
         description: "Card is unpaired.",
       });
       setShowSidebarItem("");
-      window.location.reload();
+      setAccount({ id: -1, name: "" });
     } catch (err) {
       toast({
         title: "Uh oh! Something went wrong.",

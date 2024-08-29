@@ -193,7 +193,7 @@ func (a *App) GetChains(cardId int) (*CardChainInfo, error) {
 	var lastSelectedChain string
 
 	for _, account := range accounts {
-		if sc, _ := account.SelectedAccount.Value(); sc == true {
+		if account.SelectedAccount {
 			lastSelectedChain = account.ChainName
 		}
 		chainConfig := utils.GetChainConfig(a.chainConfigs, account.ChainName)

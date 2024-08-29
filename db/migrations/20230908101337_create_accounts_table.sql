@@ -4,7 +4,7 @@ create table if not exists accounts (
     card_id integer not null,
     chain_name text not null,
     address text not null,
-    selected_account boolean
+    selected_account boolean not null
 );
 
 

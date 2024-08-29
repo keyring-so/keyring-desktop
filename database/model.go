@@ -1,9 +1,5 @@
 package database
 
-import (
-	"database/sql"
-)
-
 type Card struct {
 	Id          int `db:"card_id"`
 	Name        string
@@ -15,11 +11,11 @@ type Card struct {
 }
 
 type Account struct {
-	Id              int          `db:"account_id"`
-	CardId          int          `db:"card_id"`
-	ChainName       string       `db:"chain_name"`
-	Address         string       `db:"address"`
-	SelectedAccount sql.NullBool `db:"selected_account"`
+	Id              int    `db:"account_id"`
+	CardId          int    `db:"card_id"`
+	ChainName       string `db:"chain_name"`
+	Address         string `db:"address"`
+	SelectedAccount bool   `db:"selected_account"`
 }
 
 type Asset struct {
