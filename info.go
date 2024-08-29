@@ -120,7 +120,7 @@ func (a *App) GetAddressAndAssets(cardId int, chain string) (*ChainAssets, error
 		return nil, errors.New("failed to read database")
 	}
 
-	if sa, _ := chainAccount.SelectedAccount.Value(); sa == false {
+	if !chainAccount.SelectedAccount {
 		err = database.UpdateSelectedAccount(a.sqlite, cardId, chain)
 		if err != nil {
 			utils.Sugar.Error(err)
