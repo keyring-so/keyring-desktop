@@ -44,13 +44,15 @@ const Accounts = () => {
 
   useEffect(() => {
     GetAllAccounts()
-      .then((res) => setAllAccounts(res))
-      .catch((err) =>
+      .then((res) => {
+        setAllAccounts(res);
+      })
+      .catch((err) => {
         toast({
           title: "Uh oh! Something went wrong.",
           description: `Error happens: ${err}`,
-        })
-      );
+        });
+      });
   }, [showAddCardDialog]);
 
   const updateAccountName = async () => {
