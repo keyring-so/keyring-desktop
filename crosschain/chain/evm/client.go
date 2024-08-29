@@ -410,7 +410,7 @@ func (client *Client) EstimateGas(ctx context.Context) (xc.AmountBlockchain, err
 		return xc.NewAmountBlockchainFromUint64(0), err
 	}
 	tip = suggestTip.Uint64()
-	multiplier := 1.4
+	multiplier := 1.1
 	if client.Asset.ChainGasMultiplier > 0.0 {
 		multiplier = client.Asset.ChainGasMultiplier
 	}
