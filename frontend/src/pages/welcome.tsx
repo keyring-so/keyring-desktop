@@ -36,7 +36,7 @@ import {
   showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue } from "jotai";
-import { FlaskRound, Plus } from "lucide-react";
+import { FlaskRound, Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import Accounts from "./accounts";
 import Settings from "./settings";
@@ -46,6 +46,7 @@ function WelcomePage() {
   const [chains, setChains] = useState<main.ChainDetail[]>([]);
   const [ledgerCandidate, setLedgerCandidate] = useState("");
   const [pin, setPin] = useState("");
+  const [loadingLedger, setLoadingLedger] = useState(false);
 
   const [showNewLedger, setShowNewLedger] = useAtom(showNewLedgerAtom);
   const [ledger, setLedger] = useAtom(ledgerAtom);
@@ -85,6 +86,7 @@ function WelcomePage() {
 
   const addLedger = async () => {
     try {
+      setLoadingLedger(true)
       let _ = await AddLedger(account.id, ledgerCandidate, pin);
       let chains = await GetChains(account.id);
       setChains(chains.chains);
@@ -96,6 +98,7 @@ function WelcomePage() {
       });
     }
     setShowNewLedger(false);
+    setLoadingLedger(false);
   };
 
   // TODO refactor to a new component
@@ -123,7 +126,10 @@ function WelcomePage() {
                       return (
                         !chainConfig.disable &&
                         !chainConfig.testnet && (
-                          <SelectItem key={chainConfig.name} value={chainConfig.name}>
+                          <SelectItem
+                            key={chainConfig.name}
+                            value={chainConfig.name}
+                          >
                             <div className="flex flex-row items-center gap-2">
                               <img
                                 className="w-7 rounded-full"
@@ -143,7 +149,10 @@ function WelcomePage() {
                         return (
                           !chainConfig.disable &&
                           chainConfig.testnet && (
-                            <SelectItem key={chainConfig.name} value={chainConfig.name}>
+                            <SelectItem
+                              key={chainConfig.name}
+                              value={chainConfig.name}
+                            >
                               <div className="flex flex-row items-center gap-2">
                                 <div className="relative">
                                   <img
@@ -174,9 +183,20 @@ function WelcomePage() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={addLedger}>
-              Confirm
-            </Button>
+            {loadingLedger ? (
+              <Button className="" disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className=""
+                onClick={addLedger}
+              >
+                Confirm
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
