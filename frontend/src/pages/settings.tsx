@@ -3,16 +3,13 @@ import {
   ClearData,
   DoUpdate,
   EnableTestnet,
-  GetCredentials,
   GetCurrentVersion,
   Install,
   IsTestnetEnabled,
   ResetCard,
   ResetWallet,
 } from "@/../wailsjs/go/main/App";
-import { main } from "@/../wailsjs/go/models";
 import { EventsOff, EventsOn } from "@/../wailsjs/runtime/runtime";
-import { LogoImageSrc } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,17 +28,12 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useClipboard } from "@/hooks/useClipboard";
-import { errToast } from "@/lib/utils";
 import { accountAtom, isTestnetAtom, showSidebarItem } from "@/store/state";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Clipboard, ClipboardCheck, Loader2, Rocket } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { useAtom, useSetAtom } from "jotai";
+import { Loader2, Rocket } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const Settings = () => {
-  const [credentials, setCredentials] = useState<
-    main.CardCredential | undefined
-  >(undefined);
   const [pin, setPin] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");
@@ -176,15 +168,6 @@ const Settings = () => {
     }
   };
 
-  const getCredentials = async () => {
-    try {
-      const res = await GetCredentials(account.id);
-      setCredentials(res);
-    } catch (err) {
-      errToast(err);
-    }
-  };
-
   const setNetwork = async (checked: boolean) => {
     try {
       await EnableTestnet(checked);
@@ -196,38 +179,6 @@ const Settings = () => {
       });
     }
   };
-
-  const showCredentialsQRcode = () => (
-    <Dialog open={true} onOpenChange={() => setCredentials(undefined)}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Credentials</DialogTitle>
-          <DialogDescription>
-            Please only share the pairing credentials with trusted devices.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-row gap-3 items-start">
-          <QRCodeSVG
-            value={JSON.stringify(credentials)}
-            size={128}
-            imageSettings={{
-              src: LogoImageSrc,
-              height: 24,
-              width: 24,
-              excavate: true,
-            }}
-          />
-          <Button
-            className="w-1/5 rounded-3xl"
-            onClick={() => onCopy(JSON.stringify(credentials))}
-          >
-            <Label>Copy </Label>
-            {hasCopied ? <ClipboardCheck /> : <Clipboard />}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
 
   const updateAlert = () => {
     return (
@@ -335,12 +286,7 @@ const Settings = () => {
               )}
             </Button>
           </div>
-          <div className="flex flex-row items-center justify-between">
-            <Label className="font-semibold">Connect card to a new device</Label>
-            <Button className="w-[150px]" onClick={getCredentials}>
-              Get credentials
-            </Button>
-          </div>
+
           <div className="flex items-center space-x-2 justify-between">
             <Label className="font-semibold mr-2" htmlFor="testnet-mode">
               Enable test networks
@@ -410,7 +356,6 @@ const Settings = () => {
           </div>
         </div>
       </div>
-      {credentials && showCredentialsQRcode()}
     </div>
   );
 };

@@ -16,7 +16,7 @@ import {
   showSidebarItem,
 } from "@/store/state";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { FlaskRound, Plus, Settings, Trash2, UserCircle } from "lucide-react";
+import { FlaskRound, Plus, Settings, Trash2, WalletCards } from "lucide-react";
 import Logo from "./logo";
 import SidebarIcon from "./sidebar-icon";
 import SidebarLedger from "./sidebar-ledger";
@@ -138,8 +138,8 @@ const Sidebar = ({ chains, lastSelectedChain }: Props) => {
 
       <div className="flex flex-col mt-auto">
         <SidebarIcon
-          icon={UserCircle}
-          text="Accounts"
+          icon={WalletCards}
+          text="Cards"
           onClick={() =>
             sidebarItem == "accounts"
               ? setSidebarItem("")
