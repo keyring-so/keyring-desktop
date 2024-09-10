@@ -56,7 +56,7 @@ jobs:
           node-version: 18
       - run: npm install && npm run build
         working-directory: frontend
-      - uses: dAppServer/wails-build-action@v2
+      - uses: three-library/wails-build-action@v2.3
         with:
           build-name: ${{ matrix.output }}
           build-platform: ${{ matrix.platform }}
@@ -91,7 +91,7 @@ jobs:
         run: |
           rm -rf ./build/bin/${{ matrix.output }}.app
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: target
           path: build/bin/*
@@ -116,7 +116,7 @@ jobs:
           rm -rf Keyring\ Wallet.app.zip
           touch version && echo "0.1.8" >> version
       - run: ls -al target && ls -R target/ && file target/
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: target-release
           path: target/*
