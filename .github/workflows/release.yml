@@ -60,8 +60,8 @@ jobs:
         with:
           build-name: ${{ matrix.output }}
           build-platform: ${{ matrix.platform }}
-          go-version: 1.20.x
-          wails-version: v2.8.1
+          go-version: 1.22.x
+          wails-version: v2.9.1
           package: false
       - name: MacOS download gon for code signing and app notarization
         if: runner.os == 'macOS'
@@ -93,7 +93,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: target
+          name: target-${{ matrix.os }}
           path: build/bin/*
 
   collect-release:
@@ -104,9 +104,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: target
+          pattern: target-*
+          merge-multiple: true
           path: target
       - run: ls -al target && ls -R target/
       - working-directory: target
@@ -130,7 +131,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: target-release
           path: target
@@ -150,7 +151,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: target-release
           path: target
