@@ -501,6 +501,8 @@ func NewClient(cfg ITask) (Client, error) {
 	// 	return aptos.NewClient(cfg)
 	case DriverBitcoin:
 		return bitcoin.NewClient(cfg)
+	case DriverSubstrate:
+		return substrate.NewClient(cfg)
 	}
 	return nil, errors.New("unsupported chain")
 }
@@ -519,6 +521,8 @@ func NewTxBuilder(cfg ITask) (TxBuilder, error) {
 	// 	return aptos.NewTxBuilder(cfg)
 	case DriverBitcoin:
 		return bitcoin.NewTxBuilder(cfg)
+	case DriverSubstrate:
+		return substrate.NewTxBuilder(cfg)
 	}
 	return nil, errors.New("unsupported chain")
 }

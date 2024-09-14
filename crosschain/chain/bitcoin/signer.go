@@ -38,11 +38,14 @@ func (signer *Signer) ImportPrivateKey(privateKey string) (xc.PrivateKey, error)
 }
 
 // Sign a Bitcoin tx
-func (signer *Signer) Sign(privateKeyBytes xc.PrivateKey, data xc.TxDataToSign) (xc.TxSignature, error) {
+func (signer *Signer) Sign(privateKeyBytes xc.PrivateKey, data xc.TxDataToSign) (*xc.TxSignature, error) {
 	ecdsaKey, err := crypto.HexToECDSA(hex.EncodeToString(privateKeyBytes))
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 	signatureRaw, err := crypto.Sign([]byte(data), ecdsaKey)
-	return xc.TxSignature(signatureRaw), err
+	pubKey := ecdsaKey.PublicKey
+	txSig := &xc.TxSignature{Pubkey: crypto.FromECDSAPub(&pubKey), Sig: signatureRaw}
+
+	return txSig, err
 }

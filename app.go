@@ -497,7 +497,7 @@ func (a *App) Transfer(
 		utils.Sugar.Error(err)
 		return "", fmt.Errorf("failed to create transaction: %s", err)
 	}
-	utils.Sugar.Infof("tx: %s", tx)
+	// utils.Sugar.Infof("tx: %s", tx)
 	utils.Sugar.Infof("transaction: %+v", tx)
 	sighashes, err := tx.Sighashes()
 	if err != nil {
@@ -513,13 +513,13 @@ func (a *App) Transfer(
 			return "", errors.New("failed to sign transaction hash")
 		}
 		utils.Sugar.Infof("signature: %x", signature)
-		signatures[i] = signature
+		signatures[i] = *signature
 	}
 
 	// complete the tx by adding signature
 	err = tx.AddSignatures(signatures...)
 	if err != nil {
-		utils.Sugar.Error(err)
+		utils.Sugar.Error("falied to add signature", err)
 		return "", errors.New("failed to add signature")
 	}
 

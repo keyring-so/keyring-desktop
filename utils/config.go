@@ -78,7 +78,7 @@ type ChainConfig struct {
 	RpcAuth             string        `json:"rpcAuth"`
 	RpcProvider         string        `json:"rpcProvider"`
 	ChainId             int64         `json:"chainId"`
-	ChainPrefix         int64         `json:"chainPrefix"`
+	AddressPrefix       int64         `json:"addressPrefix"`
 	Explorer            string        `json:"explorer"`
 	ExplorerTx          string        `json:"explorerTx"`
 	ExplorerAddr        string        `json:"explorerAddr"`
@@ -177,19 +177,19 @@ func ConvertAssetConfig(chainConfig *ChainConfig, contract string, chainName str
 		GasLimit:      chainConfig.GasLimit,
 		TokenGasLimit: chainConfig.TokenGasLimit,
 
-		NativeAsset: crosschain.NativeAsset(chainConfig.Symbol),
-		Asset:       chainConfig.Symbol,
-		Driver:      chainConfig.Driver,
-		URL:         chainConfig.RpcUrl,
-		Auth:        chainConfig.RpcAuth,
-		Provider:    chainConfig.RpcProvider,
-		ExplorerURL: chainConfig.Explorer,
-		Decimals:    chainConfig.Decimals,
-		MaxFee:      chainConfig.MaxFee,
-		Net:         net,
-		ChainID:     chainConfig.ChainId,
-		ChainPrefix: chainConfig.ChainPrefix,
-		Type:        crosschain.AssetTypeNative,
+		NativeAsset:   crosschain.NativeAsset(chainConfig.Symbol),
+		Asset:         chainConfig.Symbol,
+		Driver:        chainConfig.Driver,
+		URL:           chainConfig.RpcUrl,
+		Auth:          chainConfig.RpcAuth,
+		Provider:      chainConfig.RpcProvider,
+		ExplorerURL:   chainConfig.Explorer,
+		Decimals:      chainConfig.Decimals,
+		MaxFee:        chainConfig.MaxFee,
+		Net:           net,
+		ChainID:       chainConfig.ChainId,
+		AddressPrefix: chainConfig.AddressPrefix,
+		Type:          crosschain.AssetTypeNative,
 	}
 
 	if contract == "" {
@@ -209,18 +209,18 @@ func ConvertAssetConfig(chainConfig *ChainConfig, contract string, chainName str
 	}
 
 	tokenAsset := crosschain.AssetConfig{
-		Asset:       tokenConfig.Symbol,
-		Driver:      chainConfig.Driver,
-		URL:         chainConfig.RpcUrl,
-		Auth:        chainConfig.RpcAuth,
-		Provider:    chainConfig.RpcProvider,
-		ExplorerURL: chainConfig.Explorer,
-		Decimals:    int32(tokenConfig.Decimals),
-		MaxFee:      chainConfig.MaxFee,
-		ChainID:     chainConfig.ChainId,
-		ChainPrefix: chainConfig.ChainPrefix,
-		Type:        crosschain.AssetTypeToken,
-		Contract:    tokenConfig.Contract,
+		Asset:         tokenConfig.Symbol,
+		Driver:        chainConfig.Driver,
+		URL:           chainConfig.RpcUrl,
+		Auth:          chainConfig.RpcAuth,
+		Provider:      chainConfig.RpcProvider,
+		ExplorerURL:   chainConfig.Explorer,
+		Decimals:      int32(tokenConfig.Decimals),
+		MaxFee:        chainConfig.MaxFee,
+		ChainID:       chainConfig.ChainId,
+		AddressPrefix: chainConfig.AddressPrefix,
+		Type:          crosschain.AssetTypeToken,
+		Contract:      tokenConfig.Contract,
 	}
 
 	res := crosschain.TokenAssetConfig{
