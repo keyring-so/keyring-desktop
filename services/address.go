@@ -79,5 +79,5 @@ func (i *KeyringCard) ChainAddress(pin string, pairingInfo *types.PairingInfo, c
 		return nil, err
 	}
 
-	return sig.PubKey, nil
+	return sig.PubKey(), nil
 }

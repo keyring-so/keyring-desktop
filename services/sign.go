@@ -93,12 +93,12 @@ func (i *KeyringCard) Sign(
 		return nil, err
 	}
 
-	// ethSig := append(sig.R(), sig.S()...)
-	// ethSig = append(ethSig, []byte{sig.V()}...)
+	ethSig := append(sig.R(), sig.S()...)
+	ethSig = append(ethSig, []byte{sig.V()}...)
 
 	txSig := &crosschain.TxSignature{
-		Pubkey: sig.PubKey,
-		Sig:    sig.Sig,
+		Pubkey: sig.PubKey(),
+		Sig:    ethSig,
 	}
 
 	return txSig, nil

@@ -70,11 +70,7 @@ func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Addr
 	// hashedPubkey := blake2b.Sum256(compressedPublicKey)
 
 	fmt.Println("publicKeyBytes for substrate:", hexutils.BytesToHex(publicKeyBytes), len(publicKeyBytes), ab.addressPrefix)
-	first := publicKeyBytes[:32]
-	second := publicKeyBytes[32:]
-	fmt.Println("private key:", hexutils.BytesToHex(first), len(first))
-	fmt.Println("public key:", hexutils.BytesToHex(second), len(second))
-	address := subkey.SS58Encode(second, ab.addressPrefix)
+	address := subkey.SS58Encode(publicKeyBytes, ab.addressPrefix)
 	return xc.Address(address), publicKeyBytes, nil
 }
 

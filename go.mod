@@ -133,5 +133,5 @@ replace (
 	github.com/gagliardetto/solana-go => github.com/conorpp/solana-go v1.0.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-	github.com/status-im/keycard-go => /Users/kaichaosun/github/keyring-so/keycard-go
+	github.com/status-im/keycard-go => github.com/keyring-so/keyring-go-sdk v0.0.0-20240918045220-e3b6293bec33
 )
