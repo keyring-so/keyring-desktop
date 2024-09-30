@@ -831,7 +831,7 @@
   {
     "name": "Polkadot",
     "symbol": "DOT",
-    "img": "/tokens/ETH_logo.png",
+    "img": "/tokens/DOT_logo.png",
     "path": "m/44'/354'/0'/0/0",
     "priceId": "",
     "driver": "substrate",
@@ -843,7 +843,6 @@
     "explorerTx": "/extrinsic",
     "explorerAddr": "/account",
     "decimals": 10,
-    "testnet": true,
     "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout"
@@ -851,7 +850,7 @@
   {
     "name": "Rococo",
     "symbol": "ROC",
-    "img": "/tokens/ETH_logo.png",
+    "img": "/tokens/ROC_logo.png",
     "path": "m/44'/354'/0'/0/0",
     "priceId": "",
     "driver": "substrate",
@@ -871,7 +870,7 @@
   {
     "name": "Westend",
     "symbol": "WND",
-    "img": "/tokens/ETH_logo.png",
+    "img": "/tokens/WND_logo.png",
     "path": "m/44'/354'/0'/0/0",
     "priceId": "",
     "driver": "substrate",
@@ -891,7 +890,7 @@
   {
     "name": "Substrate Dev",
     "symbol": "DEV",
-    "img": "/tokens/ETH_logo.png",
+    "img": "/tokens/DEV_logo.png",
     "path": "m/44'/354'/0'/0/0",
     "priceId": "",
     "driver": "substrate",
