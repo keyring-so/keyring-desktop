@@ -23,53 +23,8 @@ func NewAddressBuilder(asset xc.ITask) (xc.AddressBuilder, error) {
 // GetAddressFromPublicKey returns an Address given a public key
 func (ab AddressBuilder) GetAddressFromPublicKey(publicKeyBytes []byte) (xc.Address, []byte, error) {
 	fmt.Println("GetAddressFromPublicKey for substrate:", hexutils.BytesToHex(publicKeyBytes), len(publicKeyBytes))
-
-	// var publicKey *ecdsa.PublicKey
-	// var err error
-	// if len(publicKeyBytes) == 33 {
-	// 	publicKey, err = crypto.DecompressPubkey(publicKeyBytes)
-	// 	if err != nil {
-	// 		return xc.Address(""), nil, errors.New("invalid k256 public key")
-	// 	}
-	// } else {
-	// 	publicKey, err = crypto.UnmarshalPubkey(publicKeyBytes)
-	// 	if err != nil {
-	// 		return xc.Address(""), nil, err
-	// 	}
-	// }
-	// compressedPublicKey := crypto.CompressPubkey(publicKey)
-	// // compressedPublicKey = compressedPublicKey[:len(compressedPublicKey)-1]
-
-	// fmt.Println("Compressed public key:", hexutils.BytesToHex(compressedPublicKey))
-	// addr := subkey.SS58Encode(compressedPublicKey, ab.addressPrefix) // substrate address
-
-	// if err != nil {
-	// 	return xc.Address(""), nil, err
-	// }
-
-	// return xc.Address(addr), publicKeyBytes, nil
-
-	// var publicKey *ecdsa.PublicKey
-	// var err error
-	// if len(publicKeyBytes) == 33 {
-	// 	publicKey, err = crypto.DecompressPubkey(publicKeyBytes)
-	// 	if err != nil {
-	// 		return xc.Address(""), nil, errors.New("invalid k256 public key")
-	// 	}
-	// } else {
-	// 	publicKey, err = crypto.UnmarshalPubkey(publicKeyBytes)
-	// 	if err != nil {
-	// 		return xc.Address(""), nil, err
-	// 	}
-	// }
-
-	// compressedPublicKey := crypto.CompressPubkey(publicKey)
-
-	// fmt.Println("compressedPublicKey for substrate:", hexutils.BytesToHex(compressedPublicKey), len(compressedPublicKey), ab.addressPrefix)
-
-	// hashedPubkey := blake2b.Sum256(compressedPublicKey)
-
 	fmt.Println("publicKeyBytes for substrate:", hexutils.BytesToHex(publicKeyBytes), len(publicKeyBytes), ab.addressPrefix)
+
 	address := subkey.SS58Encode(publicKeyBytes, ab.addressPrefix)
 	return xc.Address(address), publicKeyBytes, nil
 }

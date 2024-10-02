@@ -79,38 +79,11 @@ func (client *Client) FetchTxInput(ctx context.Context, from xc.Address, to xc.A
 }
 
 func (client *Client) SubmitTx(ctx context.Context, tx xc.Tx) error {
-	// encodedExt, err := codec.EncodeToHex(tx.(Tx).Extrinsic)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Printf("Ext - %s\n", encodedExt)
-
-	// // sub, err := client.api.RPC.Author.SubmitAndWatchDynamicExtrinsic(*tx.(Tx).Extrinsic)
-	// // if err != nil {
-	// // 	return err
-	// // }
-
-	// defer sub.Unsubscribe()
-
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case st := <-sub.Chan():
-	// 			extStatus, _ := st.MarshalJSON()
-	// 			fmt.Printf("Status for transaction - %s\n", string(extStatus))
-	// 		case err := <-sub.Err():
-	// 			fmt.Println("Error for transaction:", err)
-	// 		}
-	// 	}
-	// }()
-
 	ext := *tx.(Tx).ext
 	encodedExt, err := codec.EncodeToHex(ext)
 
 	fmt.Printf("Ext - %s\n", encodedExt)
 
-	// ecodedext2 := "0x31028400dbe4793343ef409e9d1e8e9ba41fe854c8b277104b4c089660be6f9b52d538bb00174ace15579e8daf89bbeb0a9485855915c5c8ba4e86af78110a8a33995b139feb2728585fe30505f35d4cda487e5549a226c81df015bb75fdd965b059a7350c04030058c9c24f7da8a412ddb6437f310bab0d181ce900d85ea1d4c0569150ccba40060700e8764817"
-	// sub, err := api.RPC.Author.SubmitAndWatchExtrinsicTest(ecodedext2)
 	sub, err := client.api.RPC.Author.SubmitAndWatchDynamicExtrinsic(ext)
 
 	if err != nil {
