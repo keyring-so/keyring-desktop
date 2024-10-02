@@ -829,6 +829,37 @@
     "disable": true
   },
   {
+    "name": "Moonbase Alpha",
+    "symbol": "DEV",
+    "img": "/tokens/moonbeam_alpha_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "",
+    "driver": "evm",
+    "rpcUrl": "https://rpc.api.moonbase.moonbeam.network",
+    "rpcAuth": "",
+    "rpcProvider": "",
+    "chainId": 1287,
+    "explorer": "https://moonbase.moonscan.io",
+    "explorerTx": "/tx",
+    "explorerAddr": "/address",
+    "decimals": 18,
+    "gasLimit": 21000,
+    "tokenGasLimit": 60000,
+    "testnet": true,
+    "enableWalletConnect": true,
+    "txHistoryUrl": "",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "",
+    "tokens": [
+      {
+        "symbol": "USDC",
+        "priceId": "usd-coin",
+        "decimals": 6,
+        "contract": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+      }
+    ]
+  },
+  {
     "name": "Polkadot",
     "symbol": "DOT",
     "img": "/tokens/DOT_logo.png",

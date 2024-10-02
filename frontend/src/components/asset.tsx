@@ -46,6 +46,7 @@ import { Badge } from "./ui/badge";
 type Props = {
   ledger: string;
   symbol: string;
+  symbolImage: string;
   nativeSymbol: string;
   balance?: string;
   address: string;
@@ -73,6 +74,7 @@ const AssetTransferSchema = z.object({
 const Asset = ({
   ledger,
   symbol,
+  symbolImage,
   nativeSymbol,
   balance,
   address,
@@ -325,6 +327,17 @@ const Asset = ({
     setImgUrl("/tokens/erc20_logo.png");
   };
 
+  const showAssetImage = () => {
+    console.log("symbolImage", symbolImage);
+    if (imgUrl) {
+      return imgUrl;
+    }
+    if (symbolImage) {
+      return symbolImage
+    }
+    return `/tokens/${symbol}_logo.png`;
+  };
+
   return (
     <div>
       <AccordionItem value={symbol + ledger}>
@@ -337,7 +350,7 @@ const Asset = ({
             <div className="flex flex-row items-center gap-3">
               <img
                 className="w-12 rounded-full"
-                src={imgUrl ? imgUrl : `/tokens/${symbol}_logo.png`}
+                src={showAssetImage()}
                 onError={handleImgError}
               />
 
