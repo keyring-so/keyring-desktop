@@ -1,4 +1,4 @@
-import { RemoveAsset, Transfer, VerifyAddress } from "@/../wailsjs/go/main/App";
+import { RemoveAsset, Staking, Transfer, VerifyAddress } from "@/../wailsjs/go/main/App";
 import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { LogoImageSrc } from "@/components/logo";
 import {
@@ -42,6 +42,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import GasFee from "./gas";
 import { Badge } from "./ui/badge";
+import { utils } from "@/../wailsjs/go/models";
 
 type Props = {
   ledger: string;
@@ -53,10 +54,27 @@ type Props = {
   contract?: string;
   explorer: string;
   explorerTx: string;
+  chainConfig: utils.ChainConfig;
 };
 
 const AssetTransferSchema = z.object({
   toAddr: z.string().trim().min(1),
+  amount: z.string().trim().min(1),
+  pin: z.string().transform((val, ctx) => {
+    if (val.length !== 6 || isNaN(Number(val))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "PIN must have 6 digits",
+      });
+
+      return z.NEVER;
+    }
+    return val;
+  }),
+});
+
+const AssetStakingSchema = z.object({
+  pool: z.string().trim().min(1),
   amount: z.string().trim().min(1),
   pin: z.string().transform((val, ctx) => {
     if (val.length !== 6 || isNaN(Number(val))) {
@@ -81,6 +99,7 @@ const Asset = ({
   contract,
   explorer,
   explorerTx,
+  chainConfig,
 }: Props) => {
   const [loadingTx, setLoadingTx] = useState(false);
   const [loadingRemoveAsset, setLoadingRemoveAsset] = useState(false);
@@ -92,6 +111,8 @@ const Asset = ({
   const [verified, setVerified] = useState(false);
   const [txConfirmOpen, setTxConfirmOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
+
+  const [stakingOpen, setStakingOpen] = useState(false);
 
   const account = useAtomValue(accountAtom);
   const setRefresh = useSetAtom(refreshAtom);
@@ -108,6 +129,10 @@ const Asset = ({
 
   const transferForm = useForm<z.infer<typeof AssetTransferSchema>>({
     resolver: zodResolver(AssetTransferSchema),
+  });
+
+  const stakingForm = useForm<z.infer<typeof AssetStakingSchema>>({
+    resolver: zodResolver(AssetStakingSchema),
   });
 
   const showBalance = (balance: string | undefined) => {
@@ -129,6 +154,48 @@ const Asset = ({
       ledger,
       address,
       data.toAddr,
+      data.amount,
+      gas,
+      data.pin,
+      account.id
+    )
+      .then((resp) => {
+        setLoadingTx(false);
+        setTxConfirmOpen(false);
+        setTransferOpen(false);
+        setPin("");
+        toast({
+          title: "Send transaction successfully.",
+          description: `${resp}`,
+          action: (
+            <Button
+              onClick={() => BrowserOpenURL(`${explorer}${explorerTx}/${resp}`)}
+            >
+              Open
+            </Button>
+          ),
+        });
+      })
+      .catch((err) => {
+        setLoadingTx(false);
+        setPin("");
+        toast({
+          title: "Uh oh! Something went wrong.",
+          description: `Error happens: ${err}`,
+        });
+      });
+  };
+
+  const staking = (data: z.infer<typeof AssetStakingSchema>) => {
+    setLoadingTx(true);
+    console.log("staking", data);
+    console.log("address", address);
+    Staking(
+      symbol,
+      contract ? contract : "",
+      ledger,
+      address,
+      data.pool,
       data.amount,
       gas,
       data.pin,
@@ -307,6 +374,159 @@ const Asset = ({
     );
   };
 
+  const showStakingConfirmDialog = () => {
+    console.log("staking confirm", stakingForm.getValues());
+    return (
+      <Dialog
+        open={true}
+        onOpenChange={() => {
+          setTxConfirmOpen(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Transaction</DialogTitle>
+            <DialogDescription>
+              Staking <span className="font-bold underline">{symbol}</span> on{" "}
+              <span className="font-bold underline">{ledger}</span> blockchain
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-row gap-1 items-center">
+              <Label>Pool ID:</Label>
+              <Input disabled value={stakingForm.getValues().pool} />
+              <div
+                className=""
+                onClick={() => onCopy(stakingForm.getValues().pool)}
+              >
+                {hasCopied ? <ClipboardCheck /> : <Clipboard />}
+              </div>
+            </div>
+            <div className="flex flex-row gap-1 items-center">
+              <Label>Amount:</Label>
+              <Input disabled value={stakingForm.getValues().amount} />
+            </div>
+            {txFee && (
+              <div className="flex flex-row gap-1 items-center">
+                <Label>Fee:</Label>
+                <Badge>{nativeSymbol}</Badge>
+                <Input disabled value={txFee} />
+              </div>
+            )}
+
+            {loadingTx ? (
+              <Button className="w-1/3 self-end" disabled>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-1/3 self-end"
+                onClick={() => staking(stakingForm.getValues())}
+              >
+                Confirm
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
+  const stakingSheet = () => {
+    return (
+      <Sheet open={stakingOpen} onOpenChange={setStakingOpen}>
+        <SheetTrigger>
+          <Button
+            onClick={() => {
+              setStakingOpen(true);
+              stakingForm.reset();
+              setGas("");
+              setTxFee("");
+              setTxConfirmOpen(false);
+            }}
+          >
+            Staking
+          </Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              Staking {symbol} on {ledger} blockchain
+            </SheetTitle>
+            <div className="flex flex-row gap-2 items-center text-lg">
+              <Label className="underline">Balance</Label>
+              <Input className="text-lg" disabled value={balance} />
+            </div>
+          </SheetHeader>
+          <Form {...stakingForm}>
+            <form
+              className="space-y-6 mt-4"
+              onSubmit={stakingForm.handleSubmit(staking)}
+            >
+              <FormField
+                control={stakingForm.control}
+                name="pool"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Pool ID</FormLabel>
+                    <FormControl>
+                      <Input onChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={stakingForm.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <Input onChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={stakingForm.control}
+                name="pin"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>PIN</FormLabel>
+                    <FormControl>
+                      <Input type="password" onChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {/* <GasFee
+                chainName={ledger}
+                nativeSymbol={nativeSymbol}
+                from={address}
+                to={stakingForm.getValues().pool.toString()}
+                setGas={setGas}
+                setFee={setTxFee}
+              /> */}
+
+              <Button
+                type="button"
+                className="w-1/2"
+                onClick={() => setTxConfirmOpen(true)}
+              >
+                Send
+              </Button>
+
+              {txConfirmOpen && showStakingConfirmDialog()}
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
+    );
+  };
+
   const removeAsset = async () => {
     try {
       setLoadingRemoveAsset(true);
@@ -333,7 +553,7 @@ const Asset = ({
       return imgUrl;
     }
     if (symbolImage) {
-      return symbolImage
+      return symbolImage;
     }
     return `/tokens/${symbol}_logo.png`;
   };
@@ -450,6 +670,7 @@ const Asset = ({
                 </Form>
               </SheetContent>
             </Sheet>
+            {chainConfig.driver === "substrate" && stakingSheet()}
             <Button onClick={receive}>Receive</Button>
             {contract &&
               (loadingRemoveAsset ? (
