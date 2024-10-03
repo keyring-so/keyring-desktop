@@ -86,7 +86,7 @@ function WelcomePage() {
 
   const addLedger = async () => {
     try {
-      setLoadingLedger(true)
+      setLoadingLedger(true);
       let _ = await AddLedger(account.id, ledgerCandidate, pin);
       let chains = await GetChains(account.id);
       setChains(chains.chains);
@@ -119,7 +119,7 @@ function WelcomePage() {
                 <SelectTrigger className="w-2/3">
                   <SelectValue placeholder="Select a blockchain" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="h-80">
                   <SelectGroup>
                     <SelectLabel>Mainnet</SelectLabel>
                     {chainConfigs.map((chainConfig) => {
@@ -189,11 +189,7 @@ function WelcomePage() {
                 Please wait
               </Button>
             ) : (
-              <Button
-                type="submit"
-                className=""
-                onClick={addLedger}
-              >
+              <Button type="submit" className="" onClick={addLedger}>
                 Confirm
               </Button>
             )}

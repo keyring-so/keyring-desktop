@@ -52,7 +52,7 @@ func (tx *Tx) AddSignatures(signatures ...xc.TxSignature) error {
 		return errors.New("transaction not initialized")
 	}
 
-	signedTx, err := tx.EthTx.WithSignature(tx.Signer, signatures[0])
+	signedTx, err := tx.EthTx.WithSignature(tx.Signer, signatures[0].Sig)
 	if err != nil {
 		return err
 	}

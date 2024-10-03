@@ -1,9 +1,11 @@
 package services
 
 import (
+	"keyring-desktop/crosschain"
 	"keyring-desktop/utils"
 
 	keycard "github.com/status-im/keycard-go"
+	"github.com/status-im/keycard-go/hexutils"
 	"github.com/status-im/keycard-go/types"
 )
 
@@ -25,7 +27,7 @@ func (i *KeyringCard) Sign(
 	config *utils.ChainConfig,
 	pin string,
 	pairingInfo *types.PairingInfo,
-) ([]byte, error) {
+) (*crosschain.TxSignature, error) {
 	utils.Sugar.Info("signing started")
 	cmdSet := keycard.NewCommandSet(i.c)
 
@@ -71,7 +73,20 @@ func (i *KeyringCard) Sign(
 		return nil, err
 	}
 
-	utils.Sugar.Info("sign: %x", rawData)
+	utils.Sugar.Info("sign: %s", hexutils.BytesToHex(rawData))
+
+	if config.Driver == "substrate" {
+		sig, err := cmdSet.Ed25519Sign(rawData)
+		if err != nil {
+			utils.Sugar.Info("ed25519 sign failed, error: %s", err)
+			return nil, err
+		}
+		return &crosschain.TxSignature{
+			Pubkey: sig.PubKey,
+			Sig:    sig.Sig,
+		}, nil
+	}
+
 	sig, err := cmdSet.Sign(rawData)
 	if err != nil {
 		utils.Sugar.Info("sign failed, error: %s", err)
@@ -81,5 +96,10 @@ func (i *KeyringCard) Sign(
 	ethSig := append(sig.R(), sig.S()...)
 	ethSig = append(ethSig, []byte{sig.V()}...)
 
-	return ethSig, nil
+	txSig := &crosschain.TxSignature{
+		Pubkey: sig.PubKey(),
+		Sig:    ethSig,
+	}
+
+	return txSig, nil
 }

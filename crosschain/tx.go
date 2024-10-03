@@ -74,15 +74,9 @@ func (data TxDataToSign) String() string {
 }
 
 // TxSignature is a tx signature
-type TxSignature []byte
-
-// NewTxSignatures creates a new array of TxSignature, useful to cast [][]byte into []TxSignature
-func NewTxSignatures(data [][]byte) []TxSignature {
-	ret := make([]TxSignature, len(data))
-	for i, sig := range data {
-		ret[i] = TxSignature(sig)
-	}
-	return ret
+type TxSignature struct {
+	Pubkey []byte
+	Sig    []byte
 }
 
 // Tx is a transaction

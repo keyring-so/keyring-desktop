@@ -319,11 +319,13 @@ function Wallet() {
                 <Asset
                   ledger={ledger}
                   symbol={chainAssets?.symbol}
+                  symbolImage={chainAssets?.img}
                   nativeSymbol={chainAssets?.symbol}
                   balance={chainAssets.balance}
                   address={chainAssets.address}
                   explorer={chainConfig!.explorer}
                   explorerTx={chainConfig!.explorerTx}
+                  chainConfig={chainConfig!}
                 />
               )}
               {chainAssets?.assets.map((userAsset) => {
@@ -332,12 +334,14 @@ function Wallet() {
                     ledger={ledger}
                     key={userAsset.symbol}
                     symbol={userAsset.symbol}
+                    symbolImage={userAsset.img}
                     nativeSymbol={chainAssets?.symbol}
                     balance={userAsset.balance}
                     address={chainAssets.address}
                     contract={userAsset.contractAddress}
                     explorer={chainConfig!.explorer}
                     explorerTx={chainConfig!.explorerTx}
+                    chainConfig={chainConfig!}
                   />
                 );
               })}

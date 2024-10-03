@@ -134,6 +134,10 @@ export function SignTypedData(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['SignTypedData'](arg1, arg2, arg3, arg4);
 }
 
+export function Staking(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) {
+  return window['go']['main']['App']['Staking'](arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+}
+
 export function SwitchAccount(arg1) {
   return window['go']['main']['App']['SwitchAccount'](arg1);
 }

@@ -18,7 +18,9 @@ func GetAssetBalance(ctx context.Context, config *ChainConfig, contract string, 
 		return nil, err
 	}
 	addressRes := crosschain.Address(address)
+	Sugar.Info("addressRes: ", addressRes)
 	balance, err := client.(crosschain.ClientBalance).FetchBalance(ctx, addressRes)
+	Sugar.Info("balance: ", balance)
 	if err != nil {
 		return nil, err
 	}
