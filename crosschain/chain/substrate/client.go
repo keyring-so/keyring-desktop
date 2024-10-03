@@ -88,7 +88,7 @@ func (client *Client) SubmitTx(ctx context.Context, tx xc.Tx) error {
 
 	if err != nil {
 		fmt.Println("Error submitting extrinsic", err)
-		panic(err)
+		return err
 	}
 
 	defer sub.Unsubscribe()

@@ -1,4 +1,11 @@
-import { RemoveAsset, Staking, Transfer, VerifyAddress } from "@/../wailsjs/go/main/App";
+import {
+  RemoveAsset,
+  Staking,
+  Teleport,
+  Transfer,
+  VerifyAddress,
+} from "@/../wailsjs/go/main/App";
+import { utils } from "@/../wailsjs/go/models";
 import { BrowserOpenURL } from "@/../wailsjs/runtime";
 import { LogoImageSrc } from "@/components/logo";
 import {
@@ -42,7 +49,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import GasFee from "./gas";
 import { Badge } from "./ui/badge";
-import { utils } from "@/../wailsjs/go/models";
 
 type Props = {
   ledger: string;
@@ -111,6 +117,7 @@ const Asset = ({
   const [verified, setVerified] = useState(false);
   const [txConfirmOpen, setTxConfirmOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
+  const [isTeleport, setIsTeleport] = useState(false);
 
   const [stakingOpen, setStakingOpen] = useState(false);
 
@@ -148,6 +155,48 @@ const Asset = ({
 
   const transfer = (data: z.infer<typeof AssetTransferSchema>) => {
     setLoadingTx(true);
+    if (isTeleport) {
+      Teleport(
+        symbol,
+        contract ? contract : "",
+        ledger,
+        address,
+        data.toAddr,
+        data.amount,
+        gas,
+        data.pin,
+        account.id
+      )
+        .then((resp) => {
+          setLoadingTx(false);
+          setTxConfirmOpen(false);
+          setTransferOpen(false);
+          setPin("");
+          toast({
+            title: "Send transaction successfully.",
+            description: `${resp}`,
+            action: (
+              <Button
+                onClick={() =>
+                  BrowserOpenURL(`${explorer}${explorerTx}/${resp}`)
+                }
+              >
+                Open
+              </Button>
+            ),
+          });
+        })
+        .catch((err) => {
+          setLoadingTx(false);
+          setPin("");
+          toast({
+            title: "Uh oh! Something went wrong.",
+            description: `Error happens: ${err}`,
+          });
+        });
+      return;
+    }
+
     Transfer(
       symbol,
       contract ? contract : "",
@@ -583,7 +632,7 @@ const Asset = ({
         <AccordionContent>
           <div className="flex gap-2 items-center">
             <Sheet open={transferOpen} onOpenChange={setTransferOpen}>
-              <SheetTrigger>
+              <SheetTrigger className="flex gap-2 items-center">
                 <Button
                   onClick={() => {
                     setTransferOpen(true);
@@ -591,10 +640,25 @@ const Asset = ({
                     setGas("");
                     setTxFee("");
                     setTxConfirmOpen(false);
+                    setIsTeleport(false);
                   }}
                 >
                   Transfer
                 </Button>
+                {chainConfig.driver === "substrate" && (
+                  <Button
+                    onClick={() => {
+                      setTransferOpen(true);
+                      transferForm.reset();
+                      setGas("");
+                      setTxFee("");
+                      setTxConfirmOpen(false);
+                      setIsTeleport(true);
+                    }}
+                  >
+                    Teleport
+                  </Button>
+                )}
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>

@@ -54,6 +54,10 @@ func (txBuilder TxBuilder) NewSendTransaction(from xc.Address, to xc.Address, ga
 	return txBuilder.buildEvmTxWithPayload(to, value, data, txInput)
 }
 
+func (txBuilder TxBuilder) NewTeleport(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
+	return nil, errors.New("not implemented")
+}
+
 // NewNativeTransfer creates a new transfer for a native asset
 func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
 	txInput := input.(*TxInput)
