@@ -216,3 +216,208 @@ func (builder Builder) NewTransfer(from xc.Address, to xc.Address, amount xc.Amo
 		rpc:          builder.cfg.URL,
 	}, nil
 }
+
+func (builder Builder) NewTeleport(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
+	_, fromPubkey, err := subkey.SS58Decode(string(from))
+	if err != nil {
+		return nil, err
+	}
+
+	_, toPubkey, err := subkey.SS58Decode(string(to))
+	if err != nil {
+		return nil, err
+	}
+
+	api, err := gsrpc.NewSubstrateAPI(builder.cfg.URL)
+
+	if err != nil {
+		panic(err)
+	}
+
+	meta, err := api.RPC.State.GetMetadataLatest()
+
+	if err != nil {
+		panic(err)
+	}
+
+	rv, err := api.RPC.State.GetRuntimeVersionLatest()
+	if err != nil {
+		panic(err)
+	}
+
+	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
+	if err != nil {
+		panic(err)
+	}
+
+	accountStorageKey, err := types.CreateStorageKey(meta, "System", "Account", fromPubkey)
+	if err != nil {
+		panic(err)
+	}
+
+	var accountInfo types.AccountInfo
+	ok, err := api.RPC.State.GetStorageLatest(accountStorageKey, &accountInfo)
+
+	if err != nil || !ok {
+		panic(err)
+	}
+
+	// dest, err := types.NewMultiAddressFromAccountID(toPubkey)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// dest := XcmVersionedLocation.V3({
+	//     parents: 0,
+	//     interior: XcmV3Junctions.X1(XcmV3Junction.Parachain(parachain_id)),
+	//   })
+	//   beneficiary := XcmVersionedLocation.V3({
+	//     parents: 0,
+	//     interior: XcmV3Junctions.X1(
+	//       XcmV3Junction.AccountId32({
+	//         network: undefined,
+	//         id: address,
+	//       }),
+	//     ),
+	//   })
+	//   assets := XcmVersionedAssets.V3([
+	//     {
+	//       fun: XcmV3MultiassetFungibility.Fungible(dripAmount),
+	//       id: XcmV3MultiassetAssetId.Concrete({ interior: XcmV3Junctions.Here(), parents: 0 }),
+	//     },
+	//   ])
+	//   fee_asset_item:= 0
+	//   weight_limit:= XcmV3WeightLimit.Unlimited()
+
+	parachain_id := types.NewUCompact(big.NewInt(1000))
+	dest_location := types.VersionedMultiLocation{
+		IsV4: true,
+		MultiLocationV4: types.MultiLocationV4{
+			Parents: 0,
+			Interior: types.JunctionsV3{
+				IsX1: true,
+				X1: types.JunctionV3{
+					IsParachain: true,
+					ParachainID: parachain_id,
+				},
+			},
+		},
+	}
+
+	toAccountId, err := types.NewAccountID(toPubkey)
+	if err != nil {
+		panic(err)
+	}
+	beneficiary := types.VersionedMultiLocation{
+		IsV4: true,
+		MultiLocationV4: types.MultiLocationV4{
+			Parents: 0,
+			Interior: types.JunctionsV3{
+				IsX1: true,
+				X1: types.JunctionV3{
+					IsAccountID32:        true,
+					AccountID32NetworkID: types.NewOptionNetworkIDV3Empty(),
+					AccountID:            *toAccountId,
+				},
+			},
+		},
+	}
+	assets := types.VersionedMultiAssets{
+		IsV4: true,
+		MultiAssetsV4: []types.MultiAssetV4{
+			{
+				ID: types.AssetIDV4{
+					Parents: 0,
+					Interior: types.JunctionsV3{
+						IsHere: true,
+					},
+				},
+				Fungibility: types.Fungibility{
+					IsFungible: true,
+					Amount:     types.NewUCompact(amount.Int()),
+				},
+			},
+		},
+	}
+
+	call, err := types.NewCall(meta, "XcmPallet.teleport_assets", dest_location, beneficiary, assets, types.NewU32(0))
+
+	if err != nil {
+		panic(err)
+	}
+
+	ext := extrinsic.NewDynamicExtrinsic(&call)
+
+	if ext.Type() != types.ExtrinsicVersion4 {
+		panic(fmt.Errorf("unsupported extrinsic version: %v (isSigned: %v, type: %v)", ext.Version, ext.IsSigned(), ext.Type()))
+	}
+
+	encodedMethod, err := codec.Encode(ext.Method)
+	if err != nil {
+		panic(err)
+	}
+
+	fieldValues := extrinsic.SignedFieldValues{}
+
+	opts := []extrinsic.SigningOption{
+		extrinsic.WithEra(types.ExtrinsicEra{IsImmortalEra: true}, genesisHash),
+		extrinsic.WithNonce(types.NewUCompactFromUInt(uint64(accountInfo.Nonce))),
+		extrinsic.WithTip(types.NewUCompactFromUInt(0)),
+		extrinsic.WithSpecVersion(rv.SpecVersion),
+		extrinsic.WithTransactionVersion(rv.TransactionVersion),
+		extrinsic.WithGenesisHash(genesisHash),
+		extrinsic.WithMetadataMode(extensions.CheckMetadataModeDisabled, extensions.CheckMetadataHash{Hash: types.NewEmptyOption[types.H256]()}),
+	}
+
+	for _, opt := range opts {
+		opt(fieldValues)
+	}
+
+	payload, err := extrinsic.CreatePayload(meta, encodedMethod)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if err := payload.MutateSignedFields(fieldValues); err != nil {
+		panic(err)
+	}
+
+	signerPubKey, err := types.NewMultiAddressFromAccountID(fromPubkey)
+	if err != nil {
+		panic(err)
+	}
+
+	extSignature := &extrinsic.Signature{
+		Signer:       signerPubKey,
+		Signature:    types.MultiSignature{IsEd25519: true, AsEd25519: types.NewSignature([]byte{})},
+		SignedFields: payload.SignedFields,
+	}
+
+	fmt.Println("extSignatrue", extSignature)
+
+	return Tx{
+		ext:          &ext,
+		extSignature: extSignature,
+		payload:      payload,
+		fromPubkey:   fromPubkey,
+		toPubKey:     toPubkey,
+		amount:       amount,
+		rpc:          builder.cfg.URL,
+	}, nil
+}
+
+func byteSliceToU8Slice(input []byte) []types.U8 {
+	fmt.Println("byteSliceToU8Slice input:", input)
+	// Create a slice of types.U8 with the same length as the input byte slice
+	u8Slice := make([]types.U8, len(input))
+
+	// Loop through the input byte slice and convert each byte to types.U8
+	for i, b := range input {
+		u8Slice[i] = types.U8(b)
+	}
+
+	fmt.Println("byteSliceToU8Slice u8Slice:", u8Slice)
+
+	return u8Slice
+}

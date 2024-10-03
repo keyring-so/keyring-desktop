@@ -325,6 +325,7 @@ function Wallet() {
                   address={chainAssets.address}
                   explorer={chainConfig!.explorer}
                   explorerTx={chainConfig!.explorerTx}
+                  chainConfig={chainConfig!}
                 />
               )}
               {chainAssets?.assets.map((userAsset) => {
@@ -340,6 +341,7 @@ function Wallet() {
                     contract={userAsset.contractAddress}
                     explorer={chainConfig!.explorer}
                     explorerTx={chainConfig!.explorerTx}
+                    chainConfig={chainConfig!}
                   />
                 );
               })}
