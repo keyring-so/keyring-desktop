@@ -51,7 +51,7 @@ func (txBuilder TxBuilder) NewSendTransaction(from xc.Address, to xc.Address, ga
 	return nil, errors.New("not implemented")
 }
 
-func (txBuilder TxBuilder) NewTeleport(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
+func (txBuilder TxBuilder) NewTeleport(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput, chain int64) (xc.Tx, error) {
 	return nil, errors.New("not implemented")
 }
 

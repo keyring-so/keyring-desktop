@@ -54,7 +54,7 @@ func (txBuilder TxBuilder) NewSendTransaction(from xc.Address, to xc.Address, ga
 	return txBuilder.buildEvmTxWithPayload(to, value, data, txInput)
 }
 
-func (txBuilder TxBuilder) NewTeleport(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput) (xc.Tx, error) {
+func (txBuilder TxBuilder) NewTeleport(from xc.Address, to xc.Address, amount xc.AmountBlockchain, input xc.TxInput, chain int64) (xc.Tx, error) {
 	return nil, errors.New("not implemented")
 }
 
