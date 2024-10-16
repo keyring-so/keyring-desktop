@@ -2,6 +2,7 @@ package evm
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 
 	xc "keyring-desktop/crosschain"
@@ -155,7 +156,7 @@ func (txBuilder TxBuilder) buildEvmTxWithPayload(to xc.Address, value *big.Int, 
 		return nil, errors.New("the transaction fee is negative")
 	}
 	if finalFee.Cmp(&maxFeeAllowed) > 0 {
-		return nil, errors.New("the transaction fee exceeds the max fee allowed")
+		return nil, fmt.Errorf("the transaction fee exceeds the max fee allowed, final fee: %s, max allowed fee: %s", finalFee, maxFeeAllowed)
 	}
 
 	return &Tx{

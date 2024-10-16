@@ -112,7 +112,7 @@ func (txBuilder TxBuilder) NewNativeTransfer(from xc.Address, to xc.Address, amo
 		return nil, errors.New("the transaction fee is negative")
 	}
 	if finalFee.Cmp(&maxFeeAllowed) > 0 {
-		return nil, errors.New("the transaction fee exceeds the max fee allowed")
+		return nil, fmt.Errorf("the transaction fee exceeds the max fee allowed, final fee: %s, max allowed fee: %s", finalFee, maxFeeAllowed)
 	}
 
 	msgTx := wire.NewMsgTx(TxVersion)

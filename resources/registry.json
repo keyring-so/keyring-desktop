@@ -806,6 +806,25 @@
     ]
   },
   {
+    "name": "Polkadot",
+    "symbol": "DOT",
+    "img": "/tokens/DOT_logo.png",
+    "path": "m/44'/354'/0'/0/0",
+    "priceId": "",
+    "driver": "substrate",
+    "rpcUrl": "wss://polkadot-rpc.publicnode.com",
+    "rpcAuth": "",
+    "rpcProvider": "",
+    "addressPrefix": 0,
+    "explorer": "https://rococo.subscan.io",
+    "explorerTx": "/extrinsic",
+    "explorerAddr": "/account",
+    "decimals": 10,
+    "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "blockscout"
+  },
+  {
     "name": "Bitcoin",
     "symbol": "BTC",
     "path": "m/44'/0'/0'/0/0",
@@ -831,6 +850,37 @@
     "txHistoryAuth": "",
     "txHistoryProvider": "lbry-chainquery",
     "disable": true
+  },
+  {
+    "name": "Moonbeam",
+    "symbol": "GLMR",
+    "img": "/tokens/moonbeam_alpha_logo.png",
+    "path": "m/44'/60'/0'/0/0",
+    "priceId": "",
+    "driver": "evm",
+    "rpcUrl": "https://moonbeam.public.blastapi.io",
+    "rpcAuth": "",
+    "rpcProvider": "",
+    "chainId": 1284,
+    "explorer": "https://moonbeam.moonscan.io",
+    "explorerTx": "/tx",
+    "explorerAddr": "/address",
+    "decimals": 18,
+    "gasLimit": 21000,
+    "tokenGasLimit": 60000,
+    "enableWalletConnect": true,
+    "txHistoryUrl": "",
+    "txHistoryAuth": "",
+    "txHistoryProvider": "",
+    "maxFee": "0.5",
+    "tokens": [
+      {
+        "symbol": "USDT",
+        "priceId": "tether",
+        "decimals": 6,
+        "contract": "0xFFFFFFfFea09FB06d082fd1275CD48b191cbCD1d"
+      }
+    ]
   },
   {
     "name": "Moonbase Alpha",
@@ -862,25 +912,6 @@
         "contract": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
       }
     ]
-  },
-  {
-    "name": "Polkadot",
-    "symbol": "DOT",
-    "img": "/tokens/DOT_logo.png",
-    "path": "m/44'/354'/0'/0/0",
-    "priceId": "",
-    "driver": "substrate",
-    "rpcUrl": "wss://polkadot-rpc.publicnode.com",
-    "rpcAuth": "",
-    "rpcProvider": "",
-    "addressPrefix": 0,
-    "explorer": "https://rococo.subscan.io",
-    "explorerTx": "/extrinsic",
-    "explorerAddr": "/account",
-    "decimals": 10,
-    "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
-    "txHistoryAuth": "",
-    "txHistoryProvider": "blockscout"
   },
   {
     "name": "Rococo",
