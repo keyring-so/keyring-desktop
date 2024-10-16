@@ -913,7 +913,7 @@
     "rpcAuth": "",
     "rpcProvider": "",
     "addressPrefix": 42,
-    "explorer": "https://rococo.subscan.io",
+    "explorer": "https://westend.subscan.io",
     "explorerTx": "/extrinsic",
     "explorerAddr": "/account",
     "decimals": 12,

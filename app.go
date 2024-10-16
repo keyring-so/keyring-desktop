@@ -524,9 +524,7 @@ func (a *App) Transfer(
 	}
 
 	// submit the tx
-	txId := tx.Hash()
-	utils.Sugar.Infof("Submitting tx id: %s", txId)
-	err = client.SubmitTx(ctx, tx)
+	txId, err := client.SubmitTx(ctx, tx)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to submit transaction")
@@ -669,9 +667,7 @@ func (a *App) Teleport(
 	}
 
 	// submit the tx
-	txId := tx.Hash()
-	utils.Sugar.Infof("Submitting tx id: %s", txId)
-	err = client.SubmitTx(ctx, tx)
+	txId, err := client.SubmitTx(ctx, tx)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to submit transaction")
