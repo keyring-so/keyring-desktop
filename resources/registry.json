@@ -854,7 +854,7 @@
   {
     "name": "Moonbeam",
     "symbol": "GLMR",
-    "img": "/tokens/moonbeam_alpha_logo.png",
+    "img": "/tokens/GLMR_logo.png",
     "path": "m/44'/60'/0'/0/0",
     "priceId": "",
     "driver": "evm",
@@ -872,7 +872,7 @@
     "txHistoryUrl": "",
     "txHistoryAuth": "",
     "txHistoryProvider": "",
-    "maxFee": "0.5",
+    "maxFee": "0.9",
     "tokens": [
       {
         "symbol": "USDT",
