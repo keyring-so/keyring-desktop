@@ -98,7 +98,7 @@ jobs:
 
   collect-release:
     name: Collect and release
-    needs: [ build-wails ]
+    needs: [build-wails]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -115,16 +115,16 @@ jobs:
           rm -rf Keyring\ Wallet-amd64-installer.exe
           rm -rf Keyring\ Wallet.pkg
           rm -rf Keyring\ Wallet.app.zip
-          touch version && echo "0.1.8" >> version
+          touch version && echo "0.1.10" >> version
       - run: ls -al target && ls -R target/ && file target/
       - uses: actions/upload-artifact@v4
         with:
           name: target-release
           path: target/*
-  
+
   github-release:
     name: Release to github
-    needs: [ collect-release ]
+    needs: [collect-release]
     runs-on: ubuntu-latest
     environment: github
     permissions:
@@ -144,7 +144,7 @@ jobs:
           prerelease: true
   storj-release:
     name: Release to storj
-    needs: [ github-release ]
+    needs: [github-release]
     runs-on: ubuntu-latest
     environment: storj
     permissions:
