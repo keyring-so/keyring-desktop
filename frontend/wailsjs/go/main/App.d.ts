@@ -70,7 +70,11 @@ export function SendTransaction(arg1:string,arg2:string,arg3:string,arg4:string,
 
 export function SignTypedData(arg1:string,arg2:string,arg3:string,arg4:number):Promise<string>;
 
+export function Staking(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string,arg9:number):Promise<crosschain.TxHash>;
+
 export function SwitchAccount(arg1:number):Promise<main.CardInfo>;
+
+export function Teleport(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string,arg9:number,arg10:number):Promise<crosschain.TxHash>;
 
 export function Transfer(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string,arg7:string,arg8:string,arg9:number):Promise<crosschain.TxHash>;
 

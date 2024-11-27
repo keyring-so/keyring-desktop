@@ -145,16 +145,14 @@ func (a *App) SendTransaction(
 	utils.Sugar.Infof("signature: %x", signature)
 
 	// complete the tx by adding signature
-	err = tx.AddSignatures(signature)
+	err = tx.AddSignatures(*signature)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to add signature")
 	}
 
 	// submit the tx
-	txId := tx.Hash()
-	utils.Sugar.Infof("Submitting tx id: %s", txId)
-	err = client.SubmitTx(ctx, tx)
+	txId, err := client.SubmitTx(ctx, tx)
 	if err != nil {
 		utils.Sugar.Error(err)
 		return "", errors.New("failed to submit transaction")
@@ -212,7 +210,7 @@ func (a *App) SignTypedData(
 	}
 	utils.Sugar.Infof("signature: %x", signature)
 
-	return hexutil.Encode(signature), nil
+	return hexutil.Encode(signature.Sig), nil
 }
 
 func (a *App) GetTransactionHistory(

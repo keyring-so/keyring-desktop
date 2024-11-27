@@ -52,7 +52,7 @@ func (s *CrosschainTestSuite) TestSign() {
 		sig, err := signer.Sign(xc.PrivateKey(bytesPri), xc.TxDataToSign(bytesMsg))
 		require.Nil(err)
 		require.NotNil(sig)
-		require.Equal(v.sig, hex.EncodeToString(sig))
+		require.Equal(v.sig, hex.EncodeToString(sig.Sig))
 	}
 }
 
@@ -62,5 +62,5 @@ func (s *CrosschainTestSuite) TestSignErr() {
 
 	sig, err := signer.Sign(xc.PrivateKey{}, xc.TxDataToSign{})
 	require.NotNil(err)
-	require.Equal(sig, xc.TxSignature([]byte{}))
+	require.Nil(sig)
 }

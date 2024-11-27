@@ -12,7 +12,7 @@ type MockXcTx struct {
 var _ xc.Tx = &MockXcTx{}
 
 func (tx *MockXcTx) Hash() xc.TxHash {
-	panic("not supported")
+	return "testhash"
 }
 func (tx *MockXcTx) Sighashes() ([]xc.TxDataToSign, error) {
 	panic("not supported")

@@ -151,6 +151,7 @@ type Driver string
 const (
 	DriverAptos       = Driver("aptos")
 	DriverBitcoin     = Driver("bitcoin")
+	DriverSubstrate   = Driver("substrate")
 	DriverCosmos      = Driver("cosmos")
 	DriverCosmosEvmos = Driver("evmos")
 	DriverEVM         = Driver("evm")
@@ -192,9 +193,9 @@ type AssetConfig struct {
 	Auth                 string  `yaml:"auth"`
 	Provider             string  `yaml:"provider"`
 	ChainID              int64   `yaml:"chain_id"`
+	AddressPrefix        int64   `yaml:"address_prefix"`
 	ChainIDStr           string  `yaml:"chain_id_str"`
 	ChainName            string  `yaml:"chain_name"`
-	ChainPrefix          string  `yaml:"chain_prefix"`
 	ChainCoin            string  `yaml:"chain_coin"`
 	ChainCoinHDPath      uint32  `yaml:"chain_coin_hd_path"`
 	ChainGasPriceDefault float64 `yaml:"chain_gas_price_default"`
@@ -244,8 +245,8 @@ type Config struct {
 func (c NativeAssetConfig) String() string {
 	// do NOT print AuthSecret
 	return fmt.Sprintf(
-		"NativeAssetConfig(id=%s asset=%s chainId=%d driver=%s type=%s chainCoin=%s prefix=%s net=%s url=%s auth=%s provider=%s native_asset=%s)",
-		c.ID(), c.Asset, c.ChainID, c.Driver, c.Type, c.ChainCoin, c.ChainPrefix, c.Net, c.URL, c.Auth, c.Provider, c.NativeAsset,
+		"NativeAssetConfig(id=%s asset=%s chainId=%d driver=%s type=%s chainCoin=%s prefix=%d net=%s url=%s auth=%s provider=%s native_asset=%s)",
+		c.ID(), c.Asset, c.ChainID, c.Driver, c.Type, c.ChainCoin, c.AddressPrefix, c.Net, c.URL, c.Auth, c.Provider, c.NativeAsset,
 	)
 }
 

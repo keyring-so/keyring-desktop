@@ -338,6 +338,7 @@ export namespace utils {
 	    rpcAuth: string;
 	    rpcProvider: string;
 	    chainId: number;
+	    addressPrefix: number;
 	    explorer: string;
 	    explorerTx: string;
 	    explorerAddr: string;
@@ -369,6 +370,7 @@ export namespace utils {
 	        this.rpcAuth = source["rpcAuth"];
 	        this.rpcProvider = source["rpcProvider"];
 	        this.chainId = source["chainId"];
+	        this.addressPrefix = source["addressPrefix"];
 	        this.explorer = source["explorer"];
 	        this.explorerTx = source["explorerTx"];
 	        this.explorerAddr = source["explorerAddr"];

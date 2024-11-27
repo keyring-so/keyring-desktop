@@ -144,13 +144,13 @@ func (tx *Tx) AddSignatures(signatures ...xc.TxSignature) error {
 		return fmt.Errorf("expected %v signatures, got %v signatures", len(tx.msgTx.TxIn), len(signatures))
 	}
 
-	for i, rsvBytes := range signatures {
+	for i, txSig := range signatures {
 		var err error
 		rsv := [65]byte{}
-		if len(rsvBytes) != 65 && len(rsvBytes) != 64 {
+		if len(txSig.Sig) != 65 && len(txSig.Sig) != 64 {
 			return errors.New("signature must be 64 or 65 length serialized bytestring of r,s, and recovery byte")
 		}
-		copy(rsv[:], rsvBytes)
+		copy(rsv[:], txSig.Sig)
 
 		// Decode the signature and the pubkey script.
 		// r := new(big.Int).SetBytes(rsv[:32])
