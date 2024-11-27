@@ -46,7 +46,7 @@ func (a *App) Staking(
 	}
 
 	fromAddress := crosschain.Address(from)
-	toAddress := crosschain.Address(fmt.Sprintf("%d", pool))
+	toAddress := crosschain.Address(pool)
 	amountInteger, err := factory.ConvertAmountStrToBlockchain(assetConfig, amount)
 	if err != nil {
 		utils.Sugar.Error(err)
@@ -174,7 +174,7 @@ func (a *App) Staking(
 		Hash:      string(txId),
 		Timestamp: time.Now().Unix(),
 		From:      from,
-		To:        fmt.Sprintf("%d", pool),
+		To:        pool,
 		Value:     txValue,
 	}
 	_ = database.SaveTransactionHistory(a.sqlite, []database.DatabaseTransactionInfo{txInfo})

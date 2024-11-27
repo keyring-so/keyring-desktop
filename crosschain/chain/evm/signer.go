@@ -32,6 +32,9 @@ func (signer Signer) Sign(privateKey xc.PrivateKey, data xc.TxDataToSign) (*xc.T
 		return nil, err
 	}
 	signatureRaw, err := crypto.Sign([]byte(data), ecdsaKey)
+	if err != nil {
+		return nil, err
+	}
 	txSig := &xc.TxSignature{
 		Pubkey: crypto.FromECDSAPub(&ecdsaKey.PublicKey),
 		Sig:    signatureRaw,

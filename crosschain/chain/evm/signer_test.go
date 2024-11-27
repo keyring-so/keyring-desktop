@@ -62,5 +62,5 @@ func (s *CrosschainTestSuite) TestSignErr() {
 
 	sig, err := signer.Sign(xc.PrivateKey{}, xc.TxDataToSign{})
 	require.NotNil(err)
-	require.Equal(sig, xc.TxSignature{Sig: []byte{}})
+	require.Nil(sig)
 }
