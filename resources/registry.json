@@ -642,7 +642,6 @@
     "gasLimit": 21000,
     "tokenGasLimit": 60000,
     "enableWalletConnect": true,
-    "disable": true,
     "txHistoryUrl": "https://optimism.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout",
@@ -674,7 +673,6 @@
     "tokenGasLimit": 60000,
     "testnet": true,
     "enableWalletConnect": true,
-    "disable": true,
     "txHistoryUrl": "https://optimism-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout",
@@ -703,7 +701,6 @@
     "gasLimit": 21000,
     "tokenGasLimit": 60000,
     "enableWalletConnect": true,
-    "disable": true,
     "txHistoryUrl": "https://base.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout",
@@ -733,7 +730,6 @@
     "tokenGasLimit": 60000,
     "testnet": true,
     "enableWalletConnect": true,
-    "disable": true,
     "txHistoryUrl": "https://base-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
     "txHistoryProvider": "blockscout",
@@ -822,7 +818,8 @@
     "decimals": 10,
     "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
-    "txHistoryProvider": "blockscout"
+    "txHistoryProvider": "blockscout",
+    "disable": true
   },
   {
     "name": "Bitcoin",
@@ -873,6 +870,7 @@
     "txHistoryAuth": "",
     "txHistoryProvider": "",
     "maxFee": "0.9",
+    "disable": true,
     "tokens": [
       {
         "symbol": "USDT",
@@ -904,6 +902,7 @@
     "txHistoryUrl": "",
     "txHistoryAuth": "",
     "txHistoryProvider": "",
+    "disable": true,
     "tokens": [
       {
         "symbol": "USDC",
@@ -931,7 +930,8 @@
     "testnet": true,
     "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
-    "txHistoryProvider": "blockscout"
+    "txHistoryProvider": "blockscout",
+    "disable": true
   },
   {
     "name": "Westend",
@@ -951,7 +951,8 @@
     "testnet": true,
     "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
-    "txHistoryProvider": "blockscout"
+    "txHistoryProvider": "blockscout",
+    "disable": true
   },
   {
     "name": "Substrate Dev",
@@ -971,7 +972,8 @@
     "testnet": true,
     "txHistoryUrl": "https://eth-sepolia.blockscout.com/api/v2",
     "txHistoryAuth": "",
-    "txHistoryProvider": "blockscout"
+    "txHistoryProvider": "blockscout",
+    "disable": true
   },
   {
     "name": "Polygon",
