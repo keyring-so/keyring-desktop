@@ -51,13 +51,13 @@ func Encrypt(key string, text string) (string, error) {
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
 
 	// convert to base64
-	return base64.URLEncoding.EncodeToString(ciphertext), nil
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
 // decrypt from base64 to decrypted string
 func Decrypt(key string, cryptoText string) (string, error) {
 	keyBytes := crypto.Keccak256([]byte(key))
-	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
+	ciphertext, _ := base64.StdEncoding.DecodeString(cryptoText)
 
 	block, err := aes.NewCipher(keyBytes)
 	if err != nil {
